@@ -1,5 +1,6 @@
 import styled from 'styled-components';
 import logo from '../../public/Logo.png';
+import type { Role } from '../types/Roles';
 
 const RoleColors = {
   ADMIN:
@@ -10,12 +11,11 @@ const RoleColors = {
     'radial-gradient(111.63% 111.63% at 42.64% -5.82%, #FDE9A0 33.65%, #FCBBA3 44.58%, #FCBBA3 100%)',
 };
 
-type Role = keyof typeof RoleColors;
-
 const Background = styled.header<{ $role: Role }>`
   background: ${({ $role }) => RoleColors[$role]};
   width: 100%;
   height: 5.125rem;
+  margin-bottom: 4.438rem;
 `;
 
 const userCircleColors = {
@@ -78,11 +78,11 @@ const LogoutButton = styled.button`
   display: flex;
 `;
 
-export default function Header() {
-  // Fazer lógica para obter informações do usuário do back-end
+type HeaderProps = {
+  role: Role;
+}
 
-  const role: Role = 'ADMIN';
-
+export default function Header({ role }: HeaderProps) {
   const roleName = {
     ADMIN: 'Administradores',
     PROFESSOR: 'Professores',
