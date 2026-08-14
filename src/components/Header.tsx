@@ -25,20 +25,20 @@ const userCircleColors = {
   },
   PROFESSOR: {
     background: '#FBB3BE',
-    border: '2px solid #F7CED2'
+    border: '2px solid #F7CED2',
   },
   ALUNO: {
     background: '#FDE9A0',
-    border: '2px solid #FEF1CE'
-  }
-}
+    border: '2px solid #FEF1CE',
+  },
+};
 
 const Circle = styled.div<{ $role: Role }>`
   width: 31px;
   height: 31px;
   border-radius: 50%;
   background-color: ${({ $role }) => userCircleColors[$role].background};
-  border: ${({$role}) => userCircleColors[$role].border};
+  border: ${({ $role }) => userCircleColors[$role].border};
 `;
 
 const Nav = styled.nav`
@@ -59,9 +59,9 @@ const LogoButton = styled.a`
 `;
 
 const Title = styled.h4`
-  color: ${({theme}) => theme.colors.text};
+  color: ${({ theme }) => theme.colors.text};
   font-weight: 400;
-  font-size: 1.5rem
+  font-size: 1.5rem;
 `;
 
 const LogoutContainer = styled.div`
@@ -76,11 +76,9 @@ const LogoutButton = styled.button`
   background: transparent;
   border: none;
   display: flex;
-
 `;
 
 export default function Header() {
-
   // Fazer lógica para obter informações do usuário do back-end
 
   const role: Role = 'ADMIN';
@@ -91,25 +89,20 @@ export default function Header() {
     ALUNO: 'Alunos',
   };
 
-  const capitalize = (str: string) =>
-  str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+  const capitalize = (str: string) => str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
 
   return (
     <Background $role={role}>
       <Nav>
-        <LogoButton href='/'>
+        <LogoButton href="/">
           <img src={logo} alt="Edify Logo" width={61} height={57} />
           <Title>Edify {roleName[role]}</Title>
         </LogoButton>
         <LogoutContainer>
           <Circle $role={role} />
-          <span>
-            {capitalize(role)}
-          </span>
+          <span>{capitalize(role)}</span>
           <LogoutButton>
-            <span className="material-symbols-outlined">
-            logout
-            </span>
+            <span className="material-symbols-outlined">logout</span>
           </LogoutButton>
         </LogoutContainer>
       </Nav>
