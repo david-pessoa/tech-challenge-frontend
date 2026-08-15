@@ -1,6 +1,7 @@
 import styled from 'styled-components';
 import logo from '../../public/Logo.png';
 import type { Role } from '../types/Roles';
+import { capitalize } from '../utils/functions';
 
 const RoleColors = {
   ADMIN:
@@ -89,7 +90,7 @@ export default function Header({ role }: HeaderProps) {
     ALUNO: 'Alunos',
   };
 
-  const capitalize = (str: string) => str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+  
 
   return (
     <Background $role={role}>

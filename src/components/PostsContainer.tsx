@@ -11,12 +11,12 @@ import 'swiper/css';
 import '../styles/swiper-style.css';
 import type { Post } from '../types/Posts';
 
-type NewPostsContainerProps = {
+type PostsContainerProps = {
   role: Role;
 };
 
 const Container = styled.div`
-  width: 70vw;
+  width: 64.4135vw;
   margin-bottom: 5.688rem;
 `;
 
@@ -34,7 +34,7 @@ const Link = styled.a`
   display: block;
 `;
 
-export default function NewPostsContainer({ role }: NewPostsContainerProps) {
+export default function PostsContainer({ role }: PostsContainerProps) {
   function AlunoContainer() {
     //Obter dados dos posts do back-end
 
@@ -96,7 +96,7 @@ export default function NewPostsContainer({ role }: NewPostsContainerProps) {
           <Swiper
             modules={[Autoplay, Navigation, Pagination, Scrollbar, A11y]}
             spaceBetween={12}
-            slidesPerView={4}
+            slidesPerView="auto"
             loop={true}
             pagination={{ clickable: true }}
             navigation
@@ -104,7 +104,7 @@ export default function NewPostsContainer({ role }: NewPostsContainerProps) {
             onSwiper={swiper => console.log(swiper)}
           >
             {dados.map((dado: Post, i) => (
-              <SwiperSlide key={i}>
+              <SwiperSlide key={i} style={{ width: '12.5rem' }}>
                 <Link href={`/post/${dado.postId}`}>
                   <CarouselCard dado={dado} />
                 </Link>
