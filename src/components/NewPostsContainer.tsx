@@ -7,14 +7,30 @@ import { Swiper, SwiperSlide } from 'swiper/react';
 import CarouselCard from './CarouselCard';
 
 import 'swiper/css';
+import '../styles/swiper-style.css'
 import type { Post } from '../types/Posts';
 
 type NewPostsContainerProps = {
   role: Role;
 };
 
+const Container = styled.div`
+  width: 70vw;
+  margin-bottom: 5.688rem;
+`;
+
 const Title = styled.h2`
   margin-bottom: 10px;
+`;
+
+const Paragraph = styled.p`
+  margin-bottom: 1.813rem;
+`;
+
+const Link = styled.a`
+  color: inherit;
+  text-decoration: none;
+  display: block;
 `;
 
 export default function NewPostsContainer({ role }: NewPostsContainerProps) {
@@ -25,31 +41,36 @@ export default function NewPostsContainer({ role }: NewPostsContainerProps) {
 
     const dados = [
       {
+        postId: '0b70e39b-58ef-4d04-b039-3036a65b0bbe',
         materia: 'Ciências',
         titulo: 'Aula 20 - Sapos no meio dos humanos',
         autor: 'José',
         createdAt: creation_date,
       },
       {
-        materia: 'Ciências',
+        postId: '0b70e39b-58ef-4d04-b039-3036a65b0bbe',
+        materia: 'História',
         titulo: 'Aula 20 - Sapos no meio dos humanos',
         autor: 'José',
         createdAt: creation_date,
       },
       {
-        materia: 'Ciências',
+        postId: '0b70e39b-58ef-4d04-b039-3036a65b0bbe',
+        materia: 'Português',
         titulo: 'Aula 20 - Sapos no meio dos humanos',
         autor: 'José',
         createdAt: creation_date,
       },
       {
-        materia: 'Ciências',
+        postId: '0b70e39b-58ef-4d04-b039-3036a65b0bbe',
+        materia: 'Matemática',
         titulo: 'Aula 20 - Sapos no meio dos humanos',
         autor: 'José',
         createdAt: creation_date,
       },
       {
-        materia: 'Ciências',
+        postId: '0b70e39b-58ef-4d04-b039-3036a65b0bbe',
+        materia: 'Geografia',
         titulo: 'Aula 20 - Sapos no meio dos humanos',
         autor: 'José',
         createdAt: creation_date,
@@ -57,9 +78,9 @@ export default function NewPostsContainer({ role }: NewPostsContainerProps) {
     ];
 
     return (
-      <>
+      <Container>
         <Title>Novas Aulas</Title>
-        <p>Últimas postagens de aulas feitas pelos seus professores</p>
+        <Paragraph>Últimas postagens de aulas feitas pelos seus professores</Paragraph>
         <Swiper
           modules={[Autoplay, Navigation, Pagination, Scrollbar, A11y]}
           spaceBetween={12}
@@ -72,11 +93,13 @@ export default function NewPostsContainer({ role }: NewPostsContainerProps) {
         >
           {dados.map((dado: Post, i) => (
             <SwiperSlide key={i}>
-              <CarouselCard dado={dado} />
+              <Link href={`/post/${dado.postId}`}>
+                <CarouselCard dado={dado} />
+              </Link>
             </SwiperSlide>
           ))}
         </Swiper>
-      </>
+      </Container>
     );
   }
   function ProfessorContainer() {

@@ -1,0 +1,22 @@
+.swiper-button-prev, .swiper-button-next {
+  position: absolute;
+  top: -50px;
+  width: 32px;
+  height: 32px;
+}
+
+.swiper-button-next {
+  right: 20px;
+  transform: translateY(-20px) ;
+}
+
+.swiper-button-prev {
+  left: auto;
+  right: 70px;
+  transform: translateY(-31px) rotate(180deg)
+}
+
+.swiper {
+  overflow-y: visible;
+  overflow-x: clip;
+}
