@@ -25,7 +25,7 @@ const TitleContainer = styled.div`
 `;
 
 const InputContainer = styled.div`
-  background-color: #FDE9A06B;
+  background-color: #fde9a06b;
   border-radius: 20px;
   height: 2.625rem;
   width: 40.5rem;
@@ -49,7 +49,7 @@ const InputSearch = styled.input`
 export default function Home() {
   document.title = 'Edify | Home';
 
-   // Fazer lógica para obter informações do usuário do back-end
+  // Fazer lógica para obter informações do usuário do back-end
 
   const role: Role = 'ALUNO';
 

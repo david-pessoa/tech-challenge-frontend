@@ -5,9 +5,10 @@ import { Autoplay, Navigation, Pagination, Scrollbar, A11y } from 'swiper/module
 import { Swiper, SwiperSlide } from 'swiper/react';
 
 import CarouselCard from './CarouselCard';
+import ViewedPostsTable from './ViewedPostsTable';
 
 import 'swiper/css';
-import '../styles/swiper-style.css'
+import '../styles/swiper-style.css';
 import type { Post } from '../types/Posts';
 
 type NewPostsContainerProps = {
@@ -44,62 +45,79 @@ export default function NewPostsContainer({ role }: NewPostsContainerProps) {
         postId: '0b70e39b-58ef-4d04-b039-3036a65b0bbe',
         materia: 'Ciências',
         titulo: 'Aula 20 - Sapos no meio dos humanos',
+        descricao: 'Pirâmides etárias',
         autor: 'José',
         createdAt: creation_date,
+        editedAt: creation_date,
       },
       {
         postId: '0b70e39b-58ef-4d04-b039-3036a65b0bbe',
         materia: 'História',
         titulo: 'Aula 20 - Sapos no meio dos humanos',
+        descricao: 'Pirâmides etárias',
         autor: 'José',
         createdAt: creation_date,
+        editedAt: creation_date,
       },
       {
         postId: '0b70e39b-58ef-4d04-b039-3036a65b0bbe',
         materia: 'Português',
         titulo: 'Aula 20 - Sapos no meio dos humanos',
+        descricao: 'Pirâmides etárias',
         autor: 'José',
         createdAt: creation_date,
+        editedAt: creation_date,
       },
       {
         postId: '0b70e39b-58ef-4d04-b039-3036a65b0bbe',
         materia: 'Matemática',
         titulo: 'Aula 20 - Sapos no meio dos humanos',
+        descricao: 'Pirâmides etárias',
         autor: 'José',
         createdAt: creation_date,
+        editedAt: creation_date,
       },
       {
         postId: '0b70e39b-58ef-4d04-b039-3036a65b0bbe',
         materia: 'Geografia',
         titulo: 'Aula 20 - Sapos no meio dos humanos',
+        descricao: 'Pirâmides etárias',
         autor: 'José',
         createdAt: creation_date,
+        editedAt: creation_date,
       },
     ];
 
     return (
-      <Container>
-        <Title>Novas Aulas</Title>
-        <Paragraph>Últimas postagens de aulas feitas pelos seus professores</Paragraph>
-        <Swiper
-          modules={[Autoplay, Navigation, Pagination, Scrollbar, A11y]}
-          spaceBetween={12}
-          slidesPerView={4}
-          loop={true}
-          pagination={{ clickable: true }}
-          navigation
-          onSlideChange={() => console.log('slide change')}
-          onSwiper={swiper => console.log(swiper)}
-        >
-          {dados.map((dado: Post, i) => (
-            <SwiperSlide key={i}>
-              <Link href={`/post/${dado.postId}`}>
-                <CarouselCard dado={dado} />
-              </Link>
-            </SwiperSlide>
-          ))}
-        </Swiper>
-      </Container>
+      <>
+        <Container>
+          <Title>Novas Aulas</Title>
+          <Paragraph>Últimas postagens de aulas feitas pelos seus professores</Paragraph>
+          <Swiper
+            modules={[Autoplay, Navigation, Pagination, Scrollbar, A11y]}
+            spaceBetween={12}
+            slidesPerView={4}
+            loop={true}
+            pagination={{ clickable: true }}
+            navigation
+            onSlideChange={() => console.log('slide change')}
+            onSwiper={swiper => console.log(swiper)}
+          >
+            {dados.map((dado: Post, i) => (
+              <SwiperSlide key={i}>
+                <Link href={`/post/${dado.postId}`}>
+                  <CarouselCard dado={dado} />
+                </Link>
+              </SwiperSlide>
+            ))}
+          </Swiper>
+        </Container>
+        <Container>
+          <Title>Aulas Finalizadas</Title>
+          <Paragraph>Você já finalizou estas atividades</Paragraph>
+          <ViewedPostsTable dados={dados} />
+        </Container>
+      </>
     );
   }
   function ProfessorContainer() {

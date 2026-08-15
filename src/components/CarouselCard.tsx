@@ -1,6 +1,7 @@
 import styled from 'styled-components';
 
 import type { Post } from '../types/Posts';
+import { materias } from '../types/Materias';
 
 const Card = styled.div`
   height: 15.188rem;
@@ -63,40 +64,6 @@ type CarouselCardProps = {
 };
 
 export default function CarouselCard({ dado }: CarouselCardProps) {
-  type MateriaConfig = {
-    backgroundColor: string;
-    color: string;
-    icon: string;
-  };
-
-  const materias: Record<string, MateriaConfig> = {
-    Ciências: {
-      backgroundColor: '#A4CDC6',
-      color: '#287C6D',
-      icon: 'microbiology',
-    },
-    História: {
-      backgroundColor: '#E0A7E3',
-      color: '#902995',
-      icon: 'account_balance',
-    },
-    Português: {
-      backgroundColor: '#FCBBA3',
-      color: '#AE4E2B',
-      icon: 'menu_book',
-    },
-    Matemática: {
-      backgroundColor: '#A7CEE3',
-      color: '#1D648A',
-      icon: 'function',
-    },
-    Geografia: {
-      backgroundColor: '#F3CE99',
-      color: '#9D6719',
-      icon: 'globe',
-    },
-  };
-
   const materia = materias[dado.materia];
 
   return (

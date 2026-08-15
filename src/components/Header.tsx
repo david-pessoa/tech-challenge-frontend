@@ -80,7 +80,7 @@ const LogoutButton = styled.button`
 
 type HeaderProps = {
   role: Role;
-}
+};
 
 export default function Header({ role }: HeaderProps) {
   const roleName = {
