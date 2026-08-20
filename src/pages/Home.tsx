@@ -69,7 +69,7 @@ const DoodleImage = styled.img`
   width: 84.28px;
   position: absolute;
   top: 180px;
-  right: 180px;
+  right: 130px;
 `;
 
 const ProfileImage = styled.img`

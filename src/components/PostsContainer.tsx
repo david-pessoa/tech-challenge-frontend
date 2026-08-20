@@ -11,6 +11,7 @@ import 'swiper/css';
 import '../styles/swiper-style.css';
 import type { Post } from '../types/Posts';
 import ProfessorPostsTable from './ProfessorPostsTable';
+import AdminPostsTable from './AdminPostsTable';
 
 type PostsContainerProps = {
   role: Role;
@@ -54,11 +55,9 @@ const AddClassButton = styled.button`
 `;
 
 const AddIcon = styled.span`
-  color: #EE798A;
+  color: #ee798a;
   font-size: 32px;
 `;
-
-
 
 export default function PostsContainer({ role }: PostsContainerProps) {
   const creation_date = new Date('2026-08-04');
@@ -126,7 +125,6 @@ export default function PostsContainer({ role }: PostsContainerProps) {
             loop={true}
             pagination={{ clickable: true }}
             navigation
-            onSlideChange={() => console.log('slide change')}
             onSwiper={swiper => console.log(swiper)}
           >
             {dados.map((dado: Post, i) => (
@@ -148,24 +146,64 @@ export default function PostsContainer({ role }: PostsContainerProps) {
   }
   function ProfessorContainer() {
     return (
-      <Container>
-        <Title>Suas aulas</Title>
-        <AddClassContainer>
-          <Paragraph>Veja as aulas que você postou</Paragraph>
-          <AddClassButton>
-            <AddIcon className="material-symbols-outlined">add</AddIcon>
-            <p>Nova aula</p>
-          </AddClassButton>
-        </AddClassContainer>
-        <ProfessorPostsTable dados={dados}/>
-        <Title>Outras aulas</Title>
-        <Paragraph>Aulas criadas por outros professores</Paragraph>
-        <ViewedPostsTable dados={dados} />
-      </Container>
+      <>
+        <Container>
+          <Title>Suas aulas</Title>
+          <AddClassContainer>
+            <Paragraph>Veja as aulas que você postou</Paragraph>
+            <AddClassButton>
+              <AddIcon className="material-symbols-outlined">add</AddIcon>
+              <p>Nova aula</p>
+            </AddClassButton>
+          </AddClassContainer>
+          <ProfessorPostsTable dados={dados} />
+        </Container>
+        <Container>
+          <Title>Outras aulas</Title>
+          <Paragraph>Aulas criadas por outros professores</Paragraph>
+          <ViewedPostsTable dados={dados} />
+        </Container>
+      </>
     );
   }
   function AdminContainer() {
-    return <></>;
+    return (
+      <>
+        <Container>
+          <Title>Novas aulas</Title>
+          <AddClassContainer>
+            <Paragraph>Últimas postagens de aulas feitas pelos professores</Paragraph>
+            <AddClassButton>
+              <AddIcon className="material-symbols-outlined">add</AddIcon>
+              <p>Nova aula</p>
+            </AddClassButton>
+          </AddClassContainer>
+          <Swiper
+            modules={[Autoplay, Navigation, Pagination, Scrollbar, A11y]}
+            spaceBetween={12}
+            slidesPerView="auto"
+            loop={true}
+            pagination={{ clickable: true }}
+            navigation
+            onSwiper={swiper => console.log(swiper)}
+            className='isAdmin'
+          >
+            {dados.map((dado: Post, i) => (
+              <SwiperSlide key={i} style={{ width: '12.5rem' }}>
+                <Link href={`/post/${dado.postId}`}>
+                  <CarouselCard dado={dado} />
+                </Link>
+              </SwiperSlide>
+            ))}
+          </Swiper>
+        </Container>
+        <Container>
+          <Title>Acervo da Escola</Title>
+          <Paragraph>Todas as aulas postadas</Paragraph>
+          <AdminPostsTable dados={dados}/>
+        </Container>
+      </>
+    );
   }
 
   return (

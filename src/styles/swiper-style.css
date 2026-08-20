@@ -10,10 +10,18 @@
   transform: translateY(-20px) ;
 }
 
+.isAdmin .swiper-button-next {
+  transform: translateY(-40px) ;
+}
+
 .swiper-button-prev {
   left: auto;
   right: 70px;
   transform: translateY(-31px) rotate(180deg)
+}
+
+.isAdmin .swiper-button-prev {
+  transform: translateY(-51px) rotate(180deg)
 }
 
 .swiper {
