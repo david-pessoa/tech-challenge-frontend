@@ -69,7 +69,7 @@ const DoodleImage = styled.img`
   width: 84.28px;
   position: absolute;
   top: 180px;
-  right: 130px;
+  right: 180px;
 `;
 
 const ProfileImage = styled.img`
@@ -145,7 +145,7 @@ export default function Home() {
               {capitalize(new Date().toLocaleString('pt-BR', { month: 'long' }))}{' '}
               {new Date().getFullYear()}
             </p>
-            <Calendar />
+            <Calendar role={role} />
           </div>
           <UserListPreview role={role}/>
         </Aside>
