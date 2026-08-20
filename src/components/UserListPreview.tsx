@@ -68,6 +68,7 @@ const UserProfilePhoto = styled.img`
   width: 1.938rem;
   height: 1.938rem;
   border-radius: 50%;
+  margin-left: 10px;
 `;
 
 const UserNameRoleContainer = styled.div`
@@ -84,6 +85,18 @@ const UserName = styled.p`
 
 const UserRole = styled.p`
   font-size: 14px;
+`;
+
+const ActionContainer = styled.div`
+  display: flex;
+  gap: 10px;
+  margin-right: 10px;
+`;
+
+const ActionButton = styled.button`
+  border: none;
+  background: transparent;
+  cursor: pointer;
 `;
 
 const EditIcon = styled.span`
@@ -157,6 +170,13 @@ export default function UserListPreview({ role }: UserListPreviewProps) {
       role: 'PROFESSOR',
       foto: userPhoto,
     },
+    {
+      id: 'c2b58a4e-c4cf-4e20-978c-c1f2793ee18c',
+      matricula: '202020',
+      nome: 'Francisco',
+      role: 'PROFESSOR',
+      foto: userPhoto,
+    },
   ];
 
   return (
@@ -182,10 +202,14 @@ export default function UserListPreview({ role }: UserListPreviewProps) {
                     {user.role === 'ADMIN' ? 'Administrador' : capitalize(user.role)}
                   </UserRole>
                 </UserNameRoleContainer>
-                <div>
-                  <EditIcon className="material-symbols-outlined">edit</EditIcon>
-                  <DeleteIcon className="material-symbols-outlined">delete</DeleteIcon>
-                </div>
+                <ActionContainer>
+                  <ActionButton>
+                    <EditIcon className="material-symbols-outlined">edit</EditIcon>
+                  </ActionButton>
+                  <ActionButton>
+                    <DeleteIcon className="material-symbols-outlined">delete</DeleteIcon>
+                  </ActionButton>
+                </ActionContainer>
               </Item>
             ))}
           </UserList>

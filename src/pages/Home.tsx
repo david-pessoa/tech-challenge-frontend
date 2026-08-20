@@ -61,7 +61,7 @@ const Aside = styled.aside`
 
 const ProfileImageContainer = styled.div`
   display: flex;
-  flex-direction:column;
+  flex-direction: column;
   align-items: center;
 `;
 
@@ -73,6 +73,7 @@ const DoodleImage = styled.img`
 `;
 
 const ProfileImage = styled.img`
+  position: relative;
   border-radius: 50%;
   aspect-ratio: 1 / 1;
   width: 8.75rem;
@@ -98,8 +99,6 @@ const Figure = styled.figure`
 const CalendarTitle = styled.h2`
   margin-bottom: 8px;
 `;
-
-
 
 export default function Home() {
   document.title = 'Edify | Home';
@@ -147,7 +146,7 @@ export default function Home() {
             </p>
             <Calendar role={role} />
           </div>
-          <UserListPreview role={role}/>
+          <UserListPreview role={role} />
         </Aside>
       </Main>
       <Footer />

@@ -10,6 +10,7 @@ import ViewedPostsTable from './ViewedPostsTable';
 import 'swiper/css';
 import '../styles/swiper-style.css';
 import type { Post } from '../types/Posts';
+import ProfessorPostsTable from './ProfessorPostsTable';
 
 type PostsContainerProps = {
   role: Role;
@@ -34,59 +35,84 @@ const Link = styled.a`
   display: block;
 `;
 
+const AddClassContainer = styled.div`
+  display: flex;
+  justify-content: space-between;
+  height: 30px;
+  margin-bottom: 1.813rem;
+`;
+
+const AddClassButton = styled.button`
+  height: 100%;
+  width: 6.938rem;
+  border: none;
+  background-color: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+`;
+
+const AddIcon = styled.span`
+  color: #EE798A;
+  font-size: 32px;
+`;
+
+
+
 export default function PostsContainer({ role }: PostsContainerProps) {
+  const creation_date = new Date('2026-08-04');
+
+  const dados = [
+    {
+      postId: '0b70e39b-58ef-4d04-b039-3036a65b0bbe',
+      materia: 'Ciências',
+      titulo: 'Aula 20 - Sapos no meio dos humanos',
+      descricao: 'Pirâmides etárias',
+      autor: 'José',
+      createdAt: creation_date,
+      editedAt: creation_date,
+    },
+    {
+      postId: '0b70e39b-58ef-4d04-b039-3036a65b0bbe',
+      materia: 'História',
+      titulo: 'Aula 20 - Sapos no meio dos humanos',
+      descricao: 'Pirâmides etárias',
+      autor: 'José',
+      createdAt: creation_date,
+      editedAt: creation_date,
+    },
+    {
+      postId: '0b70e39b-58ef-4d04-b039-3036a65b0bbe',
+      materia: 'Português',
+      titulo: 'Aula 20 - Sapos no meio dos humanos',
+      descricao: 'Pirâmides etárias',
+      autor: 'José',
+      createdAt: creation_date,
+      editedAt: creation_date,
+    },
+    {
+      postId: '0b70e39b-58ef-4d04-b039-3036a65b0bbe',
+      materia: 'Matemática',
+      titulo: 'Aula 20 - Sapos no meio dos humanos',
+      descricao: 'Pirâmides etárias',
+      autor: 'José',
+      createdAt: creation_date,
+      editedAt: creation_date,
+    },
+    {
+      postId: '0b70e39b-58ef-4d04-b039-3036a65b0bbe',
+      materia: 'Geografia',
+      titulo: 'Aula 20 - Sapos no meio dos humanos',
+      descricao: 'Pirâmides etárias',
+      autor: 'José',
+      createdAt: creation_date,
+      editedAt: creation_date,
+    },
+  ];
+
   function AlunoContainer() {
     //Obter dados dos posts do back-end
-
-    const creation_date = new Date('2026-08-04');
-
-    const dados = [
-      {
-        postId: '0b70e39b-58ef-4d04-b039-3036a65b0bbe',
-        materia: 'Ciências',
-        titulo: 'Aula 20 - Sapos no meio dos humanos',
-        descricao: 'Pirâmides etárias',
-        autor: 'José',
-        createdAt: creation_date,
-        editedAt: creation_date,
-      },
-      {
-        postId: '0b70e39b-58ef-4d04-b039-3036a65b0bbe',
-        materia: 'História',
-        titulo: 'Aula 20 - Sapos no meio dos humanos',
-        descricao: 'Pirâmides etárias',
-        autor: 'José',
-        createdAt: creation_date,
-        editedAt: creation_date,
-      },
-      {
-        postId: '0b70e39b-58ef-4d04-b039-3036a65b0bbe',
-        materia: 'Português',
-        titulo: 'Aula 20 - Sapos no meio dos humanos',
-        descricao: 'Pirâmides etárias',
-        autor: 'José',
-        createdAt: creation_date,
-        editedAt: creation_date,
-      },
-      {
-        postId: '0b70e39b-58ef-4d04-b039-3036a65b0bbe',
-        materia: 'Matemática',
-        titulo: 'Aula 20 - Sapos no meio dos humanos',
-        descricao: 'Pirâmides etárias',
-        autor: 'José',
-        createdAt: creation_date,
-        editedAt: creation_date,
-      },
-      {
-        postId: '0b70e39b-58ef-4d04-b039-3036a65b0bbe',
-        materia: 'Geografia',
-        titulo: 'Aula 20 - Sapos no meio dos humanos',
-        descricao: 'Pirâmides etárias',
-        autor: 'José',
-        createdAt: creation_date,
-        editedAt: creation_date,
-      },
-    ];
 
     return (
       <>
@@ -121,7 +147,22 @@ export default function PostsContainer({ role }: PostsContainerProps) {
     );
   }
   function ProfessorContainer() {
-    return <></>;
+    return (
+      <Container>
+        <Title>Suas aulas</Title>
+        <AddClassContainer>
+          <Paragraph>Veja as aulas que você postou</Paragraph>
+          <AddClassButton>
+            <AddIcon className="material-symbols-outlined">add</AddIcon>
+            <p>Nova aula</p>
+          </AddClassButton>
+        </AddClassContainer>
+        <ProfessorPostsTable dados={dados}/>
+        <Title>Outras aulas</Title>
+        <Paragraph>Aulas criadas por outros professores</Paragraph>
+        <ViewedPostsTable dados={dados} />
+      </Container>
+    );
   }
   function AdminContainer() {
     return <></>;

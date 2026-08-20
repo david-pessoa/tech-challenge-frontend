@@ -109,7 +109,7 @@ export default function Calendar({ role }: CalendarProp) {
               (index === 0 && dayOfWeek < weekDay) ||
               (index === numOfWeeks - 1 && count + 1 > totalOfDays) ? (
                 <CalendarEmptyDay key={dayOfWeek} />
-              ) : today.getDate() == count + 1 ? (<Today>{++count}</Today>) : dayOfWeek === 0 || dayOfWeek === 6 ? (
+              ) : today.getDate() == count + 1 ? (<Today key={dayOfWeek}>{++count}</Today>) : dayOfWeek === 0 || dayOfWeek === 6 ? (
                 <CalendarWeekendDay key={dayOfWeek}>
                   {++count}
                 </CalendarWeekendDay>
