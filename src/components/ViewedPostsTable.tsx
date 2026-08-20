@@ -62,12 +62,14 @@ export default function ViewedPostsTable({ dados }: ViewedPostsTableProps) {
   return (
     <Table>
       <thead>
-        <th>Matérias</th>
-        <th>Título</th>
-        <th>Descrição</th>
-        <th>Data de Criação</th>
-        <th>Data de Modificação</th>
-        <th>Professor</th>
+        <tr>
+          <th>Matérias</th>
+          <th>Título</th>
+          <th>Descrição</th>
+          <th>Data de Criação</th>
+          <th>Data de Modificação</th>
+          <th>Professor</th>
+        </tr>
       </thead>
       <tbody>
         {dados.map((post, i) => (

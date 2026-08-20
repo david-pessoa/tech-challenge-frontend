@@ -56,7 +56,7 @@ const InputSearch = styled.input`
 
 const Aside = styled.aside`
   margin-left: 20px;
-  width: 23.459vw
+  width: 23.459vw;
 `;
 
 const ProfileImageContainer = styled.div`
@@ -106,7 +106,7 @@ export default function Home() {
 
   // Fazer lógica para obter informações do usuário do back-end
 
-  const role: Role = 'ALUNO';
+  const role: Role = 'PROFESSOR';
 
   return (
     <>
