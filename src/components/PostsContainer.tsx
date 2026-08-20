@@ -19,7 +19,7 @@ type PostsContainerProps = {
 
 const Container = styled.div`
   width: 64.4135vw;
-  margin-bottom: 5.688rem;
+  margin-bottom: 3.625rem;
 `;
 
 const Title = styled.h2`
