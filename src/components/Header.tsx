@@ -1,5 +1,7 @@
 import styled from 'styled-components';
 import logo from '../../public/Logo.png';
+import type { Role } from '../types/Roles';
+import { capitalize } from '../utils/functions';
 
 const RoleColors = {
   ADMIN:
@@ -10,12 +12,11 @@ const RoleColors = {
     'radial-gradient(111.63% 111.63% at 42.64% -5.82%, #FDE9A0 33.65%, #FCBBA3 44.58%, #FCBBA3 100%)',
 };
 
-type Role = keyof typeof RoleColors;
-
 const Background = styled.header<{ $role: Role }>`
   background: ${({ $role }) => RoleColors[$role]};
   width: 100%;
   height: 5.125rem;
+  margin-bottom: 4.438rem;
 `;
 
 const userCircleColors = {
@@ -25,20 +26,20 @@ const userCircleColors = {
   },
   PROFESSOR: {
     background: '#FBB3BE',
-    border: '2px solid #F7CED2'
+    border: '2px solid #F7CED2',
   },
   ALUNO: {
     background: '#FDE9A0',
-    border: '2px solid #FEF1CE'
-  }
-}
+    border: '2px solid #FEF1CE',
+  },
+};
 
 const Circle = styled.div<{ $role: Role }>`
   width: 31px;
   height: 31px;
   border-radius: 50%;
   background-color: ${({ $role }) => userCircleColors[$role].background};
-  border: ${({$role}) => userCircleColors[$role].border};
+  border: ${({ $role }) => userCircleColors[$role].border};
 `;
 
 const Nav = styled.nav`
@@ -59,9 +60,9 @@ const LogoButton = styled.a`
 `;
 
 const Title = styled.h4`
-  color: ${({theme}) => theme.colors.text};
+  color: ${({ theme }) => theme.colors.text};
   font-weight: 400;
-  font-size: 1.5rem
+  font-size: 1.5rem;
 `;
 
 const LogoutContainer = styled.div`
@@ -76,40 +77,33 @@ const LogoutButton = styled.button`
   background: transparent;
   border: none;
   display: flex;
-
 `;
 
-export default function Header() {
+type HeaderProps = {
+  role: Role;
+};
 
-  // Fazer lógica para obter informações do usuário do back-end
-
-  const role: Role = 'ADMIN';
-
+export default function Header({ role }: HeaderProps) {
   const roleName = {
     ADMIN: 'Administradores',
     PROFESSOR: 'Professores',
     ALUNO: 'Alunos',
   };
 
-  const capitalize = (str: string) =>
-  str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+  
 
   return (
     <Background $role={role}>
       <Nav>
-        <LogoButton href='/'>
+        <LogoButton href="/">
           <img src={logo} alt="Edify Logo" width={61} height={57} />
           <Title>Edify {roleName[role]}</Title>
         </LogoButton>
         <LogoutContainer>
           <Circle $role={role} />
-          <span>
-            {capitalize(role)}
-          </span>
+          <span>{capitalize(role)}</span>
           <LogoutButton>
-            <span className="material-symbols-outlined">
-            logout
-            </span>
+            <span className="material-symbols-outlined">logout</span>
           </LogoutButton>
         </LogoutContainer>
       </Nav>
