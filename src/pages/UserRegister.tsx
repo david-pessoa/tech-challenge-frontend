@@ -197,9 +197,30 @@ const Input = styled.input`
 
 const Select = styled.select`
   ${fieldControlStyles}
+  appearance: none;
+  background-image: linear-gradient(45deg, transparent 50%, #98816d 50%),
+    linear-gradient(135deg, #98816d 50%, transparent 50%);
+  background-position:
+    calc(100% - 1.65rem) 50%,
+    calc(100% - 1.3rem) 50%;
+  background-repeat: no-repeat;
+  background-size:
+    0.38rem 0.38rem,
+    0.38rem 0.38rem;
+  cursor: pointer;
+  padding-right: 3.25rem;
 
   &:focus {
     outline: 2px solid ${({ theme }) => theme.colors.fieldFocus};
+  }
+
+  option {
+    background-color: ${({ theme }) => theme.colors.fieldBackground};
+    color: ${({ theme }) => theme.colors.text};
+    font-family: ${({ theme }) => theme.typography.fontFamily};
+    font-size: ${({ theme }) => theme.typography.field.fontSize};
+    font-weight: ${({ theme }) => theme.typography.field.fontWeight};
+    padding: 0.75rem 1rem;
   }
 `;
 
