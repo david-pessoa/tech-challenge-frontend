@@ -203,6 +203,53 @@ const Select = styled.select`
   }
 `;
 
+const PasswordInputWrapper = styled.div`
+  ${fieldControlStyles}
+  display: flex;
+  align-items: center;
+  padding-right: 1rem;
+
+  &:focus-within {
+    outline: 2px solid ${({ theme }) => theme.colors.fieldFocus};
+  }
+`;
+
+const PasswordInput = styled.input`
+  border: 0;
+  background: transparent;
+  color: ${({ theme }) => theme.colors.text};
+  flex: 1;
+  font-family: ${({ theme }) => theme.typography.fontFamily};
+  font-size: ${({ theme }) => theme.typography.field.fontSize};
+  font-weight: ${({ theme }) => theme.typography.field.fontWeight};
+  line-height: ${({ theme }) => theme.typography.field.lineHeight};
+  min-width: 0;
+
+  &:focus {
+    outline: none;
+  }
+
+  &::placeholder {
+    color: ${({ theme }) => theme.colors.fieldPlaceholder};
+    opacity: 1;
+  }
+`;
+
+const PasswordVisibilityButton = styled.button`
+  border: 0;
+  background: transparent;
+  color: ${({ theme }) => theme.colors.passwordIcon};
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  padding: 0;
+
+  span {
+    font-size: ${({ theme }) => theme.typography.passwordIcon.fontSize};
+    font-variation-settings: 'FILL' 1;
+  }
+`;
+
 const Actions = styled.div`
   grid-column: 2;
   display: flex;
@@ -242,6 +289,8 @@ export default function UserRegister({ isNew }: UserRegisterProps) {
   const [formData, setFormData] = useState<UserFormData>(initialFormData);
   const [imagePreview, setImagePreview] = useState('');
   const [message, setMessage] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const currentRole: Role = 'ADMIN';
 
   useEffect(() => {
@@ -375,28 +424,50 @@ export default function UserRegister({ isNew }: UserRegisterProps) {
 
             <Field htmlFor="senha">
               Senha
-              <Input
-                id="senha"
-                name="senha"
-                type="password"
-                value={formData.senha}
-                placeholder="Digite a senha..."
-                onChange={event => setFormData({ ...formData, senha: event.target.value })}
-              />
+              <PasswordInputWrapper>
+                <PasswordInput
+                  id="senha"
+                  name="senha"
+                  type={showPassword ? 'text' : 'password'}
+                  value={formData.senha}
+                  placeholder="Digite a senha..."
+                  onChange={event => setFormData({ ...formData, senha: event.target.value })}
+                />
+                <PasswordVisibilityButton
+                  type="button"
+                  aria-label={showPassword ? 'Ocultar senha' : 'Mostrar senha'}
+                  onClick={() => setShowPassword(previous => !previous)}
+                >
+                  <span className="material-symbols-outlined">
+                    {showPassword ? 'visibility' : 'visibility_off'}
+                  </span>
+                </PasswordVisibilityButton>
+              </PasswordInputWrapper>
             </Field>
 
             <Field htmlFor="confirmarSenha">
               Confirme sua senha
-              <Input
-                id="confirmarSenha"
-                name="confirmarSenha"
-                type="password"
-                value={formData.confirmarSenha}
-                placeholder="Confirme sua senha..."
-                onChange={event =>
-                  setFormData({ ...formData, confirmarSenha: event.target.value })
-                }
-              />
+              <PasswordInputWrapper>
+                <PasswordInput
+                  id="confirmarSenha"
+                  name="confirmarSenha"
+                  type={showConfirmPassword ? 'text' : 'password'}
+                  value={formData.confirmarSenha}
+                  placeholder="Confirme sua senha..."
+                  onChange={event =>
+                    setFormData({ ...formData, confirmarSenha: event.target.value })
+                  }
+                />
+                <PasswordVisibilityButton
+                  type="button"
+                  aria-label={showConfirmPassword ? 'Ocultar senha' : 'Mostrar senha'}
+                  onClick={() => setShowConfirmPassword(previous => !previous)}
+                >
+                  <span className="material-symbols-outlined">
+                    {showConfirmPassword ? 'visibility' : 'visibility_off'}
+                  </span>
+                </PasswordVisibilityButton>
+              </PasswordInputWrapper>
             </Field>
           </Fields>
 
@@ -404,7 +475,7 @@ export default function UserRegister({ isNew }: UserRegisterProps) {
             <Button type="button" $secondary>
               Cancelar
             </Button>
-            <Button type="submit">Enviar</Button>
+            <Button type="submit">Salvar</Button>
           </Actions>
 
           {message && <Message>{message}</Message>}

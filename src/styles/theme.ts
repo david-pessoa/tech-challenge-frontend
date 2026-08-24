@@ -12,6 +12,7 @@ export const theme = {
     uploadText: '#98816D',
     backLink: '#3A505D',
     backIcon: '#F6A4B0',
+    passwordIcon: '#98816D',
   },
 
   spacing: {
@@ -53,6 +54,9 @@ export const theme = {
       fontSize: '0.625rem',
       lineHeight: '1.25rem',
       fontWeight: '600',
+    },
+    passwordIcon: {
+      fontSize: '1.5rem',
     },
   },
 };
