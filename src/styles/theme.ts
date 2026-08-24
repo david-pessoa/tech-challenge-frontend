@@ -5,6 +5,13 @@ export const theme = {
     background: '#FFFCF2',
     text: '#32434D',
     inputPlaceholder: '#603C24A1',
+    fieldBackground: '#FBF6EA',
+    fieldPlaceholder: '#9A8372',
+    fieldShadow: '#D8D0BF',
+    fieldFocus: '#F2C0AD',
+    uploadText: '#98816D',
+    backLink: '#3A505D',
+    backIcon: '#F6A4B0',
   },
 
   spacing: {
@@ -32,6 +39,20 @@ export const theme = {
     },
     h3: {
       fontSize: '1rem',
+    },
+    field: {
+      fontSize: '1rem',
+      lineHeight: '1.25rem',
+      fontWeight: '600',
+    },
+    backLink: {
+      fontSize: '0.938rem',
+      fontWeight: '400',
+    },
+    uploadHint: {
+      fontSize: '0.625rem',
+      lineHeight: '1.25rem',
+      fontWeight: '600',
     },
   },
 };

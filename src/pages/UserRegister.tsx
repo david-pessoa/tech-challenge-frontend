@@ -37,16 +37,18 @@ const Main = styled.main`
 `;
 
 const BackLink = styled.a`
-  color: ${({ theme }) => theme.colors.text};
+  color: ${({ theme }) => theme.colors.backLink};
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
-  font-size: 0.875rem;
+  font-family: ${({ theme }) => theme.typography.fontFamily};
+  font-size: ${({ theme }) => theme.typography.backLink.fontSize};
+  font-weight: ${({ theme }) => theme.typography.backLink.fontWeight};
   margin-bottom: 1.5rem;
   text-decoration: none;
 
   span {
-    color: #e6768d;
+    color: ${({ theme }) => theme.colors.backIcon};
     font-size: 1.125rem;
     transform: rotate(-90deg);
   }
@@ -67,7 +69,7 @@ const TitleContainer = styled.div`
 
 const TitleIcon = styled.img`
   width: 4rem;
-  margin-left: -0.65rem;
+  margin-left: -1.2rem;
   transform: translateY(-0.65rem) rotate(12deg);
 `;
 
@@ -134,11 +136,11 @@ const UploadContent = styled.span`
   flex-direction: column;
   align-items: center;
   width: 6.25rem;
-  color: #98816d;
-  font-family: Poppins, sans-serif;
-  font-size: 0.625rem;
-  font-weight: 600;
-  line-height: 1.25rem;
+  color: ${({ theme }) => theme.colors.uploadText};
+  font-family: ${({ theme }) => theme.typography.fontFamily};
+  font-size: ${({ theme }) => theme.typography.uploadHint.fontSize};
+  font-weight: ${({ theme }) => theme.typography.uploadHint.fontWeight};
+  line-height: ${({ theme }) => theme.typography.uploadHint.lineHeight};
 `;
 
 const UploadIcon = styled.span`
@@ -160,27 +162,27 @@ const Field = styled.label<{ $full?: boolean }>`
   flex-direction: column;
   gap: 0.5rem;
   grid-column: ${({ $full }) => ($full ? '1 / -1' : 'auto')};
-  color: #32434d;
-  font-size: 1rem;
-  font-weight: 600;
-  line-height: 1.25rem;
+  color: ${({ theme }) => theme.colors.text};
+  font-size: ${({ theme }) => theme.typography.field.fontSize};
+  font-weight: ${({ theme }) => theme.typography.field.fontWeight};
+  line-height: ${({ theme }) => theme.typography.field.lineHeight};
 `;
 
-const fieldControlStyles = `
+const fieldControlStyles = ({ theme }: { theme: typeof import('../styles/theme').theme }) => `
   border: 0;
   border-radius: 1.5rem;
-  background: #fbf6ea;
-  box-shadow: 0 2px 5px #d8d0bf;
-  color: #32434d;
-  font-family: Poppins, sans-serif;
-  font-size: 1rem;
-  font-weight: 600;
-  line-height: 1.25rem;
+  background: ${theme.colors.fieldBackground};
+  box-shadow: 0 2px 5px ${theme.colors.fieldShadow};
+  color: ${theme.colors.text};
+  font-family: ${theme.typography.fontFamily};
+  font-size: ${theme.typography.field.fontSize};
+  font-weight: ${theme.typography.field.fontWeight};
+  line-height: ${theme.typography.field.lineHeight};
   min-height: 2.75rem;
   padding: 0 1.25rem;
 
   &::placeholder {
-    color: #9a8372;
+    color: ${theme.colors.fieldPlaceholder};
     opacity: 1;
   }
 `;
@@ -189,7 +191,7 @@ const Input = styled.input`
   ${fieldControlStyles}
 
   &:focus {
-    outline: 2px solid #f2c0ad;
+    outline: 2px solid ${({ theme }) => theme.colors.fieldFocus};
   }
 `;
 
@@ -197,7 +199,7 @@ const Select = styled.select`
   ${fieldControlStyles}
 
   &:focus {
-    outline: 2px solid #f2c0ad;
+    outline: 2px solid ${({ theme }) => theme.colors.fieldFocus};
   }
 `;
 
@@ -218,6 +220,9 @@ const Button = styled.button<{ $secondary?: boolean }>`
   background: ${({ $secondary, theme }) => ($secondary ? 'transparent' : theme.colors.primary)};
   color: ${({ $secondary, theme }) => ($secondary ? theme.colors.primary : '#fff')};
   cursor: pointer;
+  font-family: ${({ theme }) => theme.typography.fontFamily};
+  font-size: ${({ theme }) => theme.typography.field.fontSize};
+  font-weight: 400;
   min-height: 2.25rem;
   min-width: 7rem;
   padding: 0 1.25rem;
@@ -226,7 +231,7 @@ const Button = styled.button<{ $secondary?: boolean }>`
 const Message = styled.p`
   grid-column: 2;
   color: ${({ theme }) => theme.colors.primary};
-  font-weight: 600;
+  font-weight: ${({ theme }) => theme.typography.field.fontWeight};
 
   @media (max-width: 720px) {
     grid-column: 1;
