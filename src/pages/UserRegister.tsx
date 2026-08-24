@@ -28,6 +28,8 @@ const initialFormData: UserFormData = {
   image: null,
 };
 
+const API_URL = import.meta.env.VITE_API_BASE_URL;
+
 const Main = styled.main`
   width: min(75rem, calc(100% - 2rem));
   margin: 0 auto 4rem;
@@ -83,10 +85,50 @@ const Actions = styled.div`
 
 export default function UserRegister({ isNew }: UserRegisterProps) {
   const [formData, setFormData] = useState<UserFormData>(initialFormData);
+  const [message, setMessage] = useState('');
   const currentRole: Role = 'ADMIN';
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+
+    if (formData.senha !== formData.confirmarSenha) {
+      setMessage('As senhas não conferem.');
+      return;
+    }
+
+    const token = localStorage.getItem('token');
+    const userData = new FormData();
+
+    userData.append('nome', formData.nome);
+    userData.append('matricula', formData.matricula);
+    userData.append('role', formData.role);
+    userData.append('senha', formData.senha);
+
+    if (formData.image) {
+      userData.append('image', formData.image);
+    }
+
+    try {
+      const response = await fetch(`${API_URL}/user`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: userData,
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setMessage(data.message);
+        return;
+      }
+
+      setMessage('Usuário cadastrado com sucesso.');
+      setFormData(initialFormData);
+    } catch {
+      setMessage('Erro ao cadastrar usuário.');
+    }
   }
 
   return (
@@ -182,6 +224,8 @@ export default function UserRegister({ isNew }: UserRegisterProps) {
             <button type="button">Cancelar</button>
             <button type="submit">Enviar</button>
           </Actions>
+
+          {message && <p>{message}</p>}
         </Form>
       </Main>
 
