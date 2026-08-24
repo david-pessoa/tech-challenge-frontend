@@ -31,22 +31,32 @@ const initialFormData: UserFormData = {
 const API_URL = import.meta.env.VITE_API_BASE_URL;
 
 const Main = styled.main`
-  width: min(75rem, calc(100% - 2rem));
-  margin: 0 auto 4rem;
+  width: min(76rem, calc(100% - 2rem));
+  margin: 0 auto 5rem;
+`;
+
+const BackLink = styled.a`
+  color: ${({ theme }) => theme.colors.text};
+  display: inline-block;
+  font-size: 0.875rem;
+  margin-bottom: 1.5rem;
+  text-decoration: none;
 `;
 
 const Title = styled.h1`
   text-align: center;
-  margin: 2rem 0;
+  margin: 0 0 3rem;
 `;
 
 const Form = styled.form`
   display: grid;
-  grid-template-columns: 10rem 1fr;
-  gap: 2rem;
+  grid-template-columns: 9rem 1fr;
+  gap: 2.5rem;
+  align-items: start;
 
   @media (max-width: 720px) {
     grid-template-columns: 1fr;
+    gap: 1.5rem;
   }
 `;
 
@@ -55,10 +65,14 @@ const PhotoField = styled.div`
   justify-content: center;
 `;
 
+const FileInput = styled.input`
+  max-width: 9rem;
+`;
+
 const Fields = styled.div`
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 1rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.5rem 1.25rem;
 
   @media (max-width: 720px) {
     grid-template-columns: 1fr;
@@ -70,6 +84,36 @@ const Field = styled.label<{ $full?: boolean }>`
   flex-direction: column;
   gap: 0.5rem;
   grid-column: ${({ $full }) => ($full ? '1 / -1' : 'auto')};
+  font-size: 0.875rem;
+  font-weight: 600;
+`;
+
+const Input = styled.input`
+  border: 0;
+  border-radius: 1.5rem;
+  background: #fbf6ea;
+  box-shadow: 0 2px 5px #d8d0bf;
+  color: ${({ theme }) => theme.colors.text};
+  min-height: 2.75rem;
+  padding: 0 1.25rem;
+
+  &:focus {
+    outline: 2px solid #f2c0ad;
+  }
+`;
+
+const Select = styled.select`
+  border: 0;
+  border-radius: 1.5rem;
+  background: #fbf6ea;
+  box-shadow: 0 2px 5px #d8d0bf;
+  color: ${({ theme }) => theme.colors.text};
+  min-height: 2.75rem;
+  padding: 0 1.25rem;
+
+  &:focus {
+    outline: 2px solid #f2c0ad;
+  }
 `;
 
 const Actions = styled.div`
@@ -77,6 +121,27 @@ const Actions = styled.div`
   display: flex;
   justify-content: flex-end;
   gap: 1rem;
+
+  @media (max-width: 720px) {
+    grid-column: 1;
+  }
+`;
+
+const Button = styled.button<{ $secondary?: boolean }>`
+  border: 1px solid ${({ theme }) => theme.colors.primary};
+  border-radius: 1.25rem;
+  background: ${({ $secondary, theme }) => ($secondary ? 'transparent' : theme.colors.primary)};
+  color: ${({ $secondary, theme }) => ($secondary ? theme.colors.primary : '#fff')};
+  cursor: pointer;
+  min-height: 2.25rem;
+  min-width: 7rem;
+  padding: 0 1.25rem;
+`;
+
+const Message = styled.p`
+  grid-column: 2;
+  color: ${({ theme }) => theme.colors.primary};
+  font-weight: 600;
 
   @media (max-width: 720px) {
     grid-column: 1;
@@ -136,13 +201,13 @@ export default function UserRegister({ isNew }: UserRegisterProps) {
       <Header role={currentRole} />
 
       <Main>
-        <a href="/">Voltar a tela de início</a>
+        <BackLink href="/">Voltar a tela de início</BackLink>
 
         <Title>{isNew ? 'Novo Usuário' : 'Editar Usuário'}</Title>
 
         <Form onSubmit={handleSubmit}>
           <PhotoField>
-            <input
+            <FileInput
               id="image"
               name="image"
               type="file"
@@ -159,7 +224,7 @@ export default function UserRegister({ isNew }: UserRegisterProps) {
           <Fields>
             <Field $full htmlFor="nome">
               Nome
-              <input
+              <Input
                 id="nome"
                 name="nome"
                 value={formData.nome}
@@ -170,7 +235,7 @@ export default function UserRegister({ isNew }: UserRegisterProps) {
 
             <Field htmlFor="matricula">
               Matrícula
-              <input
+              <Input
                 id="matricula"
                 name="matricula"
                 value={formData.matricula}
@@ -181,7 +246,7 @@ export default function UserRegister({ isNew }: UserRegisterProps) {
 
             <Field htmlFor="role">
               Selecione o tipo de acesso
-              <select
+              <Select
                 id="role"
                 name="role"
                 value={formData.role}
@@ -190,12 +255,12 @@ export default function UserRegister({ isNew }: UserRegisterProps) {
                 <option value="ALUNO">Aluno</option>
                 <option value="PROFESSOR">Professor</option>
                 <option value="ADMIN">Administrador</option>
-              </select>
+              </Select>
             </Field>
 
             <Field htmlFor="senha">
               Senha
-              <input
+              <Input
                 id="senha"
                 name="senha"
                 type="password"
@@ -207,7 +272,7 @@ export default function UserRegister({ isNew }: UserRegisterProps) {
 
             <Field htmlFor="confirmarSenha">
               Confirme sua senha
-              <input
+              <Input
                 id="confirmarSenha"
                 name="confirmarSenha"
                 type="password"
@@ -221,11 +286,13 @@ export default function UserRegister({ isNew }: UserRegisterProps) {
           </Fields>
 
           <Actions>
-            <button type="button">Cancelar</button>
-            <button type="submit">Enviar</button>
+            <Button type="button" $secondary>
+              Cancelar
+            </Button>
+            <Button type="submit">Enviar</Button>
           </Actions>
 
-          {message && <p>{message}</p>}
+          {message && <Message>{message}</Message>}
         </Form>
       </Main>
 
