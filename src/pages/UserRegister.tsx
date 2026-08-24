@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { FormEvent } from 'react';
 import styled from 'styled-components';
 
@@ -243,6 +243,10 @@ export default function UserRegister({ isNew }: UserRegisterProps) {
   const [imagePreview, setImagePreview] = useState('');
   const [message, setMessage] = useState('');
   const currentRole: Role = 'ADMIN';
+
+  useEffect(() => {
+    document.title = isNew ? 'Edify | Cadastro de Usuários' : 'Edify | Edição de Usuários';
+  }, [isNew]);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
