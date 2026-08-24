@@ -37,10 +37,18 @@ const Main = styled.main`
 
 const BackLink = styled.a`
   color: ${({ theme }) => theme.colors.text};
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
   font-size: 0.875rem;
   margin-bottom: 1.5rem;
   text-decoration: none;
+
+  span {
+    color: #e6768d;
+    font-size: 1.125rem;
+    transform: rotate(-90deg);
+  }
 `;
 
 const Title = styled.h1`
@@ -65,8 +73,58 @@ const PhotoField = styled.div`
   justify-content: center;
 `;
 
-const FileInput = styled.input`
-  max-width: 9rem;
+const PhotoUpload = styled.label<{ $hasImage: boolean }>`
+  position: relative;
+  width: 8.75rem;
+  height: 8.75rem;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: ${({ theme }) => theme.colors.primary};
+  cursor: pointer;
+  overflow: hidden;
+  text-align: center;
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: ${({ $hasImage, theme }) =>
+      $hasImage
+        ? 'transparent'
+        : `repeating-conic-gradient(${theme.colors.primary} 0deg 12deg, transparent 12deg 30deg)`};
+    mask: radial-gradient(farthest-side, transparent calc(100% - 2px), #000 calc(100% - 2px));
+    -webkit-mask: radial-gradient(
+      farthest-side,
+      transparent calc(100% - 2px),
+      #000 calc(100% - 2px)
+    );
+  }
+
+  input {
+    display: none;
+  }
+`;
+
+const PhotoPreview = styled.img`
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+`;
+
+const UploadContent = styled.span`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  width: 5.75rem;
+  font-size: 0.68rem;
+  line-height: 1.25;
+`;
+
+const UploadIcon = styled.span`
+  font-size: 1.8rem;
 `;
 
 const Fields = styled.div`
@@ -150,6 +208,7 @@ const Message = styled.p`
 
 export default function UserRegister({ isNew }: UserRegisterProps) {
   const [formData, setFormData] = useState<UserFormData>(initialFormData);
+  const [imagePreview, setImagePreview] = useState('');
   const [message, setMessage] = useState('');
   const currentRole: Role = 'ADMIN';
 
@@ -191,6 +250,7 @@ export default function UserRegister({ isNew }: UserRegisterProps) {
 
       setMessage('Usuário cadastrado com sucesso.');
       setFormData(initialFormData);
+      setImagePreview('');
     } catch {
       setMessage('Erro ao cadastrar usuário.');
     }
@@ -201,24 +261,40 @@ export default function UserRegister({ isNew }: UserRegisterProps) {
       <Header role={currentRole} />
 
       <Main>
-        <BackLink href="/">Voltar a tela de início</BackLink>
+        <BackLink href="/">
+          <span className="material-symbols-outlined">arrow_upward</span>
+          Voltar a tela de início
+        </BackLink>
 
         <Title>{isNew ? 'Novo Usuário' : 'Editar Usuário'}</Title>
 
         <Form onSubmit={handleSubmit}>
           <PhotoField>
-            <FileInput
-              id="image"
-              name="image"
-              type="file"
-              accept="image/png,image/jpeg,image/webp"
-              onChange={event =>
-                setFormData({
-                  ...formData,
-                  image: event.target.files?.[0] ?? null,
-                })
-              }
-            />
+            <PhotoUpload $hasImage={Boolean(imagePreview)} htmlFor="image">
+              {imagePreview ? (
+                <PhotoPreview src={imagePreview} alt="Prévia da foto do usuário" />
+              ) : (
+                <UploadContent>
+                  <UploadIcon className="material-symbols-outlined">download</UploadIcon>
+                  Clique para carregar ou arraste e solte.
+                </UploadContent>
+              )}
+              <input
+                id="image"
+                name="image"
+                type="file"
+                accept="image/png,image/jpeg,image/webp"
+                onChange={event => {
+                  const file = event.target.files?.[0] ?? null;
+
+                  setFormData({
+                    ...formData,
+                    image: file,
+                  });
+                  setImagePreview(file ? URL.createObjectURL(file) : '');
+                }}
+              />
+            </PhotoUpload>
           </PhotoField>
 
           <Fields>
