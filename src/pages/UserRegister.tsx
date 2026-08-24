@@ -4,6 +4,7 @@ import styled from 'styled-components';
 
 import Footer from '../components/Footer';
 import Header from '../components/Header';
+import redDoodle from '../assets/red-doodle.png';
 import type { Role } from '../types/Roles';
 
 type UserRegisterProps = {
@@ -53,7 +54,21 @@ const BackLink = styled.a`
 
 const Title = styled.h1`
   text-align: center;
-  margin: 0 0 3rem;
+  margin: 0;
+`;
+
+const TitleContainer = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  margin-bottom: 3rem;
+`;
+
+const TitleIcon = styled.img`
+  width: 4rem;
+  margin-left: -0.65rem;
+  transform: translateY(-0.65rem) rotate(12deg);
 `;
 
 const Form = styled.form`
@@ -84,6 +99,7 @@ const PhotoUpload = styled.label<{ $hasImage: boolean }>`
   cursor: pointer;
   overflow: hidden;
   text-align: center;
+  background-color: ${({ $hasImage }) => ($hasImage ? 'transparent' : 'rgba(251, 220, 220, 0.24)')};
 
   &::before {
     content: '';
@@ -117,10 +133,12 @@ const UploadContent = styled.span`
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.35rem;
-  width: 5.75rem;
-  font-size: 0.68rem;
-  line-height: 1.25;
+  width: 6.25rem;
+  color: #98816d;
+  font-family: Poppins, sans-serif;
+  font-size: 0.625rem;
+  font-weight: 600;
+  line-height: 1.25rem;
 `;
 
 const UploadIcon = styled.span`
@@ -142,18 +160,33 @@ const Field = styled.label<{ $full?: boolean }>`
   flex-direction: column;
   gap: 0.5rem;
   grid-column: ${({ $full }) => ($full ? '1 / -1' : 'auto')};
-  font-size: 0.875rem;
+  color: #32434d;
+  font-size: 1rem;
   font-weight: 600;
+  line-height: 1.25rem;
 `;
 
-const Input = styled.input`
+const fieldControlStyles = `
   border: 0;
   border-radius: 1.5rem;
   background: #fbf6ea;
   box-shadow: 0 2px 5px #d8d0bf;
-  color: ${({ theme }) => theme.colors.text};
+  color: #32434d;
+  font-family: Poppins, sans-serif;
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.25rem;
   min-height: 2.75rem;
   padding: 0 1.25rem;
+
+  &::placeholder {
+    color: #9a8372;
+    opacity: 1;
+  }
+`;
+
+const Input = styled.input`
+  ${fieldControlStyles}
 
   &:focus {
     outline: 2px solid #f2c0ad;
@@ -161,13 +194,7 @@ const Input = styled.input`
 `;
 
 const Select = styled.select`
-  border: 0;
-  border-radius: 1.5rem;
-  background: #fbf6ea;
-  box-shadow: 0 2px 5px #d8d0bf;
-  color: ${({ theme }) => theme.colors.text};
-  min-height: 2.75rem;
-  padding: 0 1.25rem;
+  ${fieldControlStyles}
 
   &:focus {
     outline: 2px solid #f2c0ad;
@@ -266,7 +293,10 @@ export default function UserRegister({ isNew }: UserRegisterProps) {
           Voltar a tela de início
         </BackLink>
 
-        <Title>{isNew ? 'Novo Usuário' : 'Editar Usuário'}</Title>
+        <TitleContainer>
+          <Title>{isNew ? 'Novo Usuário' : 'Editar Usuário'}</Title>
+          <TitleIcon src={redDoodle} alt="" />
+        </TitleContainer>
 
         <Form onSubmit={handleSubmit}>
           <PhotoField>
@@ -276,7 +306,7 @@ export default function UserRegister({ isNew }: UserRegisterProps) {
               ) : (
                 <UploadContent>
                   <UploadIcon className="material-symbols-outlined">download</UploadIcon>
-                  Clique para carregar ou arraste e solte.
+                  <span>Clique para carregar ou arraste e solte.</span>
                 </UploadContent>
               )}
               <input
