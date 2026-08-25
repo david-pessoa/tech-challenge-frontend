@@ -36,8 +36,10 @@ const initialFormData: UserFormData = {
 const API_URL = import.meta.env.VITE_API_BASE_URL;
 
 const Main = styled.main`
-  width: min(76rem, calc(100% - 2rem));
+  box-sizing: border-box;
+  width: 100%;
   margin: 0 auto 5rem;
+  padding: 0 clamp(1rem, 8.55vw, 7.6875rem);
 `;
 
 const BackLink = styled.a`
@@ -154,7 +156,7 @@ const UploadIcon = styled.span`
 const Fields = styled.div`
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 1.5rem 1.25rem;
+  gap: 2.5rem 1.25rem;
 
   @media (max-width: 720px) {
     grid-template-columns: 1fr;
