@@ -87,8 +87,8 @@ export default function Calendar({ role }: CalendarProp) {
     justify-content: center;
     align-items: center;
     border-radius: 50%;
-    background-color: #e44cd29b;
-    color: #72316b;
+    background-color: #FFD9B6;
+    color: #513821;
     font-weight: 700;
   `;
 

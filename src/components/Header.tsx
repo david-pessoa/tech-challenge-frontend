@@ -3,13 +3,17 @@ import logo from '../../public/Logo.png';
 import type { Role } from '../types/Roles';
 import { capitalize } from '../utils/functions';
 
+import HeaderTeach from '../assets/HeaderTeach.png';
+import HeaderAdmin from '../assets/HeaderAdmin.png';
+import HeaderStudent from '../assets/HeaderStudent.png';
+
 const RoleColors = {
   ADMIN:
-    'radial-gradient(111.63% 111.63% at 42.64% -5.82%, #E3FCF8 33.65%, #BFDCD7 44.58%, #A4CDC6 100%);',
-  PROFESSOR:
-    'radial-gradient(111.63% 111.63% at 42.64% -5.82%, #FEE4DF 33.65%, rgba(251, 179, 190, 0.71) 44.58%, rgba(224, 167, 227, 0.71) 100%)',
+    `url(${HeaderAdmin}) center/cover no-repeat`,
+  PROFESSOR: 
+  `url(${HeaderTeach}) center/cover no-repeat`,
   ALUNO:
-    'radial-gradient(111.63% 111.63% at 42.64% -5.82%, #FDE9A0 33.65%, #FCBBA3 44.58%, #FCBBA3 100%)',
+    `url(${HeaderStudent}) center/cover no-repeat`,
 };
 
 const Background = styled.header<{ $role: Role }>`
