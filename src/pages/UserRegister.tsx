@@ -13,6 +13,7 @@ type UserRegisterProps = {
 
 type UserFormData = {
   nome: string;
+  birthDate: string;
   matricula: string;
   role: Role;
   senha: string;
@@ -22,6 +23,7 @@ type UserFormData = {
 
 const initialFormData: UserFormData = {
   nome: '',
+  birthDate: '',
   matricula: '',
   role: 'ALUNO',
   senha: '',
@@ -151,6 +153,17 @@ const Fields = styled.div`
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 1.5rem 1.25rem;
+
+  @media (max-width: 720px) {
+    grid-template-columns: 1fr;
+  }
+`;
+
+const NameDateRow = styled.div`
+  display: grid;
+  grid-column: 1 / -1;
+  grid-template-columns: minmax(0, 1fr) minmax(10.5rem, 14rem);
+  gap: 1.25rem;
 
   @media (max-width: 720px) {
     grid-template-columns: 1fr;
@@ -330,6 +343,7 @@ export default function UserRegister({ isNew }: UserRegisterProps) {
     const userData = new FormData();
 
     userData.append('nome', formData.nome);
+    userData.append('birthDate', formData.birthDate);
     userData.append('matricula', formData.matricula);
     userData.append('role', formData.role);
     userData.append('senha', formData.senha);
@@ -407,16 +421,29 @@ export default function UserRegister({ isNew }: UserRegisterProps) {
           </PhotoField>
 
           <Fields>
-            <Field $full htmlFor="nome">
-              Nome
-              <Input
-                id="nome"
-                name="nome"
-                value={formData.nome}
-                placeholder="Digite o nome completo..."
-                onChange={event => setFormData({ ...formData, nome: event.target.value })}
-              />
-            </Field>
+            <NameDateRow>
+              <Field htmlFor="nome">
+                Nome Completo
+                <Input
+                  id="nome"
+                  name="nome"
+                  value={formData.nome}
+                  placeholder="Digite o nome completo..."
+                  onChange={event => setFormData({ ...formData, nome: event.target.value })}
+                />
+              </Field>
+
+              <Field htmlFor="birthDate">
+                Data de nascimento
+                <Input
+                  id="birthDate"
+                  name="birthDate"
+                  type="date"
+                  value={formData.birthDate}
+                  onChange={event => setFormData({ ...formData, birthDate: event.target.value })}
+                />
+              </Field>
+            </NameDateRow>
 
             <Field htmlFor="matricula">
               Matrícula
