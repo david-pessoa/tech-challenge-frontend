@@ -250,6 +250,14 @@ const PasswordInputWrapper = styled.div`
   }
 `;
 
+const FieldError = styled.span`
+  color: ${({ theme }) => theme.colors.primary};
+  font-family: ${({ theme }) => theme.typography.fontFamily};
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1rem;
+`;
+
 const PasswordInput = styled.input`
   border: 0;
   background: transparent;
@@ -347,12 +355,16 @@ export default function UserRegister({ isNew }: UserRegisterProps) {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const currentRole: Role = 'ADMIN';
+  const hasPasswordMismatch =
+    Boolean(formData.senha) &&
+    Boolean(formData.confirmarSenha) &&
+    formData.senha !== formData.confirmarSenha;
   const isFormValid =
     Boolean(formData.nome.trim()) &&
     Boolean(formData.matricula.trim()) &&
     Boolean(formData.senha.trim()) &&
     Boolean(formData.confirmarSenha.trim()) &&
-    formData.senha === formData.confirmarSenha;
+    !hasPasswordMismatch;
 
   useEffect(() => {
     document.title = isNew ? 'Edify | Cadastro de Usuários' : 'Edify | Edição de Usuários';
@@ -530,6 +542,7 @@ export default function UserRegister({ isNew }: UserRegisterProps) {
                   </span>
                 </PasswordVisibilityButton>
               </PasswordInputWrapper>
+              {hasPasswordMismatch && <FieldError>As senhas não conferem.</FieldError>}
             </Field>
 
             <Field htmlFor="confirmarSenha">
