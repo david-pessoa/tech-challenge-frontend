@@ -183,6 +183,10 @@ const Field = styled.label<{ $full?: boolean }>`
   line-height: ${({ theme }) => theme.typography.field.lineHeight};
 `;
 
+const RequiredMark = styled.span`
+  color: ${({ theme }) => theme.colors.primary};
+`;
+
 const fieldControlStyles = ({ theme }: { theme: typeof import('../styles/theme').theme }) => `
   border: 0;
   border-radius: 1.5rem;
@@ -474,7 +478,9 @@ export default function UserRegister({ isNew }: UserRegisterProps) {
           <Fields>
             <NameDateRow>
               <Field htmlFor="nome">
-                Nome Completo
+                <span>
+                  Nome Completo <RequiredMark>*</RequiredMark>
+                </span>
                 <Input
                   id="nome"
                   name="nome"
@@ -497,7 +503,9 @@ export default function UserRegister({ isNew }: UserRegisterProps) {
             </NameDateRow>
 
             <Field htmlFor="matricula">
-              Matrícula
+              <span>
+                Matrícula <RequiredMark>*</RequiredMark>
+              </span>
               <Input
                 id="matricula"
                 name="matricula"
@@ -522,7 +530,9 @@ export default function UserRegister({ isNew }: UserRegisterProps) {
             </Field>
 
             <Field htmlFor="senha">
-              Senha
+              <span>
+                Senha <RequiredMark>*</RequiredMark>
+              </span>
               <PasswordInputWrapper>
                 <PasswordInput
                   id="senha"
@@ -546,7 +556,9 @@ export default function UserRegister({ isNew }: UserRegisterProps) {
             </Field>
 
             <Field htmlFor="confirmarSenha">
-              Confirme sua senha
+              <span>
+                Confirme sua senha <RequiredMark>*</RequiredMark>
+              </span>
               <PasswordInputWrapper>
                 <PasswordInput
                   id="confirmarSenha"
