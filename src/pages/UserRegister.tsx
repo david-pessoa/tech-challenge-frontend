@@ -11,6 +11,8 @@ type UserRegisterProps = {
   isNew: boolean;
 };
 
+type ToastStatus = 'success' | 'error';
+
 type UserFormData = {
   nome: string;
   birthDate: string;
@@ -309,20 +311,34 @@ const Button = styled.button<{ $secondary?: boolean }>`
   padding: 0 1.25rem;
 `;
 
-const Message = styled.p`
-  grid-column: 2;
-  color: ${({ theme }) => theme.colors.primary};
+const Toast = styled.div<{ $status: ToastStatus }>`
+  position: fixed;
+  top: 1.5rem;
+  right: 1.5rem;
+  z-index: 10;
+  width: min(22rem, calc(100% - 2rem));
+  border-left: 0.35rem solid
+    ${({ $status, theme }) => ($status === 'success' ? '#6FB9A9' : theme.colors.primary)};
+  border-radius: 0.75rem;
+  background: ${({ theme }) => theme.colors.fieldBackground};
+  box-shadow: 0 0.5rem 1.5rem rgba(50, 67, 77, 0.16);
+  color: ${({ theme }) => theme.colors.text};
+  font-family: ${({ theme }) => theme.typography.fontFamily};
+  font-size: ${({ theme }) => theme.typography.field.fontSize};
   font-weight: ${({ theme }) => theme.typography.field.fontWeight};
+  line-height: ${({ theme }) => theme.typography.field.lineHeight};
+  padding: 1rem 1.25rem;
 
   @media (max-width: 720px) {
-    grid-column: 1;
+    top: 1rem;
+    right: 1rem;
   }
 `;
 
 export default function UserRegister({ isNew }: UserRegisterProps) {
   const [formData, setFormData] = useState<UserFormData>(initialFormData);
   const [imagePreview, setImagePreview] = useState('');
-  const [message, setMessage] = useState('');
+  const [toast, setToast] = useState<{ message: string; status: ToastStatus } | null>(null);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const currentRole: Role = 'ADMIN';
@@ -331,11 +347,21 @@ export default function UserRegister({ isNew }: UserRegisterProps) {
     document.title = isNew ? 'Edify | Cadastro de Usuários' : 'Edify | Edição de Usuários';
   }, [isNew]);
 
+  useEffect(() => {
+    if (!toast) {
+      return;
+    }
+
+    const timeout = window.setTimeout(() => setToast(null), 4000);
+
+    return () => window.clearTimeout(timeout);
+  }, [toast]);
+
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
     if (formData.senha !== formData.confirmarSenha) {
-      setMessage('As senhas não conferem.');
+      setToast({ message: 'As senhas não conferem.', status: 'error' });
       return;
     }
 
@@ -364,20 +390,22 @@ export default function UserRegister({ isNew }: UserRegisterProps) {
       const data = await response.json();
 
       if (!response.ok) {
-        setMessage(data.message);
+        setToast({ message: data.message, status: 'error' });
         return;
       }
 
-      setMessage('Usuário cadastrado com sucesso.');
+      setToast({ message: 'Usuário cadastrado com sucesso.', status: 'success' });
       setFormData(initialFormData);
       setImagePreview('');
     } catch {
-      setMessage('Erro ao cadastrar usuário.');
+      setToast({ message: 'Erro ao cadastrar usuário.', status: 'error' });
     }
   }
 
   return (
     <>
+      {toast && <Toast $status={toast.status}>{toast.message}</Toast>}
+
       <Header role={currentRole} />
 
       <Main>
@@ -525,8 +553,6 @@ export default function UserRegister({ isNew }: UserRegisterProps) {
             </Button>
             <Button type="submit">Salvar</Button>
           </Actions>
-
-          {message && <Message>{message}</Message>}
         </Form>
       </Main>
 
