@@ -309,6 +309,11 @@ const Button = styled.button<{ $secondary?: boolean }>`
   min-height: 2.25rem;
   min-width: 7rem;
   padding: 0 1.25rem;
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
 `;
 
 const Toast = styled.div<{ $status: ToastStatus }>`
@@ -342,6 +347,12 @@ export default function UserRegister({ isNew }: UserRegisterProps) {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const currentRole: Role = 'ADMIN';
+  const isFormValid =
+    Boolean(formData.nome.trim()) &&
+    Boolean(formData.matricula.trim()) &&
+    Boolean(formData.senha.trim()) &&
+    Boolean(formData.confirmarSenha.trim()) &&
+    formData.senha === formData.confirmarSenha;
 
   useEffect(() => {
     document.title = isNew ? 'Edify | Cadastro de Usuários' : 'Edify | Edição de Usuários';
@@ -551,7 +562,9 @@ export default function UserRegister({ isNew }: UserRegisterProps) {
             <Button type="button" $secondary>
               Cancelar
             </Button>
-            <Button type="submit">Salvar</Button>
+            <Button type="submit" disabled={!isFormValid}>
+              Salvar
+            </Button>
           </Actions>
         </Form>
       </Main>
