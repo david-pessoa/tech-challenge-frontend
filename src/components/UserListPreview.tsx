@@ -148,6 +148,8 @@ const AccessUserListButton = styled.a`
 export default function UserListPreview({ role }: UserListPreviewProps) {
   const [allUsersList, setAllUsersList] = useState<User[]>([]);
 
+  //Edit and delete handlers
+
   useEffect(() => {
     async function getAllUsersList() {
       const usersList = await getAllUsers();

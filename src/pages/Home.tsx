@@ -6,17 +6,13 @@ import sparkle from '../assets/sparkle.png';
 import redDoodle from '../assets/red-doodle.png';
 
 import styled from 'styled-components';
-import { useEffect, useState } from 'react';
-
-import type { Role } from '../types/Roles';
+import { useUser } from '../context/AuthContext';
 
 import userImage from '../assets/user-default-image.png';
 
 import { capitalize } from '../utils/functions';
 import Calendar from '../components/Calendar';
 import UserListPreview from '../components/UserListPreview';
-import { getMe } from '../services/user.service';
-import type { User } from '../types/User';
 
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 
@@ -108,21 +104,11 @@ const CalendarTitle = styled.h2`
 
 export default function Home() {
   document.title = 'Edify | Home';
-
-  const [user, setUser] = useState<User>();
-
-  // Fazer lógica para obter informações do usuário do back-end
-  useEffect(() => {
-    async function getUserData() {
-      const userData = await getMe();
-      setUser(userData);
-    }
-    getUserData();
-  }, []);
+  const { user } = useUser();
 
   return (
     <>
-      {user && <Header role={user.role} />}
+      <Header />
       <Main>
         <div>
           <TopContainer>
@@ -135,7 +121,7 @@ export default function Home() {
               <span className="material-symbols-outlined">search</span>
             </InputContainer>
           </TopContainer>
-          {user && <PostsContainer role={user.role} />}
+          <PostsContainer />
         </div>
         <Aside>
           <h1>Perfil</h1>
