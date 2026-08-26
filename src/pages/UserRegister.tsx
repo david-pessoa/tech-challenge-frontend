@@ -50,7 +50,6 @@ const BackLink = styled.a`
   font-size: ${({ theme }) => theme.typography.backLink.fontSize};
   font-weight: ${({ theme }) => theme.typography.backLink.fontWeight};
   margin-bottom: 1.5rem;
-  text-decoration: none;
 
   span {
     color: ${({ theme }) => theme.colors.backIcon};

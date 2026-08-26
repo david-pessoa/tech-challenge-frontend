@@ -23,8 +23,6 @@ const MateriaContainer = styled.div`
 `;
 
 const Link = styled.a`
-  color: inherit;
-  text-decoration: none;
   display: block;
 `;
 

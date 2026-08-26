@@ -1,5 +1,5 @@
 export type Post = {
-  postId: string;
+  id: string;
   materia: string;
   titulo: string;
   descricao: string;

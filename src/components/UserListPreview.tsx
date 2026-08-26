@@ -98,10 +98,15 @@ const ActionContainer = styled.div`
   margin-right: 10px;
 `;
 
-const ActionButton = styled.button`
+const DeleteButton = styled.button`
   border: none;
   background: transparent;
   cursor: pointer;
+`;
+
+const EditButton = styled.a`
+  border: none;
+  background: transparent;
 `;
 
 const EditIcon = styled.span`
@@ -115,9 +120,8 @@ const DeleteIcon = styled.span`
 `;
 
 const AccessUserListButton = styled.a`
-  color: #32434d;
+  color: inherit;
   font-weight: 600;
-  text-decoration: none;
   display: flex;
   align-items: center;
 
@@ -186,12 +190,12 @@ export default function UserListPreview({ role }: UserListPreviewProps) {
                   </UserRole>
                 </UserNameRoleContainer>
                 <ActionContainer>
-                  <ActionButton>
+                  <EditButton href={`/user/edit/${user.id}`}>
                     <EditIcon className="material-symbols-outlined">edit</EditIcon>
-                  </ActionButton>
-                  <ActionButton>
+                  </EditButton>
+                  <DeleteButton>
                     <DeleteIcon className="material-symbols-outlined">delete</DeleteIcon>
-                  </ActionButton>
+                  </DeleteButton>
                 </ActionContainer>
               </Item>
             ))}

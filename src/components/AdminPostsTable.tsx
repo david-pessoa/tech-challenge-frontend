@@ -24,8 +24,6 @@ const MateriaContainer = styled.div`
 `;
 
 const Link = styled.a`
-  color: inherit;
-  text-decoration: none;
   display: block;
 `;
 
@@ -56,10 +54,14 @@ const ActionContainer = styled.div`
   margin-right: 10px;
 `;
 
-const ActionButton = styled.button`
+const DeleteButton = styled.button`
   border: none;
   background: transparent;
   cursor: pointer;
+`;
+const EditButton = styled.a`
+  border: none;
+  background: transparent;
 `;
 
 const EditIcon = styled.span`
@@ -110,7 +112,7 @@ export default function AdminPostsTable({ dados }: AdminPostsTableProps) {
               </MateriaContainer>
             </Td>
             <Td className="bold">
-              <Link href={`/post/${post.postId}`}>{post.titulo}</Link>
+              <Link href={`/post/${post.id}`}>{post.titulo}</Link>
             </Td>
             <Td>{post.descricao}</Td>
             <Td>{new Intl.DateTimeFormat('pt-BR').format(post.createdAt)}</Td>
@@ -118,12 +120,12 @@ export default function AdminPostsTable({ dados }: AdminPostsTableProps) {
             <td>{post.autor}</td>
             <td>
               <ActionContainer>
-                <ActionButton>
+                <EditButton href={`/post/edit/${post.id}`}>
                   <EditIcon className="material-symbols-outlined">edit</EditIcon>
-                </ActionButton>
-                <ActionButton>
+                </EditButton>
+                <DeleteButton>
                   <DeleteIcon className="material-symbols-outlined">delete</DeleteIcon>
-                </ActionButton>
+                </DeleteButton>
               </ActionContainer>
             </td>
           </tr>

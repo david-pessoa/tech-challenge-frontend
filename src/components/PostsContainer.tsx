@@ -29,8 +29,6 @@ const Paragraph = styled.p`
 `;
 
 const Link = styled.a`
-  color: inherit;
-  text-decoration: none;
   display: block;
 `;
 
@@ -41,7 +39,7 @@ const AddClassContainer = styled.div`
   margin-bottom: 1.813rem;
 `;
 
-const AddClassButton = styled.button`
+const AddClassButton = styled.a`
   height: 100%;
   width: 6.938rem;
   border: none;
@@ -49,7 +47,6 @@ const AddClassButton = styled.button`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  cursor: pointer;
 `;
 
 const AddIcon = styled.span`
@@ -64,7 +61,7 @@ export default function PostsContainer() {
 
   const dados = [
     {
-      postId: '0b70e39b-58ef-4d04-b039-3036a65b0bbe',
+      id: '0b70e39b-58ef-4d04-b039-3036a65b0bbe',
       materia: 'Ciências',
       titulo: 'Aula 20 - Sapos no meio dos humanos',
       descricao: 'Pirâmides etárias',
@@ -73,7 +70,7 @@ export default function PostsContainer() {
       editedAt: creation_date,
     },
     {
-      postId: '0b70e39b-58ef-4d04-b039-3036a65b0bbe',
+      id: '0b70e39b-58ef-4d04-b039-3036a65b0bbe',
       materia: 'História',
       titulo: 'Aula 20 - Sapos no meio dos humanos',
       descricao: 'Pirâmides etárias',
@@ -82,7 +79,7 @@ export default function PostsContainer() {
       editedAt: creation_date,
     },
     {
-      postId: '0b70e39b-58ef-4d04-b039-3036a65b0bbe',
+      id: '0b70e39b-58ef-4d04-b039-3036a65b0bbe',
       materia: 'Português',
       titulo: 'Aula 20 - Sapos no meio dos humanos',
       descricao: 'Pirâmides etárias',
@@ -91,7 +88,7 @@ export default function PostsContainer() {
       editedAt: creation_date,
     },
     {
-      postId: '0b70e39b-58ef-4d04-b039-3036a65b0bbe',
+      id: '0b70e39b-58ef-4d04-b039-3036a65b0bbe',
       materia: 'Matemática',
       titulo: 'Aula 20 - Sapos no meio dos humanos',
       descricao: 'Pirâmides etárias',
@@ -100,7 +97,7 @@ export default function PostsContainer() {
       editedAt: creation_date,
     },
     {
-      postId: '0b70e39b-58ef-4d04-b039-3036a65b0bbe',
+      id: '0b70e39b-58ef-4d04-b039-3036a65b0bbe',
       materia: 'Geografia',
       titulo: 'Aula 20 - Sapos no meio dos humanos',
       descricao: 'Pirâmides etárias',
@@ -129,7 +126,7 @@ export default function PostsContainer() {
           >
             {dados.map((dado: Post, i) => (
               <SwiperSlide key={i} style={{ width: '12.5rem' }}>
-                <Link href={`/post/${dado.postId}`}>
+                <Link href={`/post/${dado.id}`}>
                   <CarouselCard dado={dado} />
                 </Link>
               </SwiperSlide>
@@ -151,7 +148,7 @@ export default function PostsContainer() {
           <Title>Suas aulas</Title>
           <AddClassContainer>
             <Paragraph>Veja as aulas que você postou</Paragraph>
-            <AddClassButton>
+            <AddClassButton href='/post/new'>
               <AddIcon className="material-symbols-outlined">add</AddIcon>
               <p>Nova aula</p>
             </AddClassButton>
@@ -173,7 +170,7 @@ export default function PostsContainer() {
           <Title>Novas aulas</Title>
           <AddClassContainer>
             <Paragraph>Últimas postagens de aulas feitas pelos professores</Paragraph>
-            <AddClassButton>
+            <AddClassButton href='/post/new'>
               <AddIcon className="material-symbols-outlined">add</AddIcon>
               <p>Nova aula</p>
             </AddClassButton>
@@ -190,7 +187,7 @@ export default function PostsContainer() {
           >
             {dados.map((dado: Post, i) => (
               <SwiperSlide key={i} style={{ width: '12.5rem' }}>
-                <Link href={`/post/${dado.postId}`}>
+                <Link href={`/post/${dado.id}`}>
                   <CarouselCard dado={dado} />
                 </Link>
               </SwiperSlide>

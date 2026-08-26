@@ -24,8 +24,6 @@ const MateriaContainer = styled.div`
 `;
 
 const Link = styled.a`
-  color: inherit;
-  text-decoration: none;
   display: block;
 `;
 
@@ -56,7 +54,12 @@ const ActionContainer = styled.div`
   margin-right: 10px;
 `;
 
-const ActionButton = styled.button`
+const DeleteButton = styled.button`
+  border: none;
+  background: transparent;
+  cursor: pointer;
+`;
+const EditButton = styled.a`
   border: none;
   background: transparent;
   cursor: pointer;
@@ -109,19 +112,19 @@ export default function ProfessorPostsTable({ dados }: ProfessorPostsTableProps)
               </MateriaContainer>
             </Td>
             <Td className="bold">
-              <Link href={`/post/${post.postId}`}>{post.titulo}</Link>
+              <Link href={`/post/${post.id}`}>{post.titulo}</Link>
             </Td>
             <Td>{post.descricao}</Td>
             <Td>{new Intl.DateTimeFormat('pt-BR').format(post.createdAt)}</Td>
             <Td>{new Intl.DateTimeFormat('pt-BR').format(post.editedAt)}</Td>
             <td>
               <ActionContainer>
-                <ActionButton>
+                <EditButton href={`/post/edit/${post.id}`}>
                   <EditIcon className="material-symbols-outlined">edit</EditIcon>
-                </ActionButton>
-                <ActionButton>
+                </EditButton>
+                <DeleteButton>
                   <DeleteIcon className="material-symbols-outlined">delete</DeleteIcon>
-                </ActionButton>
+                </DeleteButton>
               </ActionContainer>
             </td>
           </tr>
