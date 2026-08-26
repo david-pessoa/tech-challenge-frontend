@@ -9,7 +9,6 @@ export function setLocalStorageToken(token: string) {
 export function clearLocalStorageToken() {
   return localStorage.setItem('token', '')
 }
-<<<<<<< HEAD
 
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 
@@ -25,5 +24,3 @@ export function buildApiImageUrl(image: string | null) {
 
   return `${BASE_URL}${image}`;
 }
-=======
->>>>>>> main
