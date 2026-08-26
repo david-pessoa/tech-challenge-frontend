@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { getLocalStorageToken } from '../utils/functions';
+import { getBackendErrorMessage } from './auth.service';
 
 const BASE_URL = import.meta.env.VITE_BASE_URL + '/api';
 
@@ -13,11 +14,11 @@ export async function getAllUsers() {
     return response.data;
   } catch (error) {
     console.error('Erro na obtenção de lista de usuários:', error);
-    return error;
+    throw new Error(getBackendErrorMessage(error));
   }
 }
 
-export async function createUser(user: any) {
+export async function createUser(user: FormData) {
   try {
     const response = await axios.post(
       `${BASE_URL}/user`,
@@ -31,11 +32,11 @@ export async function createUser(user: any) {
     return response.data;
   } catch (error) {
     console.error('Erro na criação de usuário:', error);
-    return error;
+    throw new Error(getBackendErrorMessage(error));
   }
 }
 
-export async function updateUser(id: string, user: any) {
+export async function updateUser(id: string, user: FormData) {
   try {
     const response = await axios.patch(
       `${BASE_URL}/user/${id}`,
@@ -49,7 +50,7 @@ export async function updateUser(id: string, user: any) {
     return response.data;
   } catch (error) {
     console.error('Erro na atualização de usuários:', error);
-    return error;
+    throw new Error(getBackendErrorMessage(error));
   }
 }
 
@@ -63,7 +64,7 @@ export async function deleteUser(id: string) {
     return response.data;
   } catch (error) {
     console.error('Erro na remoção de usuários:', error);
-    return error;
+    throw new Error(getBackendErrorMessage(error));
   }
 }
 
@@ -77,6 +78,6 @@ export async function getMe() {
     return response.data;
   } catch (error) {
     console.error('Erro na obtenção de dados do usuário logado:', error);
-    return error;
+    throw new Error(getBackendErrorMessage(error));
   }
 }
