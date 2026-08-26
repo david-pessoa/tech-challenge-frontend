@@ -10,12 +10,14 @@ type PrivateRoutesProps = {
 
 export default function PrivateRoute({ children, acceptedRoles }: PrivateRoutesProps) {
   const { user, isLoading } = useUser();
+  
+  if (isLoading) return <div>Carregando...</div>
 
-  if (!isLoading) {
+  
     if (!user) return <Navigate to="/login" replace />;
 
     if (!acceptedRoles.includes(user.role)) return <Navigate to="/home" replace />;
-  }
+  
 
   return children;
 }
