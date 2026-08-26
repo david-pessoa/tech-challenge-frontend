@@ -6,13 +6,15 @@ import sparkle from '../assets/sparkle.png';
 import redDoodle from '../assets/red-doodle.png';
 
 import styled from 'styled-components';
-import type { Role } from '../types/Roles';
+import { useUser } from '../context/AuthContext';
 
-import userPhoto from '../assets/userPhoto.png';
+import userImage from '../assets/user-default-image.png';
 
 import { capitalize } from '../utils/functions';
 import Calendar from '../components/Calendar';
 import UserListPreview from '../components/UserListPreview';
+
+const BASE_URL = import.meta.env.VITE_BASE_URL;
 
 const Main = styled.main`
   margin-left: 6.188rem;
@@ -102,14 +104,11 @@ const CalendarTitle = styled.h2`
 
 export default function Home() {
   document.title = 'Edify | Home';
-
-  // Fazer lógica para obter informações do usuário do back-end
-
-  const role: Role = 'PROFESSOR';
+  const { user } = useUser();
 
   return (
     <>
-      <Header role={role} />
+      <Header />
       <Main>
         <div>
           <TopContainer>
@@ -122,7 +121,7 @@ export default function Home() {
               <span className="material-symbols-outlined">search</span>
             </InputContainer>
           </TopContainer>
-          <PostsContainer role={role} />
+          <PostsContainer />
         </div>
         <Aside>
           <h1>Perfil</h1>
@@ -130,11 +129,11 @@ export default function Home() {
             <Figure>
               <ProfileImageContainer>
                 <DoodleImage src={redDoodle} alt="" />
-                <ProfileImage src={userPhoto} alt="Foto do João da Silva" />
+                <ProfileImage src={user?.image ? `${BASE_URL}${user?.image}` : userImage} alt={`Foto de ${user?.nome}`} />
               </ProfileImageContainer>
               <Figcaption>
-                <StudentName>João Silva</StudentName>
-                <p>aluno</p>
+                {user && <StudentName>{user.nome}</StudentName>}
+                <p>{capitalize(user?.role ?? 'aluno')}</p>
               </Figcaption>
             </Figure>
           </div>
@@ -144,9 +143,9 @@ export default function Home() {
               {capitalize(new Date().toLocaleString('pt-BR', { month: 'long' }))}{' '}
               {new Date().getFullYear()}
             </p>
-            <Calendar role={role} />
+            {user && <Calendar role={user.role} />}
           </div>
-          <UserListPreview role={role} />
+          {user && <UserListPreview role={user.role} />}
         </Aside>
       </Main>
       <Footer />

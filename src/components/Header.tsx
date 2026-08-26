@@ -2,6 +2,11 @@ import styled from 'styled-components';
 import logo from '../../public/Logo.png';
 import type { Role } from '../types/Roles';
 import { capitalize } from '../utils/functions';
+import { logout } from '../services/auth.service';
+import { useNavigate } from 'react-router-dom';
+import { useUser } from '../context/AuthContext';
+
+const BASE_URL = import.meta.env.VITE_BASE_URL;
 
 import HeaderTeach from '../assets/HeaderTeach.png';
 import HeaderAdmin from '../assets/HeaderAdmin.png';
@@ -38,7 +43,7 @@ const userCircleColors = {
   },
 };
 
-const Circle = styled.div<{ $role: Role }>`
+const Circle = styled.img<{ $role: Role }>`
   width: 31px;
   height: 31px;
   border-radius: 50%;
@@ -81,36 +86,43 @@ const LogoutButton = styled.button`
   background: transparent;
   border: none;
   display: flex;
+  cursor: pointer;
 `;
 
-type HeaderProps = {
-  role: Role;
-};
+export default function Header() {
+  const navigate = useNavigate();
+  const { user } = useUser();
 
-export default function Header({ role }: HeaderProps) {
   const roleName = {
     ADMIN: 'Administradores',
     PROFESSOR: 'Professores',
     ALUNO: 'Alunos',
   };
 
+  const handleLogout = () => {
+    logout()
+    navigate('/login')
+  }
+
   
 
   return (
-    <Background $role={role}>
-      <Nav>
-        <LogoButton href="/">
-          <img src={logo} alt="Edify Logo" width={61} height={57} />
-          <Title>Edify {roleName[role]}</Title>
-        </LogoButton>
-        <LogoutContainer>
-          <Circle $role={role} />
-          <span>{capitalize(role)}</span>
-          <LogoutButton>
-            <span className="material-symbols-outlined">logout</span>
-          </LogoutButton>
-        </LogoutContainer>
-      </Nav>
-    </Background>
+    user && (
+      <Background $role={user.role}>
+        <Nav>
+          <LogoButton href="/">
+            <img src={logo} alt="Edify Logo" width={61} height={57} />
+            <Title>Edify {roleName[user.role]}</Title>
+          </LogoButton>
+          <LogoutContainer>
+            <Circle src={BASE_URL + user.image} $role={user.role} />
+            <span>{capitalize(user.role)}</span>
+            <LogoutButton onClick={handleLogout}>
+              <span className="material-symbols-outlined">logout</span>
+            </LogoutButton>
+          </LogoutContainer>
+        </Nav>
+      </Background>
+    )
   );
 }
