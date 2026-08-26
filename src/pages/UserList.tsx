@@ -172,9 +172,6 @@ export default function UserList() {
                       <tr key={user.id}>
                         <Td>
                           <UserName>{user.nome}</UserName>
-                          <UserRole>
-                            {user.role === 'ADMIN' ? 'Administrador' : capitalize(user.role)}
-                          </UserRole>
                         </Td>
                         <Td>{formatBirthDate(user.birthDate)}</Td>
                         <Td>{user.matricula}</Td>
