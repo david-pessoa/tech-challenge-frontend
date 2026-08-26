@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { FormEvent } from 'react';
 import { useParams } from 'react-router-dom';
 import styled from 'styled-components';
@@ -96,6 +96,7 @@ const Form = styled.form`
 const PhotoField = styled.div`
   display: flex;
   justify-content: center;
+  position: relative;
 `;
 
 const PhotoUpload = styled.label<{ $hasImage: boolean }>`
@@ -153,6 +154,26 @@ const UploadContent = styled.span`
 
 const UploadIcon = styled.span`
   font-size: 1.8rem;
+`;
+
+const RemoveImageButton = styled.button`
+  position: absolute;
+  top: -0.125rem;
+  left: 0.875rem;
+  width: 1.5rem;
+  height: 1.5rem;
+  border: 1px solid ${({ theme }) => theme.colors.primary};
+  border-radius: 50%;
+  background: ${({ theme }) => theme.colors.background};
+  color: ${({ theme }) => theme.colors.primary};
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  font-family: ${({ theme }) => theme.typography.fontFamily};
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1;
+  padding: 0;
 `;
 
 const Fields = styled.div`
@@ -359,6 +380,7 @@ const Toast = styled.div<{ $status: ToastStatus }>`
 
 export default function UserRegister({ isNew }: UserRegisterProps) {
   const { id } = useParams();
+  const imageInputRef = useRef<HTMLInputElement>(null);
   const [formData, setFormData] = useState<UserFormData>(initialFormData);
   const [imagePreview, setImagePreview] = useState('');
   const [toast, setToast] = useState<{ message: string; status: ToastStatus } | null>(null);
@@ -399,7 +421,8 @@ export default function UserRegister({ isNew }: UserRegisterProps) {
           confirmarSenha: '',
           image: null,
         });
-        setImagePreview(buildApiImageUrl(user.image ?? null));
+        const userImageUrl = buildApiImageUrl(user.image ?? null);
+        setImagePreview(userImageUrl);
       } catch (error: unknown) {
         const message = error instanceof Error ? error.message : 'Erro ao carregar usuário.';
 
@@ -432,7 +455,7 @@ export default function UserRegister({ isNew }: UserRegisterProps) {
 
     userData.append('nome', formData.nome);
     if (formData.birthDate) {
-      userData.append('birthDate', formData.birthDate.toISOString());
+      userData.append('birthDate', formData.birthDate.toISOString().split('T')[0]);
     }
     userData.append('matricula', formData.matricula);
     userData.append('role', formData.role);
@@ -466,6 +489,22 @@ export default function UserRegister({ isNew }: UserRegisterProps) {
     }
   }
 
+  function handleRemoveSelectedImage() {
+    if (imagePreview.startsWith('blob:')) {
+      URL.revokeObjectURL(imagePreview);
+    }
+
+    setFormData({
+      ...formData,
+      image: null,
+    });
+    setImagePreview('');
+
+    if (imageInputRef.current) {
+      imageInputRef.current.value = '';
+    }
+  }
+
   return (
     <>
       {toast && <Toast $status={toast.status}>{toast.message}</Toast>}
@@ -495,10 +534,11 @@ export default function UserRegister({ isNew }: UserRegisterProps) {
                 </UploadContent>
               )}
               <input
+                ref={imageInputRef}
                 id="image"
                 name="image"
                 type="file"
-                accept="image/png,image/jpeg,image/webp"
+                accept="image/png"
                 onChange={event => {
                   const file = event.target.files?.[0] ?? null;
 
@@ -510,6 +550,15 @@ export default function UserRegister({ isNew }: UserRegisterProps) {
                 }}
               />
             </PhotoUpload>
+            {imagePreview && (
+              <RemoveImageButton
+                type="button"
+                aria-label="Remover imagem selecionada"
+                onClick={handleRemoveSelectedImage}
+              >
+                x
+              </RemoveImageButton>
+            )}
           </PhotoField>
 
           <Fields>
