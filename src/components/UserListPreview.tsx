@@ -3,8 +3,13 @@ import type { Role } from '../types/Roles';
 
 import bubbles from '../assets/bubbles.png';
 import galaxy from '../assets/galaxy.png';
-import userPhoto from '../assets/userPhoto.png';
+import userImage from '../assets/user-default-image.png';
 import { capitalize } from '../utils/functions';
+import { useEffect, useState } from 'react';
+import type { User } from '../types/User';
+import { getAllUsers } from '../services/user.service';
+
+const BASE_URL = import.meta.env.VITE_BASE_URL;
 
 type UserListPreviewProps = {
   role: Role;
@@ -141,43 +146,16 @@ const AccessUserListButton = styled.a`
 `;
 
 export default function UserListPreview({ role }: UserListPreviewProps) {
-  const listaUsers = [
-    {
-      id: 'c2b58a4e-c4cf-4e20-978c-c1f2793ee18c',
-      matricula: '101010',
-      nome: 'Francisco',
-      role: 'ALUNO',
-      foto: userPhoto,
-    },
-    {
-      id: 'c2b58a4e-c4cf-4e20-978c-c1f2793ee18c',
-      matricula: '101010',
-      nome: 'Maria',
-      role: 'ALUNO',
-      foto: userPhoto,
-    },
-    {
-      id: 'c2b58a4e-c4cf-4e20-978c-c1f2793ee18c',
-      matricula: '101010',
-      nome: 'Francisco',
-      role: 'ADMIN',
-      foto: userPhoto,
-    },
-    {
-      id: 'c2b58a4e-c4cf-4e20-978c-c1f2793ee18c',
-      matricula: '202020',
-      nome: 'Francisco',
-      role: 'PROFESSOR',
-      foto: userPhoto,
-    },
-    {
-      id: 'c2b58a4e-c4cf-4e20-978c-c1f2793ee18c',
-      matricula: '202020',
-      nome: 'Francisco',
-      role: 'PROFESSOR',
-      foto: userPhoto,
-    },
-  ];
+  const [allUsersList, setAllUsersList] = useState<User[]>([]);
+
+  useEffect(() => {
+    async function getAllUsersList() {
+      const usersList = await getAllUsers();
+      const miniList = usersList.slice(0, 5); // .filter(user => user.id !== userId);
+      setAllUsersList(miniList);
+    }
+    if (role !== 'ALUNO') getAllUsersList();
+  }, []);
 
   return (
     <>
@@ -191,10 +169,13 @@ export default function UserListPreview({ role }: UserListPreviewProps) {
         <UserListContainer>
           <h3>Todos os Usuários</h3>
           <UserList>
-            {listaUsers.map((user, i) => (
+            {allUsersList.map((user, i) => (
               <Item key={i}>
                 <div>
-                  <UserProfilePhoto src={user.foto} alt={`Foto de perfil da ${user.nome}`} />
+                  <UserProfilePhoto
+                    src={user?.image ? `${BASE_URL}${user?.image}` : userImage}
+                    alt={`Foto de perfil da ${user.nome}`}
+                  />
                 </div>
                 <UserNameRoleContainer>
                   <UserName>{user.nome}</UserName>

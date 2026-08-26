@@ -6,5 +6,5 @@ export type User = {
   nome: string;
   role: Role;
   image?: string;
-  dataNascimento: Date
+  dataNascimento?: Date
 };

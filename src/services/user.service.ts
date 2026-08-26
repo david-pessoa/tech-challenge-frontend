@@ -69,7 +69,7 @@ export async function deleteUser(id: string) {
 
 export async function getMe() {
   try {
-    const response = await axios.delete(`${BASE_URL}/user/me`, {
+    const response = await axios.get(`${BASE_URL}/user/me`, {
       headers: {
         Authorization: `Bearer ${getLocalStorageToken()}`,
       },
