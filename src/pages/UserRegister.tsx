@@ -33,7 +33,7 @@ const initialFormData: UserFormData = {
   image: null,
 };
 
-const API_URL = import.meta.env.VITE_API_BASE_URL;
+const BASE_URL = import.meta.env.VITE_BASE_URL + '/api';
 
 const Main = styled.main`
   box-sizing: border-box;
@@ -219,7 +219,8 @@ const Input = styled.input`
 const Select = styled.select`
   ${fieldControlStyles}
   appearance: none;
-  background-image: linear-gradient(45deg, transparent 50%, #98816d 50%),
+  background-image:
+    linear-gradient(45deg, transparent 50%, #98816d 50%),
     linear-gradient(135deg, #98816d 50%, transparent 50%);
   background-position:
     calc(100% - 1.65rem) 50%,
@@ -372,9 +373,7 @@ export default function UserRegister({ isNew }: UserRegisterProps) {
     Boolean(formData.confirmarSenha.trim()) &&
     !hasPasswordMismatch;
 
-  useEffect(() => {
-    document.title = isNew ? 'Edify | Cadastro de Usuários' : 'Edify | Edição de Usuários';
-  }, [isNew]);
+  document.title = isNew ? 'Edify | Cadastro de Usuários' : 'Edify | Edição de Usuários';
 
   useEffect(() => {
     if (!toast) {
@@ -394,7 +393,6 @@ export default function UserRegister({ isNew }: UserRegisterProps) {
       return;
     }
 
-    const token = localStorage.getItem('token');
     const userData = new FormData();
 
     userData.append('nome', formData.nome);
@@ -408,18 +406,10 @@ export default function UserRegister({ isNew }: UserRegisterProps) {
     }
 
     try {
-      const response = await fetch(`${API_URL}/user`, {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        body: userData,
-      });
-
-      const data = await response.json();
+      const response = await createUser();
 
       if (!response.ok) {
-        setToast({ message: data.message, status: 'error' });
+        setToast({ message: response.message, status: 'error' });
         return;
       }
 
