@@ -5,4 +5,6 @@ export type User = {
   matricula: string;
   nome: string;
   role: Role;
+  image?: string;
+  birthDate?: Date
 };

@@ -7,6 +7,9 @@ import Footer from '../components/Footer';
 import Header from '../components/Header';
 import redDoodle from '../assets/red-doodle.png';
 import type { Role } from '../types/Roles';
+import { createUser, getUserById, updateUser } from '../services/user.service';
+import { buildApiImageUrl } from '../utils/functions';
+import type { User } from '../types/User';
 
 type UserRegisterProps = {
   isNew: boolean;
@@ -16,7 +19,7 @@ type ToastStatus = 'success' | 'error';
 
 type UserFormData = {
   nome: string;
-  birthDate: string;
+  birthDate: Date | null;
   matricula: string;
   role: Role;
   senha: string;
@@ -24,40 +27,15 @@ type UserFormData = {
   image: File | null;
 };
 
-type UserResponse = {
-  id: string;
-  nome: string;
-  birthDate: string | null;
-  matricula: string;
-  role: Role;
-  image: string | null;
-};
-
 const initialFormData: UserFormData = {
   nome: '',
-  birthDate: '',
+  birthDate: null,
   matricula: '',
   role: 'ALUNO',
   senha: '',
   confirmarSenha: '',
   image: null,
 };
-
-const API_URL = import.meta.env.VITE_API_BASE_URL;
-
-function buildApiImageUrl(image: string | null) {
-  if (!image) {
-    return '';
-  }
-
-  if (image.startsWith('http')) {
-    return image;
-  }
-
-  const apiOrigin = API_URL.replace(/\/api\/?$/, '');
-
-  return `${apiOrigin}${image}`;
-}
 
 const Main = styled.main`
   box-sizing: border-box;
@@ -243,7 +221,8 @@ const Input = styled.input`
 const Select = styled.select`
   ${fieldControlStyles}
   appearance: none;
-  background-image: linear-gradient(45deg, transparent 50%, #98816d 50%),
+  background-image:
+    linear-gradient(45deg, transparent 50%, #98816d 50%),
     linear-gradient(135deg, #98816d 50%, transparent 50%);
   background-position:
     calc(100% - 1.65rem) 50%,
@@ -385,7 +364,7 @@ export default function UserRegister({ isNew }: UserRegisterProps) {
   const [toast, setToast] = useState<{ message: string; status: ToastStatus } | null>(null);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const currentRole: Role = 'ADMIN';
+
   const hasPasswordMismatch =
     Boolean(formData.senha) &&
     Boolean(formData.confirmarSenha) &&
@@ -399,9 +378,7 @@ export default function UserRegister({ isNew }: UserRegisterProps) {
     hasRequiredPasswordFields &&
     !hasPasswordMismatch;
 
-  useEffect(() => {
-    document.title = isNew ? 'Edify | Cadastro de Usuários' : 'Edify | Edição de Usuários';
-  }, [isNew]);
+  document.title = isNew ? 'Edify | Cadastro de Usuários' : 'Edify | Edição de Usuários';
 
   useEffect(() => {
     if (isNew || !id) {
@@ -409,41 +386,29 @@ export default function UserRegister({ isNew }: UserRegisterProps) {
     }
 
     async function loadUser() {
-      const token = localStorage.getItem('token');
-
       try {
-        const response = await fetch(`${API_URL}/user/${id}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
-        const data = await response.json();
-
-        if (!response.ok) {
-          setToast({ message: data.message ?? 'Erro ao carregar usuário.', status: 'error' });
-          return;
-        }
-
-        const user = data as UserResponse;
+        if (typeof id !== 'string') throw new Error('ID de usuário inválido');
+        const user = (await getUserById(id)) as User;
 
         setFormData({
           nome: user.nome,
-          birthDate: user.birthDate ?? '',
+          birthDate: user.birthDate ? new Date(user.birthDate) : null,
           matricula: user.matricula,
           role: user.role,
           senha: '',
           confirmarSenha: '',
           image: null,
         });
-        setImagePreview(buildApiImageUrl(user.image));
-      } catch {
-        setToast({ message: 'Erro ao carregar usuário.', status: 'error' });
+        setImagePreview(buildApiImageUrl(user.image ?? null));
+      } catch (error: unknown) {
+        const message = error instanceof Error ? error.message : 'Erro ao carregar usuário.';
+
+        setToast({ message, status: 'error' });
       }
     }
 
     loadUser();
-  }, [id, isNew]);
+  }, [id]);
 
   useEffect(() => {
     if (!toast) {
@@ -463,11 +428,12 @@ export default function UserRegister({ isNew }: UserRegisterProps) {
       return;
     }
 
-    const token = localStorage.getItem('token');
     const userData = new FormData();
 
     userData.append('nome', formData.nome);
-    userData.append('birthDate', formData.birthDate);
+    if (formData.birthDate) {
+      userData.append('birthDate', formData.birthDate.toISOString());
+    }
     userData.append('matricula', formData.matricula);
     userData.append('role', formData.role);
 
@@ -480,35 +446,23 @@ export default function UserRegister({ isNew }: UserRegisterProps) {
     }
 
     try {
-      const response = await fetch(isNew ? `${API_URL}/user` : `${API_URL}/user/${id}`, {
-        method: isNew ? 'POST' : 'PATCH',
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        body: userData,
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        setToast({ message: data.message, status: 'error' });
-        return;
-      }
-
-      setToast({
-        message: isNew ? 'Usuário cadastrado com sucesso.' : 'Usuário atualizado com sucesso.',
-        status: 'success',
-      });
-
       if (isNew) {
+        await createUser(userData);
+        setToast({ message: 'Usuário cadastrado com sucesso.', status: 'success' });
         setFormData(initialFormData);
         setImagePreview('');
+      } else {
+        if (typeof id !== 'string') throw new Error('ID de usuário inválido');
+        await updateUser(id, userData);
+        setToast({ message: 'Usuário editado com sucesso.', status: 'success' });
       }
-    } catch {
-      setToast({
-        message: isNew ? 'Erro ao cadastrar usuário.' : 'Erro ao atualizar usuário.',
-        status: 'error',
-      });
+    } catch (error: unknown) {
+      let defaultMessage;
+      if (isNew) defaultMessage = 'Erro ao cadastrar usuário.';
+      else defaultMessage = 'Erro ao editar usuário';
+      const message = error instanceof Error ? error.message : defaultMessage;
+
+      setToast({ message, status: 'error' });
     }
   }
 
@@ -516,7 +470,7 @@ export default function UserRegister({ isNew }: UserRegisterProps) {
     <>
       {toast && <Toast $status={toast.status}>{toast.message}</Toast>}
 
-      <Header role={currentRole} />
+      <Header />
 
       <Main>
         <BackLink href="/">
@@ -579,8 +533,19 @@ export default function UserRegister({ isNew }: UserRegisterProps) {
                   id="birthDate"
                   name="birthDate"
                   type="date"
-                  value={formData.birthDate}
-                  onChange={event => setFormData({ ...formData, birthDate: event.target.value })}
+                  value={
+                    formData.birthDate
+                      ? formData.birthDate.toISOString().split('T')[0]
+                      : ''
+                  }
+                  onChange={event =>
+                    setFormData({
+                      ...formData,
+                      birthDate: event.target.value
+                        ? new Date(`${event.target.value}T00:00:00`)
+                        : null,
+                    })
+                  }
                 />
               </Field>
             </NameDateRow>
