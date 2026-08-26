@@ -6,7 +6,8 @@ import Header from '../components/Header';
 import { deleteUser, getAllUsers } from '../services/user.service';
 import type { Role } from '../types/Roles';
 import type { User } from '../types/User';
-import { capitalize } from '../utils/functions';
+import { buildApiImageUrl } from '../utils/functions';
+import userImage from '../assets/user-default-image.png';
 
 const USER_GROUPS: { title: string; role: Role }[] = [
   { title: 'Administradores', role: 'ADMIN' },
@@ -66,11 +67,19 @@ const Td = styled.td`
   padding: 0.75rem;
 `;
 
-const UserName = styled.strong`
-  display: block;
+const PhotoCell = styled(Td)`
+  width: 4.5rem;
 `;
 
-const UserRole = styled.span`
+const UserPhoto = styled.img`
+  border-radius: 50%;
+  display: block;
+  height: 2.75rem;
+  object-fit: cover;
+  width: 2.75rem;
+`;
+
+const UserName = styled.strong`
   display: block;
 `;
 
@@ -159,6 +168,7 @@ export default function UserList() {
               <Table>
                 <thead>
                   <tr>
+                    <Th>Foto</Th>
                     <Th>Nome completo</Th>
                     <Th>Data de nascimento</Th>
                     <Th>Matrícula</Th>
@@ -170,6 +180,15 @@ export default function UserList() {
                     .filter(user => user.role === group.role)
                     .map(user => (
                       <tr key={user.id}>
+                        <PhotoCell>
+                          <UserPhoto
+                            src={user.image ? buildApiImageUrl(user.image) : userImage}
+                            alt={`Foto de ${user.nome}`}
+                            onError={event => {
+                              event.currentTarget.src = userImage;
+                            }}
+                          />
+                        </PhotoCell>
                         <Td>
                           <UserName>{user.nome}</UserName>
                         </Td>
