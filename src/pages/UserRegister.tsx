@@ -390,11 +390,13 @@ export default function UserRegister({ isNew }: UserRegisterProps) {
     Boolean(formData.senha) &&
     Boolean(formData.confirmarSenha) &&
     formData.senha !== formData.confirmarSenha;
+  const hasRequiredPasswordFields = isNew
+    ? Boolean(formData.senha.trim()) && Boolean(formData.confirmarSenha.trim())
+    : !formData.senha || Boolean(formData.confirmarSenha.trim());
   const isFormValid =
     Boolean(formData.nome.trim()) &&
     Boolean(formData.matricula.trim()) &&
-    Boolean(formData.senha.trim()) &&
-    Boolean(formData.confirmarSenha.trim()) &&
+    hasRequiredPasswordFields &&
     !hasPasswordMismatch;
 
   useEffect(() => {
@@ -468,15 +470,18 @@ export default function UserRegister({ isNew }: UserRegisterProps) {
     userData.append('birthDate', formData.birthDate);
     userData.append('matricula', formData.matricula);
     userData.append('role', formData.role);
-    userData.append('senha', formData.senha);
+
+    if (isNew || formData.senha) {
+      userData.append('senha', formData.senha);
+    }
 
     if (formData.image) {
       userData.append('image', formData.image);
     }
 
     try {
-      const response = await fetch(`${API_URL}/user`, {
-        method: 'POST',
+      const response = await fetch(isNew ? `${API_URL}/user` : `${API_URL}/user/${id}`, {
+        method: isNew ? 'POST' : 'PATCH',
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -490,11 +495,20 @@ export default function UserRegister({ isNew }: UserRegisterProps) {
         return;
       }
 
-      setToast({ message: 'Usuário cadastrado com sucesso.', status: 'success' });
-      setFormData(initialFormData);
-      setImagePreview('');
+      setToast({
+        message: isNew ? 'Usuário cadastrado com sucesso.' : 'Usuário atualizado com sucesso.',
+        status: 'success',
+      });
+
+      if (isNew) {
+        setFormData(initialFormData);
+        setImagePreview('');
+      }
     } catch {
-      setToast({ message: 'Erro ao cadastrar usuário.', status: 'error' });
+      setToast({
+        message: isNew ? 'Erro ao cadastrar usuário.' : 'Erro ao atualizar usuário.',
+        status: 'error',
+      });
     }
   }
 
@@ -657,7 +671,7 @@ export default function UserRegister({ isNew }: UserRegisterProps) {
               Cancelar
             </Button>
             <Button type="submit" disabled={!isFormValid}>
-              Salvar
+              {isNew ? 'Salvar' : 'Atualizar'}
             </Button>
           </Actions>
         </Form>
