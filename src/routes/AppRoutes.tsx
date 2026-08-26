@@ -15,7 +15,7 @@ export default function AppRoutes() {
         <Route
           path="/"
           element={
-            <PrivateRoute>
+            <PrivateRoute acceptedRoles={['ADMIN', 'PROFESSOR', 'ALUNO']}>
               <Home />
             </PrivateRoute>
           }
@@ -25,7 +25,7 @@ export default function AppRoutes() {
         <Route
           path="/post/:id"
           element={
-            <PrivateRoute>
+            <PrivateRoute acceptedRoles={['ADMIN', 'PROFESSOR', 'ALUNO']}>
               <Post />
             </PrivateRoute>
           }
@@ -33,7 +33,7 @@ export default function AppRoutes() {
         <Route
           path="/post/new"
           element={
-            <PrivateRoute>
+            <PrivateRoute acceptedRoles={['ADMIN', 'PROFESSOR']}>
               <PostForm isNew={true} />
             </PrivateRoute>
           }
@@ -41,7 +41,7 @@ export default function AppRoutes() {
         <Route
           path="/post/edit/:id"
           element={
-            <PrivateRoute>
+            <PrivateRoute acceptedRoles={['ADMIN', 'PROFESSOR']}>
               <PostForm isNew={false} />
             </PrivateRoute>
           }
@@ -50,7 +50,7 @@ export default function AppRoutes() {
         <Route
           path="/user/new"
           element={
-            <PrivateRoute>
+            <PrivateRoute acceptedRoles={['ADMIN', 'PROFESSOR']}>
               <UserRegister isNew={true} />
             </PrivateRoute>
           }
@@ -58,7 +58,7 @@ export default function AppRoutes() {
         <Route
           path="/user/edit/:id"
           element={
-            <PrivateRoute>
+            <PrivateRoute acceptedRoles={['ADMIN', 'PROFESSOR']}>
               <UserRegister isNew={false} />
             </PrivateRoute>
           }
@@ -66,7 +66,7 @@ export default function AppRoutes() {
         <Route
           path="/user/list"
           element={
-            <PrivateRoute>
+            <PrivateRoute acceptedRoles={['ADMIN', 'PROFESSOR']}>
               <UserList />
             </PrivateRoute>
           }
