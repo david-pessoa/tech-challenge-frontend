@@ -20,7 +20,7 @@ export async function getAllUsers() {
 
 export async function getUserById(id: string) {
   try {
-    const response = await axios.get(`${BASE_URL}/user`, {
+    const response = await axios.get(`${BASE_URL}/user/${id}`, {
       headers: {
         Authorization: `Bearer ${getLocalStorageToken()}`,
       },
