@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import type { FormEvent } from 'react';
+import { useParams } from 'react-router-dom';
 import styled from 'styled-components';
 
 import Footer from '../components/Footer';
@@ -23,6 +24,15 @@ type UserFormData = {
   image: File | null;
 };
 
+type UserResponse = {
+  id: string;
+  nome: string;
+  birthDate: string | null;
+  matricula: string;
+  role: Role;
+  image: string | null;
+};
+
 const initialFormData: UserFormData = {
   nome: '',
   birthDate: '',
@@ -34,6 +44,20 @@ const initialFormData: UserFormData = {
 };
 
 const API_URL = import.meta.env.VITE_API_BASE_URL;
+
+function buildApiImageUrl(image: string | null) {
+  if (!image) {
+    return '';
+  }
+
+  if (image.startsWith('http')) {
+    return image;
+  }
+
+  const apiOrigin = API_URL.replace(/\/api\/?$/, '');
+
+  return `${apiOrigin}${image}`;
+}
 
 const Main = styled.main`
   box-sizing: border-box;
@@ -355,6 +379,7 @@ const Toast = styled.div<{ $status: ToastStatus }>`
 `;
 
 export default function UserRegister({ isNew }: UserRegisterProps) {
+  const { id } = useParams();
   const [formData, setFormData] = useState<UserFormData>(initialFormData);
   const [imagePreview, setImagePreview] = useState('');
   const [toast, setToast] = useState<{ message: string; status: ToastStatus } | null>(null);
@@ -375,6 +400,48 @@ export default function UserRegister({ isNew }: UserRegisterProps) {
   useEffect(() => {
     document.title = isNew ? 'Edify | Cadastro de Usuários' : 'Edify | Edição de Usuários';
   }, [isNew]);
+
+  useEffect(() => {
+    if (isNew || !id) {
+      return;
+    }
+
+    async function loadUser() {
+      const token = localStorage.getItem('token');
+
+      try {
+        const response = await fetch(`${API_URL}/user/${id}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          setToast({ message: data.message ?? 'Erro ao carregar usuário.', status: 'error' });
+          return;
+        }
+
+        const user = data as UserResponse;
+
+        setFormData({
+          nome: user.nome,
+          birthDate: user.birthDate ?? '',
+          matricula: user.matricula,
+          role: user.role,
+          senha: '',
+          confirmarSenha: '',
+          image: null,
+        });
+        setImagePreview(buildApiImageUrl(user.image));
+      } catch {
+        setToast({ message: 'Erro ao carregar usuário.', status: 'error' });
+      }
+    }
+
+    loadUser();
+  }, [id, isNew]);
 
   useEffect(() => {
     if (!toast) {
