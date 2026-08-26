@@ -4,8 +4,15 @@ import styled from 'styled-components';
 import Footer from '../components/Footer';
 import Header from '../components/Header';
 import { deleteUser, getAllUsers } from '../services/user.service';
+import type { Role } from '../types/Roles';
 import type { User } from '../types/User';
 import { capitalize } from '../utils/functions';
+
+const USER_GROUPS: { title: string; role: Role }[] = [
+  { title: 'Administradores', role: 'ADMIN' },
+  { title: 'Professores', role: 'PROFESSOR' },
+  { title: 'Alunos', role: 'ALUNO' },
+];
 
 const Main = styled.main`
   margin: 0 auto 4rem;
@@ -28,6 +35,15 @@ const BackLink = styled.a`
 
 const NewUserLink = styled.a`
   text-decoration: none;
+`;
+
+const Section = styled.section`
+  margin-bottom: 2rem;
+`;
+
+const SectionTitle = styled.h2`
+  font-size: 1.25rem;
+  margin: 0 0 1rem;
 `;
 
 const TableWrapper = styled.div`
@@ -135,45 +151,48 @@ export default function UserList() {
 
         {message && <Message>{message}</Message>}
 
-        <TableWrapper>
-          <Table>
-            <thead>
-              <tr>
-                <Th>Nome completo</Th>
-                <Th>Data de nascimento</Th>
-                <Th>Matrícula</Th>
-                <Th>Ações</Th>
-              </tr>
-            </thead>
-            <tbody>
-              {users.map(user => (
-                <tr key={user.id}>
-                  <Td>
-                    <UserName>{user.nome}</UserName>
-                    <UserRole>
-                      {user.role === 'ADMIN' ? 'Administrador' : capitalize(user.role)}
-                    </UserRole>
-                  </Td>
-                  <Td>{formatBirthDate(user.birthDate)}</Td>
-                  <Td>{user.matricula}</Td>
-                  <Td>
-                    <Actions>
-                      <ActionLink href={`/user/edit/${user.id}`}>
-                        Editar
-                      </ActionLink>
-                      <ActionButton
-                        type="button"
-                        onClick={() => handleDeleteUser(user.id)}
-                      >
-                        Deletar
-                      </ActionButton>
-                    </Actions>
-                  </Td>
-                </tr>
-              ))}
-            </tbody>
-          </Table>
-        </TableWrapper>
+        {USER_GROUPS.map(group => (
+          <Section key={group.role}>
+            <SectionTitle>{group.title}</SectionTitle>
+
+            <TableWrapper>
+              <Table>
+                <thead>
+                  <tr>
+                    <Th>Nome completo</Th>
+                    <Th>Data de nascimento</Th>
+                    <Th>Matrícula</Th>
+                    <Th>Ações</Th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {users
+                    .filter(user => user.role === group.role)
+                    .map(user => (
+                      <tr key={user.id}>
+                        <Td>
+                          <UserName>{user.nome}</UserName>
+                          <UserRole>
+                            {user.role === 'ADMIN' ? 'Administrador' : capitalize(user.role)}
+                          </UserRole>
+                        </Td>
+                        <Td>{formatBirthDate(user.birthDate)}</Td>
+                        <Td>{user.matricula}</Td>
+                        <Td>
+                          <Actions>
+                            <ActionLink href={`/user/edit/${user.id}`}>Editar</ActionLink>
+                            <ActionButton type="button" onClick={() => handleDeleteUser(user.id)}>
+                              Deletar
+                            </ActionButton>
+                          </Actions>
+                        </Td>
+                      </tr>
+                    ))}
+                </tbody>
+              </Table>
+            </TableWrapper>
+          </Section>
+        ))}
       </Main>
 
       <Footer />
