@@ -12,10 +12,8 @@ import '../styles/swiper-style.css';
 import type { Post } from '../types/Posts';
 import ProfessorPostsTable from './ProfessorPostsTable';
 import AdminPostsTable from './AdminPostsTable';
+import { useUser } from '../context/AuthContext';
 
-type PostsContainerProps = {
-  role: Role;
-};
 
 const Container = styled.div`
   width: 64.4135vw;
@@ -59,7 +57,9 @@ const AddIcon = styled.span`
   font-size: 32px;
 `;
 
-export default function PostsContainer({ role }: PostsContainerProps) {
+export default function PostsContainer() {
+  const { user } = useUser();
+  
   const creation_date = new Date('2026-08-04');
 
   const dados = [
@@ -207,10 +207,11 @@ export default function PostsContainer({ role }: PostsContainerProps) {
   }
 
   return (
+    user &&
     <div>
-      {role === 'PROFESSOR' ? (
+      {user.role === 'PROFESSOR' ? (
         <ProfessorContainer />
-      ) : role === 'ALUNO' ? (
+      ) : user.role === 'ALUNO' ? (
         <AlunoContainer />
       ) : (
         <AdminContainer />

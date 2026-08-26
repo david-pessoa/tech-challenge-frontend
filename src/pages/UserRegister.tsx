@@ -6,6 +6,7 @@ import Footer from '../components/Footer';
 import Header from '../components/Header';
 import redDoodle from '../assets/red-doodle.png';
 import type { Role } from '../types/Roles';
+import { createUser } from '../services/user.service';
 
 type UserRegisterProps = {
   isNew: boolean;
@@ -32,8 +33,6 @@ const initialFormData: UserFormData = {
   confirmarSenha: '',
   image: null,
 };
-
-const BASE_URL = import.meta.env.VITE_BASE_URL + '/api';
 
 const Main = styled.main`
   box-sizing: border-box;
@@ -361,7 +360,7 @@ export default function UserRegister({ isNew }: UserRegisterProps) {
   const [toast, setToast] = useState<{ message: string; status: ToastStatus } | null>(null);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const currentRole: Role = 'ADMIN';
+
   const hasPasswordMismatch =
     Boolean(formData.senha) &&
     Boolean(formData.confirmarSenha) &&
@@ -406,18 +405,15 @@ export default function UserRegister({ isNew }: UserRegisterProps) {
     }
 
     try {
-      const response = await createUser();
-
-      if (!response.ok) {
-        setToast({ message: response.message, status: 'error' });
-        return;
-      }
+      await createUser(userData);
 
       setToast({ message: 'Usuário cadastrado com sucesso.', status: 'success' });
       setFormData(initialFormData);
       setImagePreview('');
-    } catch {
-      setToast({ message: 'Erro ao cadastrar usuário.', status: 'error' });
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'Erro ao cadastrar usuário.';
+
+      setToast({ message, status: 'error' });
     }
   }
 
@@ -425,7 +421,7 @@ export default function UserRegister({ isNew }: UserRegisterProps) {
     <>
       {toast && <Toast $status={toast.status}>{toast.message}</Toast>}
 
-      <Header role={currentRole} />
+      <Header />
 
       <Main>
         <BackLink href="/">
