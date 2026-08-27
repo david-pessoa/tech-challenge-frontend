@@ -21,21 +21,44 @@ const Main = styled.main`
 `;
 
 const HeaderRow = styled.div`
+  align-items: flex-end;
   display: flex;
   justify-content: space-between;
   margin-bottom: 1.5rem;
 `;
 
 const Title = styled.h1`
+  color: #32434d;
+  font-size: 2.25rem;
+  font-weight: 600;
+  line-height: 1;
   margin: 0 0 0.5rem;
 `;
 
-const BackLink = styled.a`
+const HeaderLink = styled.a`
+  align-items: center;
+  color: #3a505d;
+  display: inline-flex;
+  font-size: 1rem;
+  font-weight: 400;
+  gap: 0.375rem;
+  line-height: 1;
   text-decoration: none;
 `;
 
-const NewUserLink = styled.a`
-  text-decoration: none;
+const BackIcon = styled.span`
+  color: #f58ca3;
+  font-size: 1.125rem;
+  font-variation-settings: 'FILL' 1;
+  line-height: 1;
+  transform: rotate(-90deg);
+`;
+
+const AddIcon = styled.span`
+  color: #e64b63;
+  font-size: 1.125rem;
+  font-variation-settings: 'FILL' 0;
+  line-height: 1;
 `;
 
 const Section = styled.section`
@@ -67,6 +90,7 @@ const Th = styled.th`
 `;
 
 const Td = styled.td`
+  background: #fffbeb;
   border-bottom: 1px solid #eee;
   color: #32434d;
   font-size: 0.875rem;
@@ -180,10 +204,16 @@ export default function UserList() {
         <HeaderRow>
           <div>
             <Title>Lista completa</Title>
-            <BackLink href="/">Voltar a tela de início</BackLink>
+            <HeaderLink href="/">
+              <BackIcon className="material-symbols-outlined">arrow_upward</BackIcon>
+              Voltar a tela de início
+            </HeaderLink>
           </div>
 
-          <NewUserLink href="/user/new">Novo Usuário</NewUserLink>
+          <HeaderLink href="/user/new">
+            <AddIcon className="material-symbols-outlined">add</AddIcon>
+            Novo Usuário
+          </HeaderLink>
         </HeaderRow>
 
         {message && <Message>{message}</Message>}
