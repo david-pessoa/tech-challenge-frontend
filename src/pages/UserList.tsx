@@ -57,14 +57,27 @@ const Table = styled.table`
 `;
 
 const Th = styled.th`
-  border-bottom: 1px solid #ddd;
+  background: #efa488;
+  color: #fffcf2;
+  font-size: 1.25rem;
+  font-weight: 500;
+  line-height: 1;
   padding: 0.75rem;
   text-align: left;
 `;
 
 const Td = styled.td`
   border-bottom: 1px solid #eee;
+  color: #32434d;
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1;
   padding: 0.75rem;
+  text-align: left;
+`;
+
+const CenteredTd = styled(Td)`
+  text-align: center;
 `;
 
 const PhotoCell = styled(Td)`
@@ -81,6 +94,7 @@ const UserPhoto = styled.img`
 
 const UserName = styled.strong`
   display: block;
+  font-weight: 600;
 `;
 
 const Actions = styled.div`
@@ -110,7 +124,7 @@ const ActionButton = styled.button`
 `;
 
 const ActionIcon = styled.span`
-  font-size: 1.5rem;
+  font-size: 1.125rem;
   font-variation-settings: 'FILL' 0;
   line-height: 1;
 `;
@@ -206,9 +220,9 @@ export default function UserList() {
                         <Td>
                           <UserName>{user.nome}</UserName>
                         </Td>
-                        <Td>{formatBirthDate(user.birthDate)}</Td>
+                        <CenteredTd>{formatBirthDate(user.birthDate)}</CenteredTd>
                         <Td>{user.matricula}</Td>
-                        <Td>
+                        <CenteredTd>
                           <Actions>
                             <ActionLink href={`/user/edit/${user.id}`} aria-label={`Editar ${user.nome}`}>
                               <ActionIcon className="material-symbols-outlined">edit</ActionIcon>
@@ -221,7 +235,7 @@ export default function UserList() {
                               <ActionIcon className="material-symbols-outlined">delete</ActionIcon>
                             </ActionButton>
                           </Actions>
-                        </Td>
+                        </CenteredTd>
                       </tr>
                     ))}
                 </tbody>
