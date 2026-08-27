@@ -696,7 +696,7 @@ export default function UserRegister({ isNew }: UserRegisterProps) {
           </Fields>
 
           <Actions>
-            <Button type="button" $secondary>
+            <Button type="button" $secondary onClick={() => navigate(-1)}>
               Cancelar
             </Button>
             <Button type="submit" disabled={!isFormValid}>
