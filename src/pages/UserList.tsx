@@ -85,12 +85,16 @@ const UserName = styled.strong`
 
 const Actions = styled.div`
   display: flex;
-  gap: 0.75rem;
+  gap: 10px;
 `;
 
 const ActionLink = styled.a`
-  color: ${({ theme }) => theme.colors.primary};
+  color: #a15e6d;
+  display: grid;
+  height: 2rem;
+  place-items: center;
   text-decoration: none;
+  width: 2rem;
 `;
 
 const ActionButton = styled.button`
@@ -98,7 +102,17 @@ const ActionButton = styled.button`
   background: transparent;
   color: #e64b63;
   cursor: pointer;
+  display: grid;
+  height: 2rem;
+  place-items: center;
   padding: 0;
+  width: 2rem;
+`;
+
+const ActionIcon = styled.span`
+  font-size: 1.5rem;
+  font-variation-settings: 'FILL' 0;
+  line-height: 1;
 `;
 
 const Message = styled.p`
@@ -196,9 +210,15 @@ export default function UserList() {
                         <Td>{user.matricula}</Td>
                         <Td>
                           <Actions>
-                            <ActionLink href={`/user/edit/${user.id}`}>Editar</ActionLink>
-                            <ActionButton type="button" onClick={() => handleDeleteUser(user.id)}>
-                              Deletar
+                            <ActionLink href={`/user/edit/${user.id}`} aria-label={`Editar ${user.nome}`}>
+                              <ActionIcon className="material-symbols-outlined">edit</ActionIcon>
+                            </ActionLink>
+                            <ActionButton
+                              type="button"
+                              onClick={() => handleDeleteUser(user.id)}
+                              aria-label={`Deletar ${user.nome}`}
+                            >
+                              <ActionIcon className="material-symbols-outlined">delete</ActionIcon>
                             </ActionButton>
                           </Actions>
                         </Td>
