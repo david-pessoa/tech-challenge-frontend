@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 
 import Footer from '../components/Footer';
@@ -157,6 +158,28 @@ const Message = styled.p`
   color: ${({ theme }) => theme.colors.primary};
 `;
 
+const Toast = styled.div`
+  position: fixed;
+  top: 1.5rem;
+  right: 1.5rem;
+  z-index: 10;
+  width: min(22rem, calc(100% - 2rem));
+  border-left: 0.35rem solid #6fb9a9;
+  border-radius: 0.75rem;
+  background: ${({ theme }) => theme.colors.fieldBackground};
+  box-shadow: 0 0.5rem 1.5rem rgba(50, 67, 77, 0.16);
+  color: ${({ theme }) => theme.colors.text};
+  font-size: ${({ theme }) => theme.typography.field.fontSize};
+  font-weight: ${({ theme }) => theme.typography.field.fontWeight};
+  line-height: ${({ theme }) => theme.typography.field.lineHeight};
+  padding: 1rem 1.25rem;
+
+  @media (max-width: 720px) {
+    top: 1rem;
+    right: 1rem;
+  }
+`;
+
 function formatBirthDate(birthDate?: Date | string | null) {
   if (!birthDate) {
     return '-';
@@ -166,8 +189,12 @@ function formatBirthDate(birthDate?: Date | string | null) {
 }
 
 export default function UserList() {
+  const location = useLocation();
   const [users, setUsers] = useState<User[]>([]);
   const [message, setMessage] = useState('');
+  const [toastMessage, setToastMessage] = useState(
+    (location.state as { toastMessage?: string } | null)?.toastMessage ?? ''
+  );
 
   useEffect(() => {
     document.title = 'Edify | Lista de Usuários';
@@ -185,6 +212,16 @@ export default function UserList() {
     loadUsers();
   }, []);
 
+  useEffect(() => {
+    if (!toastMessage) {
+      return;
+    }
+
+    const timeout = window.setTimeout(() => setToastMessage(''), 4000);
+
+    return () => window.clearTimeout(timeout);
+  }, [toastMessage]);
+
   async function handleDeleteUser(id: string) {
     try {
       await deleteUser(id);
@@ -198,6 +235,8 @@ export default function UserList() {
 
   return (
     <>
+      {toastMessage && <Toast>{toastMessage}</Toast>}
+
       <Header />
 
       <Main>

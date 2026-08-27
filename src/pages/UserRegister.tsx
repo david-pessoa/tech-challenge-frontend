@@ -1,13 +1,13 @@
 import { useEffect, useRef, useState } from 'react';
 import type { FormEvent } from 'react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import styled from 'styled-components';
 
 import Footer from '../components/Footer';
 import Header from '../components/Header';
 import redDoodle from '../assets/red-doodle.png';
 import type { Role } from '../types/Roles';
-import { createUser, getUserById, updateUser } from '../services/user.service';
+import { createUser, getAllUsers, getUserById, updateUser } from '../services/user.service';
 import { buildApiImageUrl } from '../utils/functions';
 import type { User } from '../types/User';
 
@@ -380,6 +380,7 @@ const Toast = styled.div<{ $status: ToastStatus }>`
 
 export default function UserRegister({ isNew }: UserRegisterProps) {
   const { id } = useParams();
+  const navigate = useNavigate();
   const imageInputRef = useRef<HTMLInputElement>(null);
   const [formData, setFormData] = useState<UserFormData>(initialFormData);
   const [imagePreview, setImagePreview] = useState('');
@@ -451,34 +452,48 @@ export default function UserRegister({ isNew }: UserRegisterProps) {
       return;
     }
 
-    const userData = new FormData();
-
-    userData.append('nome', formData.nome);
-    if (formData.birthDate) {
-      userData.append('birthDate', formData.birthDate.toISOString().split('T')[0]);
-    }
-    userData.append('matricula', formData.matricula);
-    userData.append('role', formData.role);
-
-    if (isNew || formData.senha) {
-      userData.append('senha', formData.senha);
-    }
-
-    if (formData.image) {
-      userData.append('image', formData.image);
-    }
-
     try {
+      if (!isNew) {
+        const users = (await getAllUsers()) as User[];
+        const hasDuplicatedRegistration = users.some(
+          user => user.matricula === formData.matricula.trim() && user.id !== id
+        );
+
+        if (hasDuplicatedRegistration) {
+          setToast({ message: 'Já existe um usuário cadastrado com essa matrícula.', status: 'error' });
+          return;
+        }
+      }
+
+      const userData = new FormData();
+
+      userData.append('nome', formData.nome);
+      if (formData.birthDate) {
+        userData.append('birthDate', formData.birthDate.toISOString().split('T')[0]);
+      }
+      userData.append('matricula', formData.matricula);
+      userData.append('role', formData.role);
+
+      if (isNew || formData.senha) {
+        userData.append('senha', formData.senha);
+      }
+
+      if (formData.image) {
+        userData.append('image', formData.image);
+      }
+
+      let successMessage;
+
       if (isNew) {
         await createUser(userData);
-        setToast({ message: 'Usuário cadastrado com sucesso.', status: 'success' });
-        setFormData(initialFormData);
-        setImagePreview('');
+        successMessage = 'Usuário cadastrado com sucesso.';
       } else {
         if (typeof id !== 'string') throw new Error('ID de usuário inválido');
         await updateUser(id, userData);
-        setToast({ message: 'Usuário editado com sucesso.', status: 'success' });
+        successMessage = 'Usuário editado com sucesso.';
       }
+
+      navigate('/user/list', { state: { toastMessage: successMessage } });
     } catch (error: unknown) {
       let defaultMessage;
       if (isNew) defaultMessage = 'Erro ao cadastrar usuário.';
