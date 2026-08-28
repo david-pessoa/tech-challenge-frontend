@@ -4,7 +4,8 @@ import styled, { keyframes } from 'styled-components';
 import inicialImage from '../../public/inicialImage.png';
 import { login } from '../services/auth.service';
 import { setLocalStorageToken } from '../utils/functions';
-import { useNavigate } from 'react-router-dom';
+import { Navigate, useNavigate } from 'react-router-dom';
+import { useUser } from '../context/AuthContext';
 
 // Container que ocupa a tela inteira. position: relative é o que permite a
 // imagem (position: absolute) se posicionar em relação a ele, cobrindo tudo.
@@ -226,6 +227,13 @@ export default function Login() {
   const [erro, setErro] = useState<string | null>(null);
   const [carregando, setCarregando] = useState(false);
   const navigate = useNavigate();
+  const {user, isLoading} = useUser();
+
+  //Se o usuário está carregando, exibe tela de carregamento
+  if (isLoading) return <div>Carregando...</div>;
+
+  // Se o usuário está logado, sai do login
+  if (user) return <Navigate to="/" replace />;
 
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
