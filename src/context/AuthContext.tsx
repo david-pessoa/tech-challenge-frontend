@@ -4,7 +4,7 @@ import type { User } from '../types/User';
 
 type UserContextType = {
   user: User | undefined;
-  isLoading: boolean
+  isLoading: boolean;
 };
 
 export const UserContext = createContext<UserContextType>({ user: undefined, isLoading: true });
@@ -25,8 +25,12 @@ export function UserProvider({ children }: UserProviderProps) {
   useEffect(() => {
     async function getUserData() {
       setIsLoading(true);
-      const userData = await getMe();
-      setUser(userData);
+      try {
+        const userData = await getMe();
+        setUser(userData);
+      } catch (error) {
+        console.error(error);
+      }
       setIsLoading(false);
     }
     getUserData();
