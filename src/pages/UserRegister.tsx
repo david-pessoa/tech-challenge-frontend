@@ -1,12 +1,15 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { FormEvent } from 'react';
+import { useParams } from 'react-router-dom';
 import styled from 'styled-components';
 
 import Footer from '../components/Footer';
 import Header from '../components/Header';
 import redDoodle from '../assets/red-doodle.png';
 import type { Role } from '../types/Roles';
-import { createUser } from '../services/user.service';
+import { createUser, getUserById, updateUser } from '../services/user.service';
+import { buildApiImageUrl } from '../utils/functions';
+import type { User } from '../types/User';
 
 type UserRegisterProps = {
   isNew: boolean;
@@ -16,7 +19,7 @@ type ToastStatus = 'success' | 'error';
 
 type UserFormData = {
   nome: string;
-  birthDate: string;
+  birthDate: Date | null;
   matricula: string;
   role: Role;
   senha: string;
@@ -26,7 +29,7 @@ type UserFormData = {
 
 const initialFormData: UserFormData = {
   nome: '',
-  birthDate: '',
+  birthDate: null,
   matricula: '',
   role: 'ALUNO',
   senha: '',
@@ -93,6 +96,7 @@ const Form = styled.form`
 const PhotoField = styled.div`
   display: flex;
   justify-content: center;
+  position: relative;
 `;
 
 const PhotoUpload = styled.label<{ $hasImage: boolean }>`
@@ -150,6 +154,26 @@ const UploadContent = styled.span`
 
 const UploadIcon = styled.span`
   font-size: 1.8rem;
+`;
+
+const RemoveImageButton = styled.button`
+  position: absolute;
+  top: -0.125rem;
+  left: 0.875rem;
+  width: 1.5rem;
+  height: 1.5rem;
+  border: 1px solid ${({ theme }) => theme.colors.primary};
+  border-radius: 50%;
+  background: ${({ theme }) => theme.colors.background};
+  color: ${({ theme }) => theme.colors.primary};
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  font-family: ${({ theme }) => theme.typography.fontFamily};
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1;
+  padding: 0;
 `;
 
 const Fields = styled.div`
@@ -355,6 +379,8 @@ const Toast = styled.div<{ $status: ToastStatus }>`
 `;
 
 export default function UserRegister({ isNew }: UserRegisterProps) {
+  const { id } = useParams();
+  const imageInputRef = useRef<HTMLInputElement>(null);
   const [formData, setFormData] = useState<UserFormData>(initialFormData);
   const [imagePreview, setImagePreview] = useState('');
   const [toast, setToast] = useState<{ message: string; status: ToastStatus } | null>(null);
@@ -365,14 +391,47 @@ export default function UserRegister({ isNew }: UserRegisterProps) {
     Boolean(formData.senha) &&
     Boolean(formData.confirmarSenha) &&
     formData.senha !== formData.confirmarSenha;
+  const hasRequiredPasswordFields = isNew
+    ? Boolean(formData.senha.trim()) && Boolean(formData.confirmarSenha.trim())
+    : !formData.senha || Boolean(formData.confirmarSenha.trim());
   const isFormValid =
     Boolean(formData.nome.trim()) &&
     Boolean(formData.matricula.trim()) &&
-    Boolean(formData.senha.trim()) &&
-    Boolean(formData.confirmarSenha.trim()) &&
+    hasRequiredPasswordFields &&
     !hasPasswordMismatch;
 
   document.title = isNew ? 'Edify | Cadastro de Usuários' : 'Edify | Edição de Usuários';
+
+  useEffect(() => {
+    if (isNew || !id) {
+      return;
+    }
+
+    async function loadUser() {
+      try {
+        if (typeof id !== 'string') throw new Error('ID de usuário inválido');
+        const user = (await getUserById(id)) as User;
+
+        setFormData({
+          nome: user.nome,
+          birthDate: user.birthDate ? new Date(user.birthDate) : null,
+          matricula: user.matricula,
+          role: user.role,
+          senha: '',
+          confirmarSenha: '',
+          image: null,
+        });
+        const userImageUrl = buildApiImageUrl(user.image ?? null);
+        setImagePreview(userImageUrl);
+      } catch (error: unknown) {
+        const message = error instanceof Error ? error.message : 'Erro ao carregar usuário.';
+
+        setToast({ message, status: 'error' });
+      }
+    }
+
+    loadUser();
+  }, [id]);
 
   useEffect(() => {
     if (!toast) {
@@ -395,25 +454,54 @@ export default function UserRegister({ isNew }: UserRegisterProps) {
     const userData = new FormData();
 
     userData.append('nome', formData.nome);
-    userData.append('birthDate', formData.birthDate);
+    if (formData.birthDate) {
+      userData.append('birthDate', formData.birthDate.toISOString().split('T')[0]);
+    }
     userData.append('matricula', formData.matricula);
     userData.append('role', formData.role);
-    userData.append('senha', formData.senha);
+
+    if (isNew || formData.senha) {
+      userData.append('senha', formData.senha);
+    }
 
     if (formData.image) {
       userData.append('image', formData.image);
     }
 
     try {
-      await createUser(userData);
-
-      setToast({ message: 'Usuário cadastrado com sucesso.', status: 'success' });
-      setFormData(initialFormData);
-      setImagePreview('');
+      if (isNew) {
+        await createUser(userData);
+        setToast({ message: 'Usuário cadastrado com sucesso.', status: 'success' });
+        setFormData(initialFormData);
+        setImagePreview('');
+      } else {
+        if (typeof id !== 'string') throw new Error('ID de usuário inválido');
+        await updateUser(id, userData);
+        setToast({ message: 'Usuário editado com sucesso.', status: 'success' });
+      }
     } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : 'Erro ao cadastrar usuário.';
+      let defaultMessage;
+      if (isNew) defaultMessage = 'Erro ao cadastrar usuário.';
+      else defaultMessage = 'Erro ao editar usuário';
+      const message = error instanceof Error ? error.message : defaultMessage;
 
       setToast({ message, status: 'error' });
+    }
+  }
+
+  function handleRemoveSelectedImage() {
+    if (imagePreview.startsWith('blob:')) {
+      URL.revokeObjectURL(imagePreview);
+    }
+
+    setFormData({
+      ...formData,
+      image: null,
+    });
+    setImagePreview('');
+
+    if (imageInputRef.current) {
+      imageInputRef.current.value = '';
     }
   }
 
@@ -446,10 +534,11 @@ export default function UserRegister({ isNew }: UserRegisterProps) {
                 </UploadContent>
               )}
               <input
+                ref={imageInputRef}
                 id="image"
                 name="image"
                 type="file"
-                accept="image/png,image/jpeg,image/webp"
+                accept="image/png"
                 onChange={event => {
                   const file = event.target.files?.[0] ?? null;
 
@@ -461,6 +550,15 @@ export default function UserRegister({ isNew }: UserRegisterProps) {
                 }}
               />
             </PhotoUpload>
+            {imagePreview && (
+              <RemoveImageButton
+                type="button"
+                aria-label="Remover imagem selecionada"
+                onClick={handleRemoveSelectedImage}
+              >
+                x
+              </RemoveImageButton>
+            )}
           </PhotoField>
 
           <Fields>
@@ -484,8 +582,19 @@ export default function UserRegister({ isNew }: UserRegisterProps) {
                   id="birthDate"
                   name="birthDate"
                   type="date"
-                  value={formData.birthDate}
-                  onChange={event => setFormData({ ...formData, birthDate: event.target.value })}
+                  value={
+                    formData.birthDate
+                      ? formData.birthDate.toISOString().split('T')[0]
+                      : ''
+                  }
+                  onChange={event =>
+                    setFormData({
+                      ...formData,
+                      birthDate: event.target.value
+                        ? new Date(`${event.target.value}T00:00:00`)
+                        : null,
+                    })
+                  }
                 />
               </Field>
             </NameDateRow>
@@ -576,7 +685,7 @@ export default function UserRegister({ isNew }: UserRegisterProps) {
               Cancelar
             </Button>
             <Button type="submit" disabled={!isFormValid}>
-              Salvar
+              {isNew ? 'Salvar' : 'Atualizar'}
             </Button>
           </Actions>
         </Form>

@@ -1,19 +1,27 @@
-import type { ReactNode } from 'react';
-import { Navigate } from 'react-router-dom';
-import { getLocalStorageToken } from '../utils/functions';
+import { type ReactNode } from 'react';
+import { useUser } from '../context/AuthContext';
+import { Navigate, useNavigate } from 'react-router-dom';
+import type { Role } from '../types/Roles';
 
 type PrivateRoutesProps = {
   children: ReactNode;
+  acceptedRoles: Role[];
 };
 
-// Só deixa passar quem estiver autenticado (tem token salvo).
-// Sem isso, qualquer pessoa poderia acessar /home, /post/new etc.
-// digitando a URL direto, mesmo sem ter feito login.
-export default function PrivateRoute({ children }: PrivateRoutesProps) {
-  const token = getLocalStorageToken();
+export default function PrivateRoute({ children, acceptedRoles }: PrivateRoutesProps) {
+  const { user, isLoading } = useUser();
+  const navigate = useNavigate();
+  
+  //Se o usuário está carregando, exibe tela de carregamento
+  if (isLoading) return <div>Carregando...</div>;
 
-  if (!token) {
-    return <Navigate to="/login" replace />;
+  // Se não consegue obter os dados do usuário, redireciona para o login
+  if (!user) return <Navigate to="/login" replace />;
+
+  // Caso o usuário esteja logado, mas não tenha permissão para acessar a rota, redireciona ele pra última página que visitou
+  if (!acceptedRoles.includes(user.role)) {
+    navigate(-1);
+    return;
   }
 
   return children;

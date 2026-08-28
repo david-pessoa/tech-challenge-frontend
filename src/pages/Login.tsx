@@ -4,6 +4,7 @@ import styled, { keyframes } from 'styled-components';
 import inicialImage from '../../public/inicialImage.png';
 import { login } from '../services/auth.service';
 import { setLocalStorageToken } from '../utils/functions';
+import { useNavigate } from 'react-router-dom';
 
 // Container que ocupa a tela inteira. position: relative é o que permite a
 // imagem (position: absolute) se posicionar em relação a ele, cobrindo tudo.
@@ -107,16 +108,6 @@ const Form = styled.form`
   margin-top: 0.5rem;
 `;
 
-// Animação de flutuação bem suave: sobe e desce poucos pixels, sem pressa
-const float = keyframes`
-  0%, 100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-4px);
-  }
-`;
-
 const FieldGroup = styled.div`
   display: flex;
   flex-direction: column;
@@ -134,7 +125,6 @@ const InputWrapper = styled.div`
   position: relative;
   display: flex;
   align-items: center;
-  animation: ${float} 4s ease-in-out infinite;
 `;
 
 // Input com visual de "caixa" (fundo, borda e sombra suave).
@@ -235,6 +225,7 @@ export default function Login() {
   // pra evitar clique duplo enquanto espera a resposta do back-end
   const [erro, setErro] = useState<string | null>(null);
   const [carregando, setCarregando] = useState(false);
+  const navigate = useNavigate();
 
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
@@ -249,7 +240,7 @@ export default function Login() {
       // o UserProvider só busca os dados do usuário logado uma vez,
       // quando a aplicação carrega — o reload garante que ele rode de
       // novo já com o token salvo.
-      window.location.assign('/');
+      navigate('/')
     } catch (error) {
       // login() do auth.service já devolve uma mensagem de erro tratada
       // (ex: "Matrícula ou senha inválidas"), então só precisamos exibi-la.
