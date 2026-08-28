@@ -227,7 +227,7 @@ export default function Login() {
   const [erro, setErro] = useState<string | null>(null);
   const [carregando, setCarregando] = useState(false);
   const navigate = useNavigate();
-  const {user, isLoading} = useUser();
+  const {user, isLoading, refreshUser} = useUser();
 
   //Se o usuário está carregando, exibe tela de carregamento
   if (isLoading) return <div>Carregando...</div>;
@@ -248,6 +248,7 @@ export default function Login() {
       // o UserProvider só busca os dados do usuário logado uma vez,
       // quando a aplicação carrega — o reload garante que ele rode de
       // novo já com o token salvo.
+      await refreshUser()
       navigate('/')
     } catch (error) {
       // login() do auth.service já devolve uma mensagem de erro tratada
