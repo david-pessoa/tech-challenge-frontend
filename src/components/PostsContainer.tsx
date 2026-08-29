@@ -13,7 +13,8 @@ import type { Post } from '../types/Posts';
 import ProfessorPostsTable from './ProfessorPostsTable';
 import AdminPostsTable from './AdminPostsTable';
 import { useUser } from '../context/AuthContext';
-
+import { useEffect, useState } from 'react';
+import { getAllPosts } from '../services/post.service';
 
 const Container = styled.div`
   width: 64.4135vw;
@@ -59,56 +60,19 @@ const AddIcon = styled.span`
 
 export default function PostsContainer() {
   const { user } = useUser();
-  
-  const creation_date = new Date('2026-08-04');
+  const [posts, setPosts] = useState([]);
 
-  const dados = [
-    {
-      postId: '0b70e39b-58ef-4d04-b039-3036a65b0bbe',
-      materia: 'Ciências',
-      titulo: 'Aula 20 - Sapos no meio dos humanos',
-      descricao: 'Pirâmides etárias',
-      autor: 'José',
-      createdAt: creation_date,
-      editedAt: creation_date,
-    },
-    {
-      postId: '0b70e39b-58ef-4d04-b039-3036a65b0bbe',
-      materia: 'História',
-      titulo: 'Aula 20 - Sapos no meio dos humanos',
-      descricao: 'Pirâmides etárias',
-      autor: 'José',
-      createdAt: creation_date,
-      editedAt: creation_date,
-    },
-    {
-      postId: '0b70e39b-58ef-4d04-b039-3036a65b0bbe',
-      materia: 'Português',
-      titulo: 'Aula 20 - Sapos no meio dos humanos',
-      descricao: 'Pirâmides etárias',
-      autor: 'José',
-      createdAt: creation_date,
-      editedAt: creation_date,
-    },
-    {
-      postId: '0b70e39b-58ef-4d04-b039-3036a65b0bbe',
-      materia: 'Matemática',
-      titulo: 'Aula 20 - Sapos no meio dos humanos',
-      descricao: 'Pirâmides etárias',
-      autor: 'José',
-      createdAt: creation_date,
-      editedAt: creation_date,
-    },
-    {
-      postId: '0b70e39b-58ef-4d04-b039-3036a65b0bbe',
-      materia: 'Geografia',
-      titulo: 'Aula 20 - Sapos no meio dos humanos',
-      descricao: 'Pirâmides etárias',
-      autor: 'José',
-      createdAt: creation_date,
-      editedAt: creation_date,
-    },
-  ];
+  useEffect(() => {
+    async function returnAllPosts() {
+      try {
+        const postsList = await getAllPosts();
+        setPosts(postsList);
+      } catch (error) {
+        setPosts([]);
+      }
+    }
+    returnAllPosts();
+  }, []);
 
   function AlunoContainer() {
     //Obter dados dos posts do back-end
@@ -127,7 +91,7 @@ export default function PostsContainer() {
             navigation
             onSwiper={swiper => console.log(swiper)}
           >
-            {dados.map((dado: Post, i) => (
+            {posts.map((dado: Post, i) => (
               <SwiperSlide key={i} style={{ width: '12.5rem' }}>
                 <Link href={`/post/${dado.postId}`}>
                   <CarouselCard dado={dado} />
@@ -139,7 +103,7 @@ export default function PostsContainer() {
         <Container>
           <Title>Aulas Finalizadas</Title>
           <Paragraph>Você já finalizou estas atividades</Paragraph>
-          <ViewedPostsTable dados={dados} />
+          <ViewedPostsTable dados={posts} />
         </Container>
       </>
     );
@@ -156,12 +120,12 @@ export default function PostsContainer() {
               <p>Nova aula</p>
             </AddClassButton>
           </AddClassContainer>
-          <ProfessorPostsTable dados={dados} />
+          <ProfessorPostsTable dados={posts} />
         </Container>
         <Container>
           <Title>Outras aulas</Title>
           <Paragraph>Aulas criadas por outros professores</Paragraph>
-          <ViewedPostsTable dados={dados} />
+          <ViewedPostsTable dados={posts} />
         </Container>
       </>
     );
@@ -186,9 +150,9 @@ export default function PostsContainer() {
             pagination={{ clickable: true }}
             navigation
             onSwiper={swiper => console.log(swiper)}
-            className='isAdmin'
+            className="isAdmin"
           >
-            {dados.map((dado: Post, i) => (
+            {posts.map((dado: Post, i) => (
               <SwiperSlide key={i} style={{ width: '12.5rem' }}>
                 <Link href={`/post/${dado.postId}`}>
                   <CarouselCard dado={dado} />
@@ -200,22 +164,23 @@ export default function PostsContainer() {
         <Container>
           <Title>Acervo da Escola</Title>
           <Paragraph>Todas as aulas postadas</Paragraph>
-          <AdminPostsTable dados={dados}/>
+          <AdminPostsTable dados={posts} />
         </Container>
       </>
     );
   }
 
   return (
-    user &&
-    <div>
-      {user.role === 'PROFESSOR' ? (
-        <ProfessorContainer />
-      ) : user.role === 'ALUNO' ? (
-        <AlunoContainer />
-      ) : (
-        <AdminContainer />
-      )}
-    </div>
+    user && (
+      <div>
+        {user.role === 'PROFESSOR' ? (
+          <ProfessorContainer />
+        ) : user.role === 'ALUNO' ? (
+          <AlunoContainer />
+        ) : (
+          <AdminContainer />
+        )}
+      </div>
+    )
   );
 }

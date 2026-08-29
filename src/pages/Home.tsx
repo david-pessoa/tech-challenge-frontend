@@ -67,7 +67,7 @@ const ResultsList = styled.ul`
   z-index: 100;
   list-style: none;
   margin-top: 5px;
-  background-color: #FEF4D0;
+  background-color: #fef4d0;
   border-radius: 0 0 20px 20px;
 `;
 
@@ -82,13 +82,12 @@ const ListItemLink = styled.a`
   border-radius: 15px;
 
   &:hover {
-    background-color: #FBBBA3;
+    background-color: #fbbba3;
   }
 
   &:active {
-    background-color: #E0A7E3;
+    background-color: #e0a7e3;
   }
-
 `;
 
 const ListItem = styled.li`
@@ -158,7 +157,7 @@ export default function Home() {
   const { user } = useUser();
   const [searchedPostsList, setSearchedPostsList] = useState<Post[]>([]);
   const [searchedText, setSearchedText] = useState('');
-  const [hideSearchResults, setHideSearchResults] = useState(true)
+  const [hideSearchResults, setHideSearchResults] = useState(true);
   const debouncedQuery = useDebounce(searchedText, 300);
 
   async function handleInputChange() {
@@ -191,9 +190,7 @@ export default function Home() {
               <h1>Tela Inicial</h1>
               <img src={sparkle} alt="Sparkle" />
             </TitleContainer>
-            <InputContainer
-            onClick={() => setHideSearchResults(false)}
-            >
+            <InputContainer onClick={() => setHideSearchResults(false)}>
               <InnerInputContainer>
                 <InputSearch
                   type="text"
