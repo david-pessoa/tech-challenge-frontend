@@ -76,7 +76,10 @@ export async function deletePost(id: string) {
 
 export async function searchPost(text: string) {
   try {
-    const response = await axios.get(`${BASE_URL}/posts/search?query=${text}`, {
+    const response = await axios.get(`${BASE_URL}/posts/search`, {
+      params: {
+        termo: text
+      },
       headers: {
         Authorization: `Bearer ${getLocalStorageToken()}`,
       },
