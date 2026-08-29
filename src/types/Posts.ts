@@ -12,6 +12,7 @@ export type Post = {
     nome: string
     tipoUsuario: Role
   }
+  foiVisto: boolean;
   dataCriacao: Date;
   dataModificacao: Date;
 };

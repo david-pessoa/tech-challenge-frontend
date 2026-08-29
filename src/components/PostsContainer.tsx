@@ -60,7 +60,7 @@ const AddIcon = styled.span`
 
 export default function PostsContainer() {
   const { user } = useUser();
-  const [posts, setPosts] = useState([]);
+  const [posts, setPosts] = useState<Post[]>([]);
 
   useEffect(() => {
     async function returnAllPosts() {
@@ -75,7 +75,11 @@ export default function PostsContainer() {
   }, []);
 
   function AlunoContainer() {
-    //Obter dados dos posts do back-end
+    
+    // Os posts já visualizados são exibidos na tabela
+    const viewedPosts = posts.filter(p => p.foiVisto != false)
+    // Obtém os posts não vistos e exibe no carrossel
+    const newPosts = posts.filter(p => p.foiVisto != true)
 
     return (
       <>
@@ -91,7 +95,7 @@ export default function PostsContainer() {
             navigation
             onSwiper={swiper => console.log(swiper)}
           >
-            {posts.map((dado: Post, i) => (
+            {newPosts.map((dado: Post, i) => (
               <SwiperSlide key={i} style={{ width: '12.5rem' }}>
                 <Link href={`/post/${dado.postId}`}>
                   <CarouselCard dado={dado} />
@@ -103,7 +107,7 @@ export default function PostsContainer() {
         <Container>
           <Title>Aulas Finalizadas</Title>
           <Paragraph>Você já finalizou estas atividades</Paragraph>
-          <ViewedPostsTable dados={posts} />
+          <ViewedPostsTable dados={viewedPosts} />
         </Container>
       </>
     );
