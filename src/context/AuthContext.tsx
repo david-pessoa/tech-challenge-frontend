@@ -4,9 +4,11 @@ import type { User } from '../types/User';
 
 type UserContextType = {
   user: User | undefined;
-}
+  isLoading: boolean;
+  refreshUser: () => Promise<void>;
+};
 
-export const UserContext = createContext<UserContextType>({user: undefined});
+export const UserContext = createContext<UserContextType>({ user: undefined, isLoading: true, refreshUser: async () => {} });
 
 export function useUser() {
   return useContext(UserContext);
@@ -14,25 +16,28 @@ export function useUser() {
 
 type UserProviderProps = {
   children: ReactNode;
-}
+};
 
 export function UserProvider({ children }: UserProviderProps) {
   const [user, setUser] = useState<User>();
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+
+  async function refreshUser() {
+    setIsLoading(true);
+    try {
+      const userData = await getMe();
+      setUser(userData);
+    } catch (error) {
+      console.error(error);
+      setUser(undefined)
+    }
+    setIsLoading(false);
+  }
 
   // Fazer lógica para obter informações do usuário do back-end
   useEffect(() => {
-    async function getUserData() {
-      const userData = await getMe();
-      setUser(userData);
-    }
-    getUserData();
+    refreshUser();
   }, []);
 
-  return (
-    <UserContext.Provider
-      value={{ user }}
-    >
-      {children}
-    </UserContext.Provider>
-  );
+  return <UserContext.Provider value={{ user, isLoading, refreshUser }}>{children}</UserContext.Provider>;
 }
