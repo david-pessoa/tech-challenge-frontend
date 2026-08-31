@@ -7,7 +7,7 @@ export function setLocalStorageToken(token: string) {
   return localStorage.setItem('token', token)
 }
 export function clearLocalStorageToken() {
-  return localStorage.setItem('token', '')
+  return localStorage.removeItem('token')
 }
 
 const BASE_URL = import.meta.env.VITE_BASE_URL;

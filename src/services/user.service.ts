@@ -10,7 +10,7 @@ export async function getAllUsers() {
       headers: {
         Authorization: `Bearer ${getLocalStorageToken()}`,
       },
-    });
+    })
     return response.data;
   } catch (error) {
     console.error('Erro na obtenção de lista de usuários:', error);
