@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 
+import DeleteUserModal from '../components/DeleteUserModal';
 import Footer from '../components/Footer';
 import Header from '../components/Header';
 import { deleteUser, getAllUsers } from '../services/user.service';
@@ -197,6 +198,7 @@ export default function UserList() {
   const [toastMessage, setToastMessage] = useState(
     (location.state as { toastMessage?: string } | null)?.toastMessage ?? ''
   );
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
 
   useEffect(() => {
     document.title = 'Edify | Lista de Usuários';
@@ -224,14 +226,27 @@ export default function UserList() {
     return () => window.clearTimeout(timeout);
   }, [toastMessage]);
 
-  async function handleDeleteUser(id: string) {
+  function openDeleteModal(selectedUser: User) {
+    setSelectedUser(selectedUser);
+  }
+
+  function closeDeleteModal() {
+    setSelectedUser(null);
+  }
+
+  async function handleDeleteUser() {
+    if (!selectedUser) {
+      return;
+    }
+
     try {
-      await deleteUser(id);
-      setUsers(currentUsers => currentUsers.filter(user => user.id !== id));
-      setMessage('Usuário deletado com sucesso.');
+      await deleteUser(selectedUser.id);
+      setUsers(currentUsers => currentUsers.filter(user => user.id !== selectedUser.id));
+      setToastMessage('Usuário deletado com sucesso.');
+      closeDeleteModal();
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : 'Erro ao deletar usuário.';
-      setMessage(message);
+      setToastMessage(message);
     }
   }
 
@@ -303,7 +318,7 @@ export default function UserList() {
                             </ActionLink>
                             <ActionButton
                               type="button"
-                              onClick={() => handleDeleteUser(user.id)}
+                              onClick={() => openDeleteModal(user)}
                               aria-label={`Deletar ${user.nome}`}
                             >
                               <ActionIcon className="material-symbols-outlined">delete</ActionIcon>
@@ -366,6 +381,13 @@ export default function UserList() {
             </TableWrapper>
           </Section>) : null}
       </Main>
+
+      {selectedUser && (
+        <DeleteUserModal
+          onCancel={closeDeleteModal}
+          onConfirm={handleDeleteUser}
+        />
+      )}
 
       <Footer />
     </>
