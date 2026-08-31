@@ -134,7 +134,7 @@ export default function ManagementPostsTable({ dados }: AdminPostsTableProps) {
       setToast({ message, status: 'success' });
       setPostList(currentList => currentList.filter(p => p.postId !== id));
     } catch (error: unknown) {
-      const message = '';
+      const message = error instanceof Error ? error.message : 'Erro ao deletar post.';
       setToast({ message, status: 'error' });
     }
   }
@@ -153,44 +153,50 @@ export default function ManagementPostsTable({ dados }: AdminPostsTableProps) {
         </tr>
       </thead>
       <tbody>
-        {dados.map((post, i) => (
-          <Tr key={i}>
-            <Td>
-              <MateriaContainer>
-                <IconContainer
-                  $backgroundColor={materias[post.subject.nome].backgroundColor}
-                  $color={materias[post.subject.nome].color}
-                >
-                  <Icon className="material-symbols-outlined">
-                    {materias[post.subject.nome].icon}
-                  </Icon>
-                </IconContainer>
-                <MateriaTitle $color={materias[post.subject.nome].color}>
-                  {post.subject.nome}
-                </MateriaTitle>
-              </MateriaContainer>
-            </Td>
-            <Td className="bold">
-              <Link href={`/post/${post.postId}`}>{post.titulo}</Link>
-            </Td>
-            <Td>{post.descricao}</Td>
-            <Td>{formatarData(post.dataCriacao)}</Td>
-            <Td>{formatarData(post.dataModificacao)}</Td>
-            {user?.role === 'ADMIN' && <Td>{post.criadoPor.nome}</Td>}
-            <td>
-              <ActionContainer>
-                <EditButton href={`/post/edit/${post.postId}`}>
-                  <EditIcon className="material-symbols-outlined">edit</EditIcon>
-                </EditButton>
-                {user?.role === 'ADMIN' && (
-                  <DeleteButton onClick={() => handleDeletePost(post.postId)}>
-                    <DeleteIcon className="material-symbols-outlined">delete</DeleteIcon>
-                  </DeleteButton>
-                )}
-              </ActionContainer>
-            </td>
-          </Tr>
-        ))}
+        {postList.length === 0 ? (
+          <tr>
+            <Td colSpan={user?.role === 'ADMIN' ? 7 : 6}>Não há posts para visualizar</Td>
+          </tr>
+        ) : (
+          postList.map((post, i) => (
+            <Tr key={i}>
+              <Td>
+                <MateriaContainer>
+                  <IconContainer
+                    $backgroundColor={materias[post.subject.nome].backgroundColor}
+                    $color={materias[post.subject.nome].color}
+                  >
+                    <Icon className="material-symbols-outlined">
+                      {materias[post.subject.nome].icon}
+                    </Icon>
+                  </IconContainer>
+                  <MateriaTitle $color={materias[post.subject.nome].color}>
+                    {post.subject.nome}
+                  </MateriaTitle>
+                </MateriaContainer>
+              </Td>
+              <Td className="bold">
+                <Link href={`/post/${post.postId}`}>{post.titulo}</Link>
+              </Td>
+              <Td>{post.descricao}</Td>
+              <Td>{formatarData(post.dataCriacao)}</Td>
+              <Td>{formatarData(post.dataModificacao)}</Td>
+              {user?.role === 'ADMIN' && <Td>{post.criadoPor.nome}</Td>}
+              <Td>
+                <ActionContainer>
+                  <EditButton href={`/post/edit/${post.postId}`}>
+                    <EditIcon className="material-symbols-outlined">edit</EditIcon>
+                  </EditButton>
+                  {user?.role === 'ADMIN' && (
+                    <DeleteButton onClick={() => handleDeletePost(post.postId)}>
+                      <DeleteIcon className="material-symbols-outlined">delete</DeleteIcon>
+                    </DeleteButton>
+                  )}
+                </ActionContainer>
+              </Td>
+            </Tr>
+          ))
+        )}
       </tbody>
     </Table>
   );

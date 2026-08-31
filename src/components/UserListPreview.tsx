@@ -172,30 +172,36 @@ export default function UserListPreview({ role }: UserListPreviewProps) {
         <UserListContainer>
           <h3>Todos os Usuários</h3>
           <UserList>
-            {allUsersList.map((user, i) => (
-              <Item key={i}>
-                <div>
-                  <UserProfilePhoto
-                    src={user?.image ? `${BASE_URL}${user?.image}` : userImage}
-                    alt={`Foto de perfil da ${user.nome}`}
-                  />
-                </div>
-                <UserNameRoleContainer>
-                  <UserName>{user.nome}</UserName>
-                  <UserRole>
-                    {user.role === 'ADMIN' ? 'Administrador' : capitalize(user.role)}
-                  </UserRole>
-                </UserNameRoleContainer>
-                <ActionContainer>
-                  <EditButton href={`/user/edit/${user.id}`}>
-                    <EditIcon className="material-symbols-outlined">edit</EditIcon>
-                  </EditButton>
-                  <DeleteButton hidden={role !== 'ADMIN'}>
-                    <DeleteIcon className="material-symbols-outlined">delete</DeleteIcon>
-                  </DeleteButton>
-                </ActionContainer>
-              </Item>
-            ))}
+            {allUsersList.length === 0 ? (
+              <div>
+                <div>Não há alunos na lista de usuários</div>
+              </div>
+            ) : (
+              allUsersList.map((user, i) => (
+                <Item key={i}>
+                  <div>
+                    <UserProfilePhoto
+                      src={user?.image ? `${BASE_URL}${user?.image}` : userImage}
+                      alt={`Foto de perfil da ${user.nome}`}
+                    />
+                  </div>
+                  <UserNameRoleContainer>
+                    <UserName>{user.nome}</UserName>
+                    <UserRole>
+                      {user.role === 'ADMIN' ? 'Administrador' : capitalize(user.role)}
+                    </UserRole>
+                  </UserNameRoleContainer>
+                  <ActionContainer>
+                    <EditButton href={`/user/edit/${user.id}`}>
+                      <EditIcon className="material-symbols-outlined">edit</EditIcon>
+                    </EditButton>
+                    <DeleteButton hidden={role !== 'ADMIN'}>
+                      <DeleteIcon className="material-symbols-outlined">delete</DeleteIcon>
+                    </DeleteButton>
+                  </ActionContainer>
+                </Item>
+              ))
+            )}
           </UserList>
           <AccessUserListButton href="/user/list">
             <span className="sentence">Acessar lista completa</span>

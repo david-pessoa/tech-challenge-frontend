@@ -9,6 +9,7 @@ export type Post = {
   titulo: string;
   descricao: string;
   criadoPor: {
+    userId: string;
     nome: string
     tipoUsuario: Role
   }

@@ -107,7 +107,13 @@ export default function PostsContainer() {
       </>
     );
   }
-  function ProfessorContainer() {
+  function TeacherContainer() {
+    // Os posts do próprio professor
+    const myPosts = posts.filter(p => p.criadoPor.userId === user?.id)
+
+    // Obtém os posts de outros professores
+    const otherPosts = posts.filter(p => p.criadoPor.userId !== user?.id)
+
     return (
       <>
         <Container>
@@ -119,17 +125,20 @@ export default function PostsContainer() {
               <p>Nova aula</p>
             </AddClassButton>
           </AddClassContainer>
-          <ManagementPostsTable dados={posts} />
+          <ManagementPostsTable dados={myPosts} />
         </Container>
         <Container>
           <Title>Outras aulas</Title>
           <Paragraph>Aulas criadas por outros professores</Paragraph>
-          <ViewedPostsTable dados={posts} />
+          <ViewedPostsTable dados={otherPosts} />
         </Container>
       </>
     );
   }
   function AdminContainer() {
+     // Obtém os posts não vistos e exibe no carrossel
+    const newPosts = posts.filter(p => p.foiVisto != true)
+
     return (
       <>
         <Container>
@@ -151,7 +160,7 @@ export default function PostsContainer() {
             onSwiper={swiper => console.log(swiper)}
             className="isAdmin"
           >
-            {posts.map((dado: Post, i) => (
+            {newPosts.map((dado: Post, i) => (
               <SwiperSlide key={i} style={{ width: '12.5rem' }}>
                 <Link href={`/post/${dado.postId}`}>
                   <CarouselCard dado={dado} />
@@ -173,7 +182,7 @@ export default function PostsContainer() {
     user && (
       <div>
         {user.role === 'PROFESSOR' ? (
-          <ProfessorContainer />
+          <TeacherContainer />
         ) : user.role === 'ALUNO' ? (
           <AlunoContainer />
         ) : (

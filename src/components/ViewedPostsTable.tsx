@@ -79,7 +79,11 @@ export default function ViewedPostsTable({ dados }: ViewedPostsTableProps) {
         </tr>
       </thead>
       <tbody>
-        {dados.map((post, i) => (
+        {dados.length === 0 ? (
+          <tr>
+            <Td colSpan={6}>Não há posts para visualizar</Td>
+          </tr>
+        ) : (dados.map((post, i) => (
           <Tr
             key={i}
             onClick={() => navigate(`/post/${post.postId}`)}
@@ -115,7 +119,7 @@ export default function ViewedPostsTable({ dados }: ViewedPostsTableProps) {
             <Td>{formatarData(post.dataModificacao)}</Td>
             <Td>{post.criadoPor.nome}</Td>
           </Tr>
-        ))}
+        )))}
       </tbody>
     </Table>
   );
