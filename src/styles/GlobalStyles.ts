@@ -60,6 +60,7 @@ export const GlobalStyles = createGlobalStyle`
   td {
     padding-left: 10px;
     padding-top: 10px;
+    text-align: center;
   }
   
   td.bold {

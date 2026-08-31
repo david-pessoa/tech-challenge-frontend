@@ -10,6 +10,7 @@ const FooterContainer = styled.footer`
   display: flex;
   justify-content: center;
   align-items: center;
+  margin-top: 60px;
 `;
 
 const Box = styled.div`

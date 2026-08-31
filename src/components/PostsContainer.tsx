@@ -1,5 +1,6 @@
 import styled from 'styled-components';
-import type { Role } from '../types/Roles';
+import { useState, useEffect } from 'react';
+import { getPosts } from '../services/post.service';
 
 import { Autoplay, Navigation, Pagination, Scrollbar, A11y } from 'swiper/modules';
 import { Swiper, SwiperSlide } from 'swiper/react';
@@ -111,8 +112,6 @@ export default function PostsContainer() {
   ];
 
   function AlunoContainer() {
-    //Obter dados dos posts do back-end
-
     return (
       <>
         <Container>
@@ -167,6 +166,22 @@ export default function PostsContainer() {
     );
   }
   function AdminContainer() {
+    const [adminPosts, setAdminPosts] = useState<Post[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+      getPosts()
+        .then((data) => {
+          setAdminPosts(data);
+        })
+        .catch((error) => {
+          console.error("Erro ao buscar posts do acervo:", error);
+        })
+        .finally(() => {
+          setIsLoading(false);
+        });
+    }, []);
+
     return (
       <>
         <Container>
@@ -178,29 +193,33 @@ export default function PostsContainer() {
               <p>Nova aula</p>
             </AddClassButton>
           </AddClassContainer>
-          <Swiper
-            modules={[Autoplay, Navigation, Pagination, Scrollbar, A11y]}
-            spaceBetween={12}
-            slidesPerView="auto"
-            loop={true}
-            pagination={{ clickable: true }}
-            navigation
-            onSwiper={swiper => console.log(swiper)}
-            className='isAdmin'
-          >
-            {dados.map((dado: Post, i) => (
-              <SwiperSlide key={i} style={{ width: '12.5rem' }}>
-                <Link href={`/post/${dado.postId}`}>
-                  <CarouselCard dado={dado} />
-                </Link>
-              </SwiperSlide>
-            ))}
-          </Swiper>
+          
+          {isLoading ? (
+             <Paragraph>Carregando acervo...</Paragraph>
+          ) : (
+             <Swiper
+               modules={[Autoplay, Navigation, Pagination, Scrollbar, A11y]}
+               spaceBetween={12}
+               slidesPerView="auto"
+               loop={false} 
+               pagination={{ clickable: true }}
+               navigation
+               className='isAdmin'
+             >
+               {adminPosts.map((dado: Post) => (
+                 <SwiperSlide key={dado.postId} style={{ width: '12.5rem' }}>
+                   <Link href={`/post/${dado.postId}`}>
+                     <CarouselCard dado={dado} />
+                   </Link>
+                 </SwiperSlide>
+               ))}
+             </Swiper>
+          )}
         </Container>
         <Container>
           <Title>Acervo da Escola</Title>
           <Paragraph>Todas as aulas postadas</Paragraph>
-          <AdminPostsTable dados={dados}/>
+          <AdminPostsTable dados={isLoading ? [] : adminPosts}/>
         </Container>
       </>
     );

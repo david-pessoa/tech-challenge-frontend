@@ -1,6 +1,9 @@
 import styled from 'styled-components';
 import type { Role } from '../types/Roles';
-import { useNavigate } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { getPostById } from '../services/post.service';
+import type { Post } from '../types/Posts';
 
 import Header from '../components/Header';
 import Footer from '../components/Footer';
@@ -10,22 +13,24 @@ import featureIcon from '../assets/featureIcon.png';
 import cloudIcon from '../assets/cloudIcon.png';
 import sunIcon from '../assets/sunIcon.png';
 import flowerIcon from '../assets/flowerIcon.png';
+import userDefaultImage from '../assets/user-default-image.png';
+
+const BASE_URL = import.meta.env.VITE_BASE_URL;
 
 const userCircleColors = {
-    ADMIN: {
-        background: '#6FB2A7',
-        border: '2px solid #A4F3E5',
-    },
-    PROFESSOR: {
-        background: '#FBB3BE',
-        border: '2px solid #F7CED2',
-    },
-    ALUNO: {
-        background: '#FDE9A0',
-        border: '2px solid #FEF1CE',
-    },
+  ADMIN: {
+    background: '#6FB2A7',
+    border: '2px solid #A4F3E5',
+  },
+  PROFESSOR: {
+    background: '#FBB3BE',
+    border: '2px solid #F7CED2',
+  },
+  ALUNO: {
+    background: '#FDE9A0',
+    border: '2px solid #FEF1CE',
+  },
 };
-
 
 const PageContainer = styled.main`
   display: flex;
@@ -35,7 +40,6 @@ const PageContainer = styled.main`
   min-height: 100vh;
   position: relative;
   overflow-x: hidden;
-  margin-bottom: 60px;
 `;
 
 const ContentWrapper = styled.div`
@@ -55,7 +59,6 @@ const BackButton = styled.button`
   border: none;
   color: #3A505D;
   font-size: 15px;
-  font-weight: regular; 
   cursor: pointer;
   position: absolute;
   top: 10px;
@@ -159,17 +162,6 @@ const Paragraph = styled.p`
   margin-bottom: 20px;
   color: #000000;
   font-size: 16px;
-`;
-
-const List = styled.ol`
-  margin-bottom: 20px;
-  padding-left: 20px;
-  color: #000000;
-  font-size: 16px;
-  
-  li {
-    margin-bottom: 15px;
-  }
 `;
 
 const QuestionsSection = styled.section`
@@ -284,147 +276,183 @@ const Doodle = styled.img<{ $top?: string, $right?: string, $left?: string, $bot
   pointer-events: none; 
 `;
 
+const Circle = styled.img<{ $role: Role }>`
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+  background-color: ${({ $role }) => userCircleColors[$role]?.background || '#6FB2A7'};
+  border: ${({ $role }) => userCircleColors[$role]?.border || '2px solid #A4F3E5'};
+`;
+
 export default function PostPage() {
-    document.title = 'Edify | Post';
+  document.title = 'Edify | Post';
 
-    const role: Role = 'ALUNO';
+  const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
 
-    const navigate = useNavigate();
+  const [post, setPost] = useState<Post | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
+  useEffect(() => {
+    if (id) {
+      setIsLoading(true);
+      getPostById(id)
+        .then((data) => setPost(data))
+        .catch((err) => {
+          console.error("Erro ao carregar post:", err);
+          setPost(null);
+        })
+        .finally(() => setIsLoading(false));
+    }
+  }, [id]);
+
+  if (isLoading) {
     return (
-        <>
-            <Header role={role} />
-
-            <PageContainer>
-                <ContentWrapper>
-                    <BackButton onClick={() => navigate('/')}>
-                        <BackIcon className="material-symbols-outlined">arrow_back</BackIcon>
-                        Voltar a tela de início
-                    </BackButton>
-
-                    <HeaderSection>
-                        <Categoria>Ciências</Categoria>
-
-                        <TitleWrapper>
-                            <Titulo>Aula 20 - Sapos no meio dos humanos</Titulo>
-                            <Doodle src={featureIcon} $top="-35px" $right="-50px" $width="108.77px" />
-                        </TitleWrapper>
-
-                        <Subtitulo>Ecologia Urbana, Mitos e Convivência</Subtitulo>
-
-                        <Doodle src={cloudIcon} $top="-45px" $right="-350px" $width="80px" />
-                    </HeaderSection>
-
-                    <ImagemPost src={imagePost} alt="Sapos no meio dos humanos" />
-
-                    <AuthorSection>
-                        <AuthorRow>
-                            <AvatarCircle $role="ALUNO" $size="32px" />
-                            <AuthorName>José</AuthorName>
-                        </AuthorRow>
-                        <PostDates>
-                            <span>Criado em 04/08/2026</span>
-                            <span>Editado 05/08/2026</span>
-                        </PostDates>
-                    </AuthorSection>
-
-                    <TextContent>
-                        <Doodle src={sunIcon} $top="30px" $left="-90px" $width="68px" />
-                        <Doodle src={flowerIcon} $top="220px" $right="-80px" $width="65px" />
-
-                        <Paragraph>
-                            Nesta aula, vamos entender como os anfíbios se adaptaram à vida urbana após a perda de seus habitats naturais. Aprenda por que eles são nossos maiores aliados na proteção da saúde pública, desmistifique velhas lendas e descubra como conviver de forma pacífica e ética com esses incríveis controladores de pragas.
-                        </Paragraph>
-
-                        <Paragraph>
-                            Com o crescimento das cidades e a redução das áreas naturais, os sapos precisaram se adaptar ao nosso ambiente para sobreviver. Nossos jardins oferecem a umidade de que precisam, e a luz dos postes atrai o seu prato principal: insetos.
-                        </Paragraph>
-
-                        <List>
-                            <li>
-                                <strong>Nossos Seguranças Ecológicos:</strong> Ter um sapo no quintal é, na verdade, uma grande sorte. Eles são controladores de pragas naturais e gratuitos. Durante a noite, um único sapo é capaz de devorar dezenas de mosquitos (incluindo o transmissor da dengue), moscas, baratas, aranhas e até mesmo animais peçonhentos perigosos, como escorpiões.
-                            </li>
-                            <li>
-                                <strong>Mitos e Verdades (O Perigo do Sal):</strong> Muitos machucam esses animais por puro desconhecimento. É preciso esclarecer:
-                                <ul>
-                                    <li>Veneno: Sapos não espirram veneno nos olhos. A toxina fica armazenada em glândulas atrás da cabeça e só é liberada se o animal for espremido ou mordido.</li>
-                                    <li>O uso do sal: Jogar sal em um sapo é um ato de extrema crueldade. A pele deles é altamente permeável (eles respiram por ela), e o sal causa uma desidratação severa e uma morte lenta e dolorosa.</li>
-                                </ul>
-                            </li>
-                            <li>
-                                <strong>O que fazer ao encontrar um?</strong> Absolutamente nada. Deixe-o seguir seu caminho. Se ele estiver dentro de casa ou em risco de ser pisado, use uma vassoura para empurrá-lo muito suavemente para o jardim. Mantenha cães e gatos afastados por precaução e agradeça a limpeza que ele está fazendo no seu quintal!
-                            </li>
-                        </List>
-                    </TextContent>
-
-                    <QuestionsSection>
-
-                        <InputContainer>
-                            <StyledTextarea placeholder="Faça uma pergunta" />
-                            <SubmitButton>Enviar</SubmitButton>
-                        </InputContainer>
-
-                        <QuestionsTitle>Perguntas</QuestionsTitle>
-
-                        <CommentsList>
-                            <CommentItem>
-                                <AvatarCircle $size="30px" $bg="#D2B4DE" $border="#E8DAEF" />
-                                <CommentContent>
-                                    <CommentHeader>
-                                        <AuthorName>Antônio</AuthorName>
-                                        <CommentTime>58 minutos atrás</CommentTime>
-                                    </CommentHeader>
-                                    <CommentText>Por que os sapos costumam aparecer nas casas e quintais urbanos?</CommentText>
-                                </CommentContent>
-                            </CommentItem>
-                            <CommentItem>
-                                <AvatarCircle $size="30px" $bg="#F1948A" $border="#FADBD8" />
-                                <CommentContent>
-                                    <CommentHeader>
-                                        <AuthorName>Josefa</AuthorName>
-                                        <CommentTime>2h10 minutos atrás</CommentTime>
-                                    </CommentHeader>
-                                    <CommentText>Por que é perigoso e cruel jogar sal em um sapo?</CommentText>
-                                </CommentContent>
-                            </CommentItem>
-                            <CommentItem>
-                                <AvatarCircle $size="30px" $bg="#A3E4D7" $border="#D1F2EB" />
-                                <CommentContent>
-                                    <CommentHeader>
-                                        <AuthorName>Pedro</AuthorName>
-                                        <CommentTime>3h58 minutos atrás</CommentTime>
-                                    </CommentHeader>
-                                    <CommentText>O que significa dizer que os sapos são 'bioindicadores' do meio ambiente?</CommentText>
-                                </CommentContent>
-                            </CommentItem>
-                            <CommentItem>
-                                <AvatarCircle $size="30px" $bg="#F5CBA7" $border="#FAE5D3" />
-                                <CommentContent>
-                                    <CommentHeader>
-                                        <AuthorName>Sofia</AuthorName>
-                                        <CommentTime>1 dia atrás</CommentTime>
-                                    </CommentHeader>
-                                    <CommentText>Por que os sapos estão aparecendo cada vez mais nas cidades?</CommentText>
-                                </CommentContent>
-                            </CommentItem>
-                            <CommentItem $isReply>
-                                <AvatarCircle $role="ALUNO" $size="30px" />
-                                <CommentContent>
-                                    <CommentHeader>
-                                        <AuthorName>José</AuthorName>
-                                        <CommentTime>Agora</CommentTime>
-                                    </CommentHeader>
-                                    <CommentText>Por causa da perda de seus habitats naturais, buscando o microclima úmido das casas e os insetos atraídos pela luz urbana.</CommentText>
-                                </CommentContent>
-                            </CommentItem>
-
-                        </CommentsList>
-                    </QuestionsSection>
-
-                </ContentWrapper>
-            </PageContainer>
-
-            <Footer />
-        </>
+      <>
+        <Header />
+        <PageContainer>
+          <ContentWrapper style={{ alignItems: 'center', marginTop: '50px' }}>
+            <Titulo>Carregando aula...</Titulo>
+          </ContentWrapper>
+        </PageContainer>
+        <Footer />
+      </>
     );
+  }
+
+  if (!post) {
+    return (
+      <>
+        <Header />
+        <PageContainer>
+          <ContentWrapper style={{ alignItems: 'center', marginTop: '50px' }}>
+            <Titulo>Aula não encontrada!</Titulo>
+            <BackButton style={{ position: 'relative', left: '0' }} onClick={() => navigate('/')}>
+              <BackIcon className="material-symbols-outlined">arrow_back</BackIcon>
+              Voltar a tela de início
+            </BackButton>
+          </ContentWrapper>
+        </PageContainer>
+        <Footer />
+      </>
+    );
+  }
+
+  const authorRole = post.criadoPor?.tipoUsuario || 'ADMIN';
+  const authorImage = post.criadoPor?.image ? `${BASE_URL}${post.criadoPor.image}` : userDefaultImage;
+
+  return (
+    <>
+      <Header />
+      <PageContainer>
+        <ContentWrapper>
+          <BackButton onClick={() => navigate('/')}>
+            <BackIcon className="material-symbols-outlined">arrow_back</BackIcon>
+            Voltar a tela de início
+          </BackButton>
+
+          <HeaderSection>
+            <Categoria>{post.materia}</Categoria>
+
+            <TitleWrapper>
+              <Titulo>{post.titulo}</Titulo>
+              <Doodle src={featureIcon} $top="-35px" $right="-50px" $width="108.77px" />
+            </TitleWrapper>
+
+            <Subtitulo>{post.descricao}</Subtitulo>
+            <Doodle src={cloudIcon} $top="-45px" $right="-350px" $width="80px" />
+          </HeaderSection>
+
+          <ImagemPost
+            src={post.image ? `${BASE_URL}${post.image}` : imagePost}
+            alt={post.titulo}
+          />
+
+          <AuthorSection>
+            <AuthorRow>
+              <Circle src={authorImage} $role={authorRole} alt={post.autor} />
+              <AuthorName>{post.autor}</AuthorName>
+            </AuthorRow>
+            <PostDates>
+              <span>Criado em {new Intl.DateTimeFormat('pt-BR').format(post.createdAt)}</span>
+              <span>Editado em {new Intl.DateTimeFormat('pt-BR').format(post.editedAt)}</span>
+            </PostDates>
+          </AuthorSection>
+
+          <TextContent>
+            <Doodle src={sunIcon} $top="30px" $left="-90px" $width="68px" />
+            <Doodle src={flowerIcon} $top="220px" $right="-80px" $width="65px" />
+
+            <Paragraph>{post.conteudo}</Paragraph>
+          </TextContent>
+
+          <QuestionsSection>
+            <InputContainer>
+              <StyledTextarea placeholder="Faça uma pergunta" />
+              <SubmitButton>Enviar</SubmitButton>
+            </InputContainer>
+
+            <QuestionsTitle>Perguntas</QuestionsTitle>
+
+            <CommentsList>
+              <CommentItem>
+                <AvatarCircle $size="30px" $bg="#D2B4DE" $border="#E8DAEF" />
+                <CommentContent>
+                  <CommentHeader>
+                    <AuthorName>Antônio</AuthorName>
+                    <CommentTime>58 minutos atrás</CommentTime>
+                  </CommentHeader>
+                  <CommentText>Por que os sapos costumam aparecer nas casas e quintais urbanos?</CommentText>
+                </CommentContent>
+              </CommentItem>
+              <CommentItem>
+                <AvatarCircle $size="30px" $bg="#F1948A" $border="#FADBD8" />
+                <CommentContent>
+                  <CommentHeader>
+                    <AuthorName>Josefa</AuthorName>
+                    <CommentTime>2h10 minutos atrás</CommentTime>
+                  </CommentHeader>
+                  <CommentText>Por que é perigoso e cruel jogar sal em um sapo?</CommentText>
+                </CommentContent>
+              </CommentItem>
+              <CommentItem>
+                <AvatarCircle $size="30px" $bg="#A3E4D7" $border="#D1F2EB" />
+                <CommentContent>
+                  <CommentHeader>
+                    <AuthorName>Pedro</AuthorName>
+                    <CommentTime>3h58 minutos atrás</CommentTime>
+                  </CommentHeader>
+                  <CommentText>O que significa dizer que os sapos são 'bioindicadores' do meio ambiente?</CommentText>
+                </CommentContent>
+              </CommentItem>
+              <CommentItem>
+                <AvatarCircle $size="30px" $bg="#F5CBA7" $border="#FAE5D3" />
+                <CommentContent>
+                  <CommentHeader>
+                    <AuthorName>Sofia</AuthorName>
+                    <CommentTime>1 dia atrás</CommentTime>
+                  </CommentHeader>
+                  <CommentText>Por que os sapos estão aparecendo cada vez mais nas cidades?</CommentText>
+                </CommentContent>
+              </CommentItem>
+              <CommentItem $isReply>
+                <AvatarCircle $role="ALUNO" $size="30px" />
+                <CommentContent>
+                  <CommentHeader>
+                    <AuthorName>José</AuthorName>
+                    <CommentTime>Agora</CommentTime>
+                  </CommentHeader>
+                  <CommentText>Por causa da perda de seus habitats naturais, buscando o microclima úmido das casas e os insetos atraídos pela luz urbana.</CommentText>
+                </CommentContent>
+              </CommentItem>
+            </CommentsList>
+          </QuestionsSection>
+
+        </ContentWrapper>
+      </PageContainer>
+
+      <Footer />
+    </>
+  );
 }
