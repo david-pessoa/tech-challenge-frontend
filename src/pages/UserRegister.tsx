@@ -5,6 +5,7 @@ import styled from 'styled-components';
 
 import Footer from '../components/Footer';
 import Header from '../components/Header';
+import { useUser } from '../context/AuthContext';
 import redDoodle from '../assets/red-doodle.png';
 import type { Role } from '../types/Roles';
 import { createUser, getAllUsers, getUserById, updateUser } from '../services/user.service';
@@ -259,6 +260,11 @@ const Select = styled.select`
     outline: 2px solid ${({ theme }) => theme.colors.fieldFocus};
   }
 
+  &:disabled {
+    background-image: none;
+    cursor: default;
+  }
+
   option {
     background-color: ${({ theme }) => theme.colors.fieldBackground};
     color: ${({ theme }) => theme.colors.text};
@@ -381,6 +387,7 @@ const Toast = styled.div<{ $status: ToastStatus }>`
 export default function UserRegister({ isNew }: UserRegisterProps) {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { user: loggedUser } = useUser();
   const imageInputRef = useRef<HTMLInputElement>(null);
   const [formData, setFormData] = useState<UserFormData>(initialFormData);
   const [imagePreview, setImagePreview] = useState('');
@@ -400,8 +407,18 @@ export default function UserRegister({ isNew }: UserRegisterProps) {
     Boolean(formData.matricula.trim()) &&
     hasRequiredPasswordFields &&
     !hasPasswordMismatch;
+  const isProfessor = loggedUser?.role === 'PROFESSOR';
 
   document.title = isNew ? 'Edify | Cadastro de Usuários' : 'Edify | Edição de Usuários';
+
+  useEffect(() => {
+    if (isProfessor) {
+      setFormData(currentFormData => ({
+        ...currentFormData,
+        role: 'ALUNO',
+      }));
+    }
+  }, [isProfessor]);
 
   useEffect(() => {
     if (isNew || !id) {
@@ -633,11 +650,18 @@ export default function UserRegister({ isNew }: UserRegisterProps) {
                 id="role"
                 name="role"
                 value={formData.role}
+                disabled={isProfessor}
                 onChange={event => setFormData({ ...formData, role: event.target.value as Role })}
               >
-                <option value="ALUNO">Aluno</option>
-                <option value="PROFESSOR">Professor</option>
-                <option value="ADMIN">Administrador</option>
+                {isProfessor ? (
+                  <option value="ALUNO">Aluno</option>
+                ) : (
+                  <>
+                    <option value="ALUNO">Aluno</option>
+                    <option value="PROFESSOR">Professor</option>
+                    <option value="ADMIN">Administrador</option>
+                  </>
+                )}
               </Select>
             </Field>
 
