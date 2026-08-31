@@ -1,6 +1,9 @@
 import styled from 'styled-components';
 
+import type { User } from '../types/User';
+
 type DeleteUserModalProps = {
+  user: User;
   onCancel: () => void;
   onConfirm: () => void;
 };
@@ -63,7 +66,7 @@ const ModalButton = styled.button<{ $secondary?: boolean }>`
   padding: 0 1.25rem;
 `;
 
-export default function DeleteUserModal({ onCancel, onConfirm }: DeleteUserModalProps) {
+export default function DeleteUserModal({ user, onCancel, onConfirm }: DeleteUserModalProps) {
   return (
     <ModalOverlay>
       <Modal role="dialog" aria-modal="true" aria-labelledby="delete-user-title">
@@ -71,7 +74,7 @@ export default function DeleteUserModal({ onCancel, onConfirm }: DeleteUserModal
           <ModalTitle id="delete-user-title">Confirmar exclusão</ModalTitle>
         </ModalHeader>
 
-        <ModalText>Você deseja remover este usuário?</ModalText>
+        <ModalText>Você deseja remover o usuário "{user.nome}"?</ModalText>
 
         <ModalActions>
           <ModalButton type="button" $secondary onClick={onCancel}>

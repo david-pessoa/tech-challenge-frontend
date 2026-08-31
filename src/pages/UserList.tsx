@@ -384,6 +384,7 @@ export default function UserList() {
 
       {selectedUser && (
         <DeleteUserModal
+          user={selectedUser}
           onCancel={closeDeleteModal}
           onConfirm={handleDeleteUser}
         />
