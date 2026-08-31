@@ -9,6 +9,7 @@ import type { Role } from '../types/Roles';
 import type { User } from '../types/User';
 import { buildApiImageUrl } from '../utils/functions';
 import userImage from '../assets/user-default-image.png';
+import { useUser } from '../context/AuthContext';
 
 const USER_GROUPS: { title: string; role: Role }[] = [
   { title: 'Administradores', role: 'ADMIN' },
@@ -189,6 +190,7 @@ function formatBirthDate(birthDate?: Date | string | null) {
 }
 
 export default function UserList() {
+  const { user } = useUser();
   const location = useLocation();
   const [users, setUsers] = useState<User[]>([]);
   const [message, setMessage] = useState('');
@@ -257,7 +259,7 @@ export default function UserList() {
 
         {message && <Message>{message}</Message>}
 
-        {USER_GROUPS.map(group => (
+        {user?.role === 'ADMIN' ? USER_GROUPS.map(group => (
           <Section key={group.role}>
             <SectionTitle>{group.title}</SectionTitle>
 
@@ -293,7 +295,10 @@ export default function UserList() {
                         <Td>{user.matricula}</Td>
                         <CenteredTd>
                           <Actions>
-                            <ActionLink href={`/user/edit/${user.id}`} aria-label={`Editar ${user.nome}`}>
+                            <ActionLink
+                              href={`/user/edit/${user.id}`}
+                              aria-label={`Editar ${user.nome}`}
+                            >
                               <ActionIcon className="material-symbols-outlined">edit</ActionIcon>
                             </ActionLink>
                             <ActionButton
@@ -311,7 +316,55 @@ export default function UserList() {
               </Table>
             </TableWrapper>
           </Section>
-        ))}
+        )) : user?.role === 'PROFESSOR' ? (<Section>
+            <SectionTitle>Alunos</SectionTitle>
+
+            <TableWrapper>
+              <Table>
+                <thead>
+                  <tr>
+                    <Th>Foto</Th>
+                    <Th>Nome completo</Th>
+                    <Th>Data de nascimento</Th>
+                    <Th>Matrícula</Th>
+                    <Th>Ações</Th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {users
+                    .filter(user => user.role === 'ALUNO')
+                    .map(user => (
+                      <tr key={user.id}>
+                        <PhotoCell>
+                          <UserPhoto
+                            src={user.image ? buildApiImageUrl(user.image) : userImage}
+                            alt={`Foto de ${user.nome}`}
+                            onError={event => {
+                              event.currentTarget.src = userImage;
+                            }}
+                          />
+                        </PhotoCell>
+                        <Td>
+                          <UserName>{user.nome}</UserName>
+                        </Td>
+                        <CenteredTd>{formatBirthDate(user.birthDate)}</CenteredTd>
+                        <Td>{user.matricula}</Td>
+                        <CenteredTd>
+                          <Actions>
+                            <ActionLink
+                              href={`/user/edit/${user.id}`}
+                              aria-label={`Editar ${user.nome}`}
+                            >
+                              <ActionIcon className="material-symbols-outlined">edit</ActionIcon>
+                            </ActionLink>
+                          </Actions>
+                        </CenteredTd>
+                      </tr>
+                    ))}
+                </tbody>
+              </Table>
+            </TableWrapper>
+          </Section>) : null}
       </Main>
 
       <Footer />

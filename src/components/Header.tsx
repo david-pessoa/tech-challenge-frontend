@@ -99,7 +99,6 @@ export default function Header() {
   async function handleLogout() {
     logout()
     await refreshUser()
-    debugger
     navigate('/login')
   }
 
