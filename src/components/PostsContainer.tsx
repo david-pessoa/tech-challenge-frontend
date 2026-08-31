@@ -1,17 +1,15 @@
 import styled from 'styled-components';
-import type { Role } from '../types/Roles';
 
 import { Autoplay, Navigation, Pagination, Scrollbar, A11y } from 'swiper/modules';
 import { Swiper, SwiperSlide } from 'swiper/react';
 
 import CarouselCard from './CarouselCard';
 import ViewedPostsTable from './ViewedPostsTable';
+import ManagementPostsTable from './ManagementPostsTable';
 
 import 'swiper/css';
 import '../styles/swiper-style.css';
 import type { Post } from '../types/Posts';
-import ProfessorPostsTable from './ProfessorPostsTable';
-import AdminPostsTable from './AdminPostsTable';
 import { useUser } from '../context/AuthContext';
 import { useEffect, useState } from 'react';
 import { getAllPosts } from '../services/post.service';
@@ -121,7 +119,7 @@ export default function PostsContainer() {
               <p>Nova aula</p>
             </AddClassButton>
           </AddClassContainer>
-          <ProfessorPostsTable dados={posts} />
+          <ManagementPostsTable dados={posts} />
         </Container>
         <Container>
           <Title>Outras aulas</Title>
@@ -165,7 +163,7 @@ export default function PostsContainer() {
         <Container>
           <Title>Acervo da Escola</Title>
           <Paragraph>Todas as aulas postadas</Paragraph>
-          <AdminPostsTable dados={posts} />
+          <ManagementPostsTable dados={posts} />
         </Container>
       </>
     );

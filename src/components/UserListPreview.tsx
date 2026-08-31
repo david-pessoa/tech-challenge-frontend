@@ -25,7 +25,6 @@ const Message = styled.p`
   font-weight: 500;
   font-style: Medium;
   font-size: 24px;
-  leading-trim: NONE;
   line-height: 100%;
   letter-spacing: 0%;
   text-align: center;
@@ -35,13 +34,11 @@ const Message = styled.p`
 
 const GalaxyImage = styled.img`
   width: 164.43px;
-  angle: 26.48 deg;
   margin-right: auto;
 `;
 
 const BubblesImage = styled.img`
   width: 102.12px;
-  angle: -65.39 deg;
   margin-left: auto;
 `;
 
@@ -193,7 +190,7 @@ export default function UserListPreview({ role }: UserListPreviewProps) {
                   <EditButton href={`/user/edit/${user.id}`}>
                     <EditIcon className="material-symbols-outlined">edit</EditIcon>
                   </EditButton>
-                  <DeleteButton>
+                  <DeleteButton hidden={role !== 'ADMIN'}>
                     <DeleteIcon className="material-symbols-outlined">delete</DeleteIcon>
                   </DeleteButton>
                 </ActionContainer>

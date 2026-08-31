@@ -3,11 +3,39 @@ import styled from 'styled-components';
 import type { Post } from '../types/Posts';
 import { materias } from '../types/Materias';
 import { formatarData } from '../utils/functions';
-import { useNavigate } from 'react-router-dom';
+import { deletePost } from '../services/post.service';
+import { useState } from 'react';
+import { useUser } from '../context/AuthContext';
 
 type AdminPostsTableProps = {
   dados: Post[];
 };
+
+type ToastStatus = 'success' | 'error';
+
+const Toast = styled.div<{ $status: ToastStatus }>`
+  position: fixed;
+  top: 1.5rem;
+  right: 1.5rem;
+  z-index: 10;
+  width: min(22rem, calc(100% - 2rem));
+  border-left: 0.35rem solid
+    ${({ $status, theme }) => ($status === 'success' ? '#6FB9A9' : theme.colors.primary)};
+  border-radius: 0.75rem;
+  background: ${({ theme }) => theme.colors.fieldBackground};
+  box-shadow: 0 0.5rem 1.5rem rgba(50, 67, 77, 0.16);
+  color: ${({ theme }) => theme.colors.text};
+  font-family: ${({ theme }) => theme.typography.fontFamily};
+  font-size: ${({ theme }) => theme.typography.field.fontSize};
+  font-weight: ${({ theme }) => theme.typography.field.fontWeight};
+  line-height: ${({ theme }) => theme.typography.field.lineHeight};
+  padding: 1rem 1.25rem;
+
+  @media (max-width: 720px) {
+    top: 1rem;
+    right: 1rem;
+  }
+`;
 
 const Table = styled.table`
   width: 100%;
@@ -94,11 +122,25 @@ const MateriaTitle = styled.p<FontColorProps>`
   color: ${({ $color }) => $color};
 `;
 
-export default function AdminPostsTable({ dados }: AdminPostsTableProps) {
-  const navigate = useNavigate();
+export default function ManagementPostsTable({ dados }: AdminPostsTableProps) {
+  const [toast, setToast] = useState<{ message: string; status: ToastStatus } | null>(null);
+  const [postList, setPostList] = useState<Post[]>(dados);
+  const { user } = useUser();
 
+  async function handleDeletePost(id: string) {
+    try {
+      const response = await deletePost(id);
+      const message = response.message;
+      setToast({ message, status: 'success' });
+      setPostList(currentList => currentList.filter(p => p.postId !== id));
+    } catch (error: unknown) {
+      const message = '';
+      setToast({ message, status: 'error' });
+    }
+  }
   return (
     <Table>
+      {toast && <Toast $status={toast.status}>{toast.message}</Toast>}
       <thead>
         <tr>
           <th>Matérias</th>
@@ -106,24 +148,13 @@ export default function AdminPostsTable({ dados }: AdminPostsTableProps) {
           <th>Descrição</th>
           <th>Data de Criação</th>
           <th>Data de Modificação</th>
-          <th>Professor</th>
+          {user?.role === 'ADMIN' && <th>Professor</th>}
           <th>Ações</th>
         </tr>
       </thead>
       <tbody>
         {dados.map((post, i) => (
-          <Tr
-            key={i}
-            onClick={() => navigate(`/post/${post.postId}`)}
-            onKeyDown={event => {
-              if (event.key === 'Enter' || event.key === ' ') {
-                event.preventDefault();
-                navigate(`/post/${post.postId}`);
-              }
-            }}
-            role="link"
-            tabIndex={0}
-          >
+          <Tr key={i}>
             <Td>
               <MateriaContainer>
                 <IconContainer
@@ -145,15 +176,17 @@ export default function AdminPostsTable({ dados }: AdminPostsTableProps) {
             <Td>{post.descricao}</Td>
             <Td>{formatarData(post.dataCriacao)}</Td>
             <Td>{formatarData(post.dataModificacao)}</Td>
-            <Td>{post.criadoPor.nome}</Td>
+            {user?.role === 'ADMIN' && <Td>{post.criadoPor.nome}</Td>}
             <td>
               <ActionContainer>
                 <EditButton href={`/post/edit/${post.postId}`}>
                   <EditIcon className="material-symbols-outlined">edit</EditIcon>
                 </EditButton>
-                <DeleteButton>
-                  <DeleteIcon className="material-symbols-outlined">delete</DeleteIcon>
-                </DeleteButton>
+                {user?.role === 'ADMIN' && (
+                  <DeleteButton onClick={() => handleDeletePost(post.postId)}>
+                    <DeleteIcon className="material-symbols-outlined">delete</DeleteIcon>
+                  </DeleteButton>
+                )}
               </ActionContainer>
             </td>
           </Tr>

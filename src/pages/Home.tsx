@@ -13,7 +13,7 @@ import userImage from '../assets/user-default-image.png';
 import { capitalize } from '../utils/functions';
 import Calendar from '../components/Calendar';
 import UserListPreview from '../components/UserListPreview';
-import { useEffect, useState, type ChangeEvent, type SetStateAction } from 'react';
+import { useEffect, useState } from 'react';
 import { searchPost } from '../services/post.service';
 import type { Post } from '../types/Posts';
 import { useDebounce } from '../hooks/debounce';
