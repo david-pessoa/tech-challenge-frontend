@@ -1,8 +1,6 @@
 import styled from 'styled-components';
 
-import { Autoplay, Navigation, Pagination, Scrollbar, A11y } from 'swiper/modules';
-import { Swiper, SwiperSlide } from 'swiper/react';
-
+import Carousel from './Carousel';
 import CarouselCard from './CarouselCard';
 import ViewedPostsTable from './ViewedPostsTable';
 import ManagementPostsTable from './ManagementPostsTable';
@@ -25,10 +23,6 @@ const Title = styled.h2`
 
 const Paragraph = styled.p`
   margin-bottom: 1.813rem;
-`;
-
-const Link = styled.a`
-  display: block;
 `;
 
 const AddClassContainer = styled.div`
@@ -81,23 +75,7 @@ export default function PostsContainer() {
         <Container>
           <Title>Novas Aulas</Title>
           <Paragraph>Últimas postagens de aulas feitas pelos seus professores</Paragraph>
-          <Swiper
-            modules={[Autoplay, Navigation, Pagination, Scrollbar, A11y]}
-            spaceBetween={12}
-            slidesPerView="auto"
-            loop={true}
-            pagination={{ clickable: true }}
-            navigation
-            onSwiper={swiper => console.log(swiper)}
-          >
-            {newPosts.map((dado: Post, i) => (
-              <SwiperSlide key={i} style={{ width: '12.5rem' }}>
-                <Link href={`/post/${dado.postId}`}>
-                  <CarouselCard dado={dado} />
-                </Link>
-              </SwiperSlide>
-            ))}
-          </Swiper>
+          <Carousel newPosts={newPosts} isAdmin={false}/>
         </Container>
         <Container>
           <Title>Aulas Finalizadas</Title>
@@ -150,24 +128,7 @@ export default function PostsContainer() {
               <p>Nova aula</p>
             </AddClassButton>
           </AddClassContainer>
-          <Swiper
-            modules={[Autoplay, Navigation, Pagination, Scrollbar, A11y]}
-            spaceBetween={12}
-            slidesPerView="auto"
-            loop={true}
-            pagination={{ clickable: true }}
-            navigation
-            onSwiper={swiper => console.log(swiper)}
-            className="isAdmin"
-          >
-            {newPosts.map((dado: Post, i) => (
-              <SwiperSlide key={i} style={{ width: '12.5rem' }}>
-                <Link href={`/post/${dado.postId}`}>
-                  <CarouselCard dado={dado} />
-                </Link>
-              </SwiperSlide>
-            ))}
-          </Swiper>
+          <Carousel newPosts={newPosts} isAdmin={true}/>
         </Container>
         <Container>
           <Title>Acervo da Escola</Title>
