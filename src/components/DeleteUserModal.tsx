@@ -102,11 +102,8 @@ export default function DeleteUserModal({ user, posts, onCancel, onConfirm }: De
       <Modal role="dialog" aria-modal="true" aria-labelledby="delete-user-title">
         <ModalHeader>
           <AlertIcon className="material-symbols-outlined">error</AlertIcon>
-          <ModalTitle id="delete-user-title">Remover?</ModalTitle>
+          <ModalTitle id="delete-user-title">Você deseja remover o usuário "{user.nome}"?</ModalTitle>
         </ModalHeader>
-
-        <ModalText>Você deseja remover o usuário "{user.nome}"?</ModalText>
-
         {posts.length > 0 && (
           <>
             <ModalText>Os seguintes posts serão removidos:</ModalText>
