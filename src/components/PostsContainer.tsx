@@ -94,7 +94,7 @@ export default function PostsContainer() {
           >
             {newPosts.map((dado: Post, i) => (
               <SwiperSlide key={i} style={{ width: '12.5rem' }}>
-                <Link href={`/post/${dado.id}`}>
+                <Link href={`/post/${dado.postId}`}>
                   <CarouselCard dado={dado} />
                 </Link>
               </SwiperSlide>
@@ -155,7 +155,7 @@ export default function PostsContainer() {
           >
             {posts.map((dado: Post, i) => (
               <SwiperSlide key={i} style={{ width: '12.5rem' }}>
-                <Link href={`/post/${dado.id}`}>
+                <Link href={`/post/${dado.postId}`}>
                   <CarouselCard dado={dado} />
                 </Link>
               </SwiperSlide>

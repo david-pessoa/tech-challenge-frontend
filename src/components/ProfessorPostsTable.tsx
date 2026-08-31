@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import type { Post } from '../types/Posts';
 import { materias } from '../types/Materias';
 import { formatarData } from '../utils/functions';
+import { useNavigate } from 'react-router-dom';
 
 type ProfessorPostsTableProps = {
   dados: Post[];
@@ -13,8 +14,17 @@ const Table = styled.table`
   margin-bottom: 3.625rem;
 `;
 
+const Tr = styled.tr`
+  cursor: pointer;
+
+  &:hover {
+    background-color: #e49e35a4;
+  }
+`;
+
 const Td = styled.td`
   max-width: 118px;
+  text-align: center;
 `;
 
 const MateriaContainer = styled.div`
@@ -86,6 +96,8 @@ const MateriaTitle = styled.p<FontColorProps>`
 `;
 
 export default function ProfessorPostsTable({ dados }: ProfessorPostsTableProps) {
+  const navigate = useNavigate();
+
   return (
     <Table>
       <thead>
@@ -100,27 +112,42 @@ export default function ProfessorPostsTable({ dados }: ProfessorPostsTableProps)
       </thead>
       <tbody>
         {dados.map((post, i) => (
-          <tr key={i}>
+          <Tr
+            key={i}
+            onClick={() => navigate(`/post/${post.postId}`)}
+            onKeyDown={event => {
+              if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault();
+                navigate(`/post/${post.postId}`);
+              }
+            }}
+            role="link"
+            tabIndex={0}
+          >
             <Td>
               <MateriaContainer>
                 <IconContainer
                   $backgroundColor={materias[post.subject.nome].backgroundColor}
                   $color={materias[post.subject.nome].color}
                 >
-                  <Icon className="material-symbols-outlined">{materias[post.subject.nome].icon}</Icon>
+                  <Icon className="material-symbols-outlined">
+                    {materias[post.subject.nome].icon}
+                  </Icon>
                 </IconContainer>
-                <MateriaTitle $color={materias[post.subject.nome].color}>{post.subject.nome}</MateriaTitle>
+                <MateriaTitle $color={materias[post.subject.nome].color}>
+                  {post.subject.nome}
+                </MateriaTitle>
               </MateriaContainer>
             </Td>
             <Td className="bold">
-              <Link href={`/post/${post.id}`}>{post.titulo}</Link>
+              <Link href={`/post/${post.postId}`}>{post.titulo}</Link>
             </Td>
             <Td>{post.descricao}</Td>
             <Td>{formatarData(post.dataCriacao)}</Td>
             <Td>{formatarData(post.dataModificacao)}</Td>
             <td>
               <ActionContainer>
-                <EditButton href={`/post/edit/${post.id}`}>
+                <EditButton href={`/post/edit/${post.postId}`}>
                   <EditIcon className="material-symbols-outlined">edit</EditIcon>
                 </EditButton>
                 <DeleteButton>
@@ -128,7 +155,7 @@ export default function ProfessorPostsTable({ dados }: ProfessorPostsTableProps)
                 </DeleteButton>
               </ActionContainer>
             </td>
-          </tr>
+          </Tr>
         ))}
       </tbody>
     </Table>

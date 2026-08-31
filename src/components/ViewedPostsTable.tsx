@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import type { Post } from '../types/Posts';
 import { materias } from '../types/Materias';
 import { formatarData } from '../utils/functions';
+import { useNavigate } from 'react-router-dom';
 
 type ViewedPostsTableProps = {
   dados: Post[];
@@ -12,8 +13,17 @@ const Table = styled.table`
   width: 100%;
 `;
 
+const Tr = styled.tr`
+  cursor: pointer;
+
+  &:hover {
+    background-color: #e49e35a4;
+  }
+`;
+
 const Td = styled.td`
   max-width: 118px;
+  text-align: center;
 `;
 
 const MateriaContainer = styled.div`
@@ -21,10 +31,6 @@ const MateriaContainer = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-`;
-
-const Link = styled.a`
-  display: block;
 `;
 
 type ColorProps = {
@@ -58,6 +64,8 @@ const MateriaTitle = styled.p<FontColorProps>`
 `;
 
 export default function ViewedPostsTable({ dados }: ViewedPostsTableProps) {
+  const navigate = useNavigate();
+  
   return (
     <Table>
       <thead>
@@ -72,26 +80,41 @@ export default function ViewedPostsTable({ dados }: ViewedPostsTableProps) {
       </thead>
       <tbody>
         {dados.map((post, i) => (
-          <tr key={i}>
+          <Tr
+            key={i}
+            onClick={() => navigate(`/post/${post.postId}`)}
+            onKeyDown={event => {
+              if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault();
+                navigate(`/post/${post.postId}`);
+              }
+            }}
+            role="link"
+            tabIndex={0}
+          >
             <Td>
               <MateriaContainer>
                 <IconContainer
                   $backgroundColor={materias[post.subject.nome].backgroundColor}
                   $color={materias[post.subject.nome].color}
                 >
-                  <Icon className="material-symbols-outlined">{materias[post.subject.nome].icon}</Icon>
+                  <Icon className="material-symbols-outlined">
+                    {materias[post.subject.nome].icon}
+                  </Icon>
                 </IconContainer>
-                <MateriaTitle $color={materias[post.subject.nome].color}>{post.subject.nome}</MateriaTitle>
+                <MateriaTitle $color={materias[post.subject.nome].color}>
+                  {post.subject.nome}
+                </MateriaTitle>
               </MateriaContainer>
             </Td>
             <Td className="bold">
-              <Link href={`/post/${post.postId}`}>{post.titulo}</Link>
+              {post.titulo}
             </Td>
-            <td>{post.descricao}</td>
-            <td>{formatarData(post.dataCriacao)}</td>
-            <td>{formatarData(post.dataModificacao)}</td>
-            <td>{post.criadoPor.nome}</td>
-          </tr>
+            <Td>{post.descricao}</Td>
+            <Td>{formatarData(post.dataCriacao)}</Td>
+            <Td>{formatarData(post.dataModificacao)}</Td>
+            <Td>{post.criadoPor.nome}</Td>
+          </Tr>
         ))}
       </tbody>
     </Table>
