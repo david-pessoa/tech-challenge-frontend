@@ -1,9 +1,11 @@
 import styled from 'styled-components';
 
+import type { Post } from '../types/Posts';
 import type { User } from '../types/User';
 
 type DeleteUserModalProps = {
   user: User;
+  posts: Post[];
   onCancel: () => void;
   onConfirm: () => void;
 };
@@ -47,6 +49,17 @@ const ModalText = styled.p`
   margin: 0 0 1rem;
 `;
 
+const PostList = styled.ul`
+  margin: 0 0 1.5rem;
+  padding-left: 1.25rem;
+`;
+
+const PostItem = styled.li`
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1.5;
+`;
+
 const ModalActions = styled.div`
   display: flex;
   justify-content: flex-end;
@@ -66,7 +79,7 @@ const ModalButton = styled.button<{ $secondary?: boolean }>`
   padding: 0 1.25rem;
 `;
 
-export default function DeleteUserModal({ user, onCancel, onConfirm }: DeleteUserModalProps) {
+export default function DeleteUserModal({ user, posts, onCancel, onConfirm }: DeleteUserModalProps) {
   return (
     <ModalOverlay>
       <Modal role="dialog" aria-modal="true" aria-labelledby="delete-user-title">
@@ -75,6 +88,17 @@ export default function DeleteUserModal({ user, onCancel, onConfirm }: DeleteUse
         </ModalHeader>
 
         <ModalText>Você deseja remover o usuário "{user.nome}"?</ModalText>
+
+        {posts.length > 0 && (
+          <>
+            <ModalText>Os seguintes posts serão removidos:</ModalText>
+            <PostList>
+              {posts.map(post => (
+                <PostItem key={post.postId}>{post.titulo}</PostItem>
+              ))}
+            </PostList>
+          </>
+        )}
 
         <ModalActions>
           <ModalButton type="button" $secondary onClick={onCancel}>

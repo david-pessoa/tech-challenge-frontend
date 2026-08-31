@@ -5,7 +5,9 @@ import styled from 'styled-components';
 import DeleteUserModal from '../components/DeleteUserModal';
 import Footer from '../components/Footer';
 import Header from '../components/Header';
+import { getAllPosts } from '../services/post.service';
 import { deleteUser, getAllUsers } from '../services/user.service';
+import type { Post } from '../types/Posts';
 import type { Role } from '../types/Roles';
 import type { User } from '../types/User';
 import { buildApiImageUrl } from '../utils/functions';
@@ -199,6 +201,7 @@ export default function UserList() {
     (location.state as { toastMessage?: string } | null)?.toastMessage ?? ''
   );
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [selectedUserPosts, setSelectedUserPosts] = useState<Post[]>([]);
 
   useEffect(() => {
     document.title = 'Edify | Lista de Usuários';
@@ -226,12 +229,22 @@ export default function UserList() {
     return () => window.clearTimeout(timeout);
   }, [toastMessage]);
 
-  function openDeleteModal(selectedUser: User) {
-    setSelectedUser(selectedUser);
+  async function openDeleteModal(selectedUser: User) {
+    try {
+      const posts = await getAllPosts();
+      const postsCreatedByUser = posts.filter(post => post.criadoPor?.id === selectedUser.id);
+
+      setSelectedUser(selectedUser);
+      setSelectedUserPosts(postsCreatedByUser);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'Erro ao carregar posts do usuário.';
+      setToastMessage(message);
+    }
   }
 
   function closeDeleteModal() {
     setSelectedUser(null);
+    setSelectedUserPosts([]);
   }
 
   async function handleDeleteUser() {
@@ -385,6 +398,7 @@ export default function UserList() {
       {selectedUser && (
         <DeleteUserModal
           user={selectedUser}
+          posts={selectedUserPosts}
           onCancel={closeDeleteModal}
           onConfirm={handleDeleteUser}
         />
