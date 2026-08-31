@@ -88,7 +88,7 @@ const LogoutButton = styled.button`
 
 export default function Header() {
   const navigate = useNavigate();
-  const { user } = useUser();
+  const { user, refreshUser } = useUser();
 
   const roleName = {
     ADMIN: 'Administradores',
@@ -96,8 +96,10 @@ export default function Header() {
     ALUNO: 'Alunos',
   };
 
-  const handleLogout = () => {
+  async function handleLogout() {
     logout()
+    await refreshUser()
+    debugger
     navigate('/login')
   }
 
