@@ -193,7 +193,7 @@ function formatBirthDate(birthDate?: Date | string | null) {
 }
 
 export default function UserList() {
-  const { user } = useUser();
+  const { user: loggedUser } = useUser();
   const location = useLocation();
   const [users, setUsers] = useState<User[]>([]);
   const [message, setMessage] = useState('');
@@ -287,7 +287,7 @@ export default function UserList() {
 
         {message && <Message>{message}</Message>}
 
-        {user?.role === 'ADMIN' ? USER_GROUPS.map(group => (
+        {loggedUser?.role === 'ADMIN' ? USER_GROUPS.map(group => (
           <Section key={group.role}>
             <SectionTitle>{group.title}</SectionTitle>
 
@@ -329,13 +329,15 @@ export default function UserList() {
                             >
                               <ActionIcon className="material-symbols-outlined">edit</ActionIcon>
                             </ActionLink>
-                            <ActionButton
-                              type="button"
-                              onClick={() => openDeleteModal(user)}
-                              aria-label={`Deletar ${user.nome}`}
-                            >
-                              <ActionIcon className="material-symbols-outlined">delete</ActionIcon>
-                            </ActionButton>
+                            {user.id !== loggedUser?.id && (
+                              <ActionButton
+                                type="button"
+                                onClick={() => openDeleteModal(user)}
+                                aria-label={`Deletar ${user.nome}`}
+                              >
+                                <ActionIcon className="material-symbols-outlined">delete</ActionIcon>
+                              </ActionButton>
+                            )}
                           </Actions>
                         </CenteredTd>
                       </tr>
@@ -344,7 +346,7 @@ export default function UserList() {
               </Table>
             </TableWrapper>
           </Section>
-        )) : user?.role === 'PROFESSOR' ? (<Section>
+        )) : loggedUser?.role === 'PROFESSOR' ? (<Section>
             <SectionTitle>Alunos</SectionTitle>
 
             <TableWrapper>
