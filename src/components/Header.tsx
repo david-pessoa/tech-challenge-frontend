@@ -5,6 +5,7 @@ import { capitalize } from '../utils/functions';
 import { logout } from '../services/auth.service';
 import { useNavigate } from 'react-router-dom';
 import { useUser } from '../context/AuthContext';
+import userImage from '../assets/user-default-image.png';
 
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 
@@ -87,7 +88,7 @@ const LogoutButton = styled.button`
 
 export default function Header() {
   const navigate = useNavigate();
-  const { user } = useUser();
+  const { user, refreshUser } = useUser();
 
   const roleName = {
     ADMIN: 'Administradores',
@@ -95,8 +96,10 @@ export default function Header() {
     ALUNO: 'Alunos',
   };
 
-  const handleLogout = () => {
+  async function handleLogout() {
     logout()
+    await refreshUser()
+    debugger
     navigate('/login')
   }
 
@@ -111,7 +114,7 @@ export default function Header() {
             <Title>Edify {roleName[user.role]}</Title>
           </LogoButton>
           <LogoutContainer>
-            <Circle src={BASE_URL + user.image} $role={user.role} />
+            <Circle src={user.image ? BASE_URL + user.image : userImage} $role={user.role} />
             <span>{capitalize(user.role)}</span>
             <LogoutButton onClick={handleLogout}>
               <span className="material-symbols-outlined">logout</span>

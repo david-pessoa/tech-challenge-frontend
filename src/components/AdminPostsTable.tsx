@@ -2,6 +2,7 @@ import styled from 'styled-components';
 
 import type { Post } from '../types/Posts';
 import { materias } from '../types/Materias';
+import { formatarData } from '../utils/functions';
 
 type AdminPostsTableProps = {
   dados: Post[];
@@ -103,21 +104,21 @@ export default function AdminPostsTable({ dados }: AdminPostsTableProps) {
             <Td>
               <MateriaContainer>
                 <IconContainer
-                  $backgroundColor={materias[post.materia].backgroundColor}
-                  $color={materias[post.materia].color}
+                  $backgroundColor={materias[post.subject.nome].backgroundColor}
+                  $color={materias[post.subject.nome].color}
                 >
-                  <Icon className="material-symbols-outlined">{materias[post.materia].icon}</Icon>
+                  <Icon className="material-symbols-outlined">{materias[post.subject.nome].icon}</Icon>
                 </IconContainer>
-                <MateriaTitle $color={materias[post.materia].color}>{post.materia}</MateriaTitle>
+                <MateriaTitle $color={materias[post.subject.nome].color}>{post.subject.nome}</MateriaTitle>
               </MateriaContainer>
             </Td>
             <Td className="bold">
               <Link href={`/post/${post.id}`}>{post.titulo}</Link>
             </Td>
             <Td>{post.descricao}</Td>
-            <Td>{new Intl.DateTimeFormat('pt-BR').format(post.createdAt)}</Td>
-            <Td>{new Intl.DateTimeFormat('pt-BR').format(post.editedAt)}</Td>
-            <td>{post.autor}</td>
+            <Td>{formatarData(post.dataCriacao)}</Td>
+            <Td>{formatarData(post.dataModificacao)}</Td>
+            <td>{post.criadoPor.nome}</td>
             <td>
               <ActionContainer>
                 <EditButton href={`/post/edit/${post.id}`}>
