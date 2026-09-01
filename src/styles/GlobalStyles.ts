@@ -46,7 +46,6 @@ export const GlobalStyles = createGlobalStyle`
     font-family: ${({ theme }) => theme.typography.fontFamily};
     font-weight: 500;
     font-size: 20px;
-    leading-trim: NONE;
     line-height: 100%;
     letter-spacing: 0%;
     padding: 10px;
