@@ -1,13 +1,11 @@
 import styled from 'styled-components';
 import logo from '../../public/Logo.png';
 import type { Role } from '../types/Roles';
-import { capitalize } from '../utils/functions';
 import { logout } from '../services/auth.service';
 import { useNavigate } from 'react-router-dom';
 import { useUser } from '../context/AuthContext';
 import userImage from '../assets/user-default-image.png';
-
-const BASE_URL = import.meta.env.VITE_BASE_URL;
+import { buildApiImageUrl } from '../utils/functions';
 
 const RoleColors = {
   ADMIN:
@@ -46,6 +44,7 @@ const Circle = styled.img<{ $role: Role }>`
   border-radius: 50%;
   background-color: ${({ $role }) => userCircleColors[$role].background};
   border: ${({ $role }) => userCircleColors[$role].border};
+  object-fit: cover;
 `;
 
 const Nav = styled.nav`
@@ -99,7 +98,6 @@ export default function Header() {
   async function handleLogout() {
     logout()
     await refreshUser()
-    debugger
     navigate('/login')
   }
 
@@ -114,8 +112,8 @@ export default function Header() {
             <Title>Edify {roleName[user.role]}</Title>
           </LogoButton>
           <LogoutContainer>
-            <Circle src={user.image ? BASE_URL + user.image : userImage} $role={user.role} />
-            <span>{capitalize(user.role)}</span>
+            <Circle src={user.image ? buildApiImageUrl(user.image) : userImage} $role={user.role} />
+            <span>{user.nome}</span>
             <LogoutButton onClick={handleLogout}>
               <span className="material-symbols-outlined">logout</span>
             </LogoutButton>

@@ -1,13 +1,14 @@
 import { useEffect, useRef, useState } from 'react';
 import type { FormEvent } from 'react';
-import { useParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import styled from 'styled-components';
 
 import Footer from '../components/Footer';
 import Header from '../components/Header';
+import { useUser } from '../context/AuthContext';
 import redDoodle from '../assets/red-doodle.png';
 import type { Role } from '../types/Roles';
-import { createUser, getUserById, updateUser } from '../services/user.service';
+import { createUser, getAllUsers, getUserById, updateUser } from '../services/user.service';
 import { buildApiImageUrl } from '../utils/functions';
 import type { User } from '../types/User';
 
@@ -44,8 +45,11 @@ const Main = styled.main`
   padding: 0 clamp(1rem, 8.55vw, 7.6875rem);
 `;
 
-const BackLink = styled.a`
+const BackLink = styled.button`
+  background: transparent;
+  border: 0;
   color: ${({ theme }) => theme.colors.backLink};
+  cursor: pointer;
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
@@ -53,6 +57,7 @@ const BackLink = styled.a`
   font-size: ${({ theme }) => theme.typography.backLink.fontSize};
   font-weight: ${({ theme }) => theme.typography.backLink.fontWeight};
   margin-bottom: 1.5rem;
+  padding: 0;
   text-decoration: none;
 
   span {
@@ -259,6 +264,11 @@ const Select = styled.select`
     outline: 2px solid ${({ theme }) => theme.colors.fieldFocus};
   }
 
+  &:disabled {
+    background-image: none;
+    cursor: default;
+  }
+
   option {
     background-color: ${({ theme }) => theme.colors.fieldBackground};
     color: ${({ theme }) => theme.colors.text};
@@ -355,6 +365,10 @@ const Button = styled.button<{ $secondary?: boolean }>`
 `;
 
 const Toast = styled.div<{ $status: ToastStatus }>`
+  align-items: center;
+  display: flex;
+  gap: 1rem;
+  justify-content: space-between;
   position: fixed;
   top: 1.5rem;
   right: 1.5rem;
@@ -378,8 +392,26 @@ const Toast = styled.div<{ $status: ToastStatus }>`
   }
 `;
 
+const ToastCloseButton = styled.button`
+  align-items: center;
+  background: transparent;
+  border: 0;
+  color: ${({ theme }) => theme.colors.text};
+  cursor: pointer;
+  display: inline-flex;
+  padding: 0;
+
+  span {
+    font-size: 1.25rem;
+    line-height: 1;
+  }
+`;
+
 export default function UserRegister({ isNew }: UserRegisterProps) {
   const { id } = useParams();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { user: loggedUser } = useUser();
   const imageInputRef = useRef<HTMLInputElement>(null);
   const [formData, setFormData] = useState<UserFormData>(initialFormData);
   const [imagePreview, setImagePreview] = useState('');
@@ -399,8 +431,20 @@ export default function UserRegister({ isNew }: UserRegisterProps) {
     Boolean(formData.matricula.trim()) &&
     hasRequiredPasswordFields &&
     !hasPasswordMismatch;
+  const isProfessor = loggedUser?.role === 'PROFESSOR';
+  const cameFromUserList = (location.state as { from?: string } | null)?.from === 'user-list';
+  const backButtonText = cameFromUserList ? 'Voltar para listagem' : 'Voltar a tela de início';
 
   document.title = isNew ? 'Edify | Cadastro de Usuários' : 'Edify | Edição de Usuários';
+
+  useEffect(() => {
+    if (isProfessor) {
+      setFormData(currentFormData => ({
+        ...currentFormData,
+        role: 'ALUNO',
+      }));
+    }
+  }, [isProfessor]);
 
   useEffect(() => {
     if (isNew || !id) {
@@ -451,34 +495,48 @@ export default function UserRegister({ isNew }: UserRegisterProps) {
       return;
     }
 
-    const userData = new FormData();
-
-    userData.append('nome', formData.nome);
-    if (formData.birthDate) {
-      userData.append('birthDate', formData.birthDate.toISOString().split('T')[0]);
-    }
-    userData.append('matricula', formData.matricula);
-    userData.append('role', formData.role);
-
-    if (isNew || formData.senha) {
-      userData.append('senha', formData.senha);
-    }
-
-    if (formData.image) {
-      userData.append('image', formData.image);
-    }
-
     try {
+      if (!isNew) {
+        const users = (await getAllUsers()) as User[];
+        const hasDuplicatedRegistration = users.some(
+          user => user.matricula === formData.matricula.trim() && user.id !== id
+        );
+
+        if (hasDuplicatedRegistration) {
+          setToast({ message: 'Já existe um usuário cadastrado com essa matrícula.', status: 'error' });
+          return;
+        }
+      }
+
+      const userData = new FormData();
+
+      userData.append('nome', formData.nome);
+      if (formData.birthDate) {
+        userData.append('birthDate', formData.birthDate.toISOString().split('T')[0]);
+      }
+      userData.append('matricula', formData.matricula);
+      userData.append('role', formData.role);
+
+      if (isNew || formData.senha) {
+        userData.append('senha', formData.senha);
+      }
+
+      if (formData.image) {
+        userData.append('image', formData.image);
+      }
+
+      let successMessage;
+
       if (isNew) {
         await createUser(userData);
-        setToast({ message: 'Usuário cadastrado com sucesso.', status: 'success' });
-        setFormData(initialFormData);
-        setImagePreview('');
+        successMessage = 'Usuário cadastrado com sucesso.';
       } else {
         if (typeof id !== 'string') throw new Error('ID de usuário inválido');
         await updateUser(id, userData);
-        setToast({ message: 'Usuário editado com sucesso.', status: 'success' });
+        successMessage = 'Usuário editado com sucesso.';
       }
+
+      navigate('/user/list', { state: { toastMessage: successMessage } });
     } catch (error: unknown) {
       let defaultMessage;
       if (isNew) defaultMessage = 'Erro ao cadastrar usuário.';
@@ -505,16 +563,36 @@ export default function UserRegister({ isNew }: UserRegisterProps) {
     }
   }
 
+  function handleGoBack() {
+    if (window.history.length > 1) {
+      navigate(-1);
+      return;
+    }
+
+    navigate('/');
+  }
+
   return (
     <>
-      {toast && <Toast $status={toast.status}>{toast.message}</Toast>}
+      {toast && (
+        <Toast $status={toast.status}>
+          <span>{toast.message}</span>
+          <ToastCloseButton
+            type="button"
+            onClick={() => setToast(null)}
+            aria-label="Fechar mensagem"
+          >
+            <span className="material-symbols-outlined">close</span>
+          </ToastCloseButton>
+        </Toast>
+      )}
 
       <Header />
 
       <Main>
-        <BackLink href="/">
+        <BackLink type="button" onClick={handleGoBack}>
           <span className="material-symbols-outlined">arrow_upward</span>
-          Voltar a tela de início
+          {backButtonText}
         </BackLink>
 
         <TitleContainer>
@@ -618,11 +696,18 @@ export default function UserRegister({ isNew }: UserRegisterProps) {
                 id="role"
                 name="role"
                 value={formData.role}
+                disabled={isProfessor}
                 onChange={event => setFormData({ ...formData, role: event.target.value as Role })}
               >
-                <option value="ALUNO">Aluno</option>
-                <option value="PROFESSOR">Professor</option>
-                <option value="ADMIN">Administrador</option>
+                {isProfessor ? (
+                  <option value="ALUNO">Aluno</option>
+                ) : (
+                  <>
+                    <option value="ALUNO">Aluno</option>
+                    <option value="PROFESSOR">Professor</option>
+                    <option value="ADMIN">Administrador</option>
+                  </>
+                )}
               </Select>
             </Field>
 
@@ -681,7 +766,7 @@ export default function UserRegister({ isNew }: UserRegisterProps) {
           </Fields>
 
           <Actions>
-            <Button type="button" $secondary>
+            <Button type="button" $secondary onClick={() => navigate(-1)}>
               Cancelar
             </Button>
             <Button type="submit" disabled={!isFormValid}>
