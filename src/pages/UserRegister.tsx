@@ -365,6 +365,10 @@ const Button = styled.button<{ $secondary?: boolean }>`
 `;
 
 const Toast = styled.div<{ $status: ToastStatus }>`
+  align-items: center;
+  display: flex;
+  gap: 1rem;
+  justify-content: space-between;
   position: fixed;
   top: 1.5rem;
   right: 1.5rem;
@@ -385,6 +389,21 @@ const Toast = styled.div<{ $status: ToastStatus }>`
   @media (max-width: 720px) {
     top: 1rem;
     right: 1rem;
+  }
+`;
+
+const ToastCloseButton = styled.button`
+  align-items: center;
+  background: transparent;
+  border: 0;
+  color: ${({ theme }) => theme.colors.text};
+  cursor: pointer;
+  display: inline-flex;
+  padding: 0;
+
+  span {
+    font-size: 1.25rem;
+    line-height: 1;
   }
 `;
 
@@ -555,7 +574,18 @@ export default function UserRegister({ isNew }: UserRegisterProps) {
 
   return (
     <>
-      {toast && <Toast $status={toast.status}>{toast.message}</Toast>}
+      {toast && (
+        <Toast $status={toast.status}>
+          <span>{toast.message}</span>
+          <ToastCloseButton
+            type="button"
+            onClick={() => setToast(null)}
+            aria-label="Fechar mensagem"
+          >
+            <span className="material-symbols-outlined">close</span>
+          </ToastCloseButton>
+        </Toast>
+      )}
 
       <Header />
 

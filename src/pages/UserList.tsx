@@ -163,6 +163,10 @@ const Message = styled.p`
 `;
 
 const Toast = styled.div`
+  align-items: center;
+  display: flex;
+  gap: 1rem;
+  justify-content: space-between;
   position: fixed;
   top: 1.5rem;
   right: 1.5rem;
@@ -181,6 +185,21 @@ const Toast = styled.div`
   @media (max-width: 720px) {
     top: 1rem;
     right: 1rem;
+  }
+`;
+
+const ToastCloseButton = styled.button`
+  align-items: center;
+  background: transparent;
+  border: 0;
+  color: ${({ theme }) => theme.colors.text};
+  cursor: pointer;
+  display: inline-flex;
+  padding: 0;
+
+  span {
+    font-size: 1.25rem;
+    line-height: 1;
   }
 `;
 
@@ -265,7 +284,18 @@ export default function UserList() {
 
   return (
     <>
-      {toastMessage && <Toast>{toastMessage}</Toast>}
+      {toastMessage && (
+        <Toast>
+          <span>{toastMessage}</span>
+          <ToastCloseButton
+            type="button"
+            onClick={() => setToastMessage('')}
+            aria-label="Fechar mensagem"
+          >
+            <span className="material-symbols-outlined">close</span>
+          </ToastCloseButton>
+        </Toast>
+      )}
 
       <Header />
 
