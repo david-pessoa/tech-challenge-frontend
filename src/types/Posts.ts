@@ -12,7 +12,7 @@ export type Post = {
     nome: string;
   };
   criadoPor?: {
-    id: string;
+    userId: string;
     nome: string;
     tipoUsuario: string;
   };

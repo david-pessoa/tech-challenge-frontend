@@ -5,14 +5,13 @@ import styled from 'styled-components';
 import DeleteUserModal from '../components/DeleteUserModal';
 import Footer from '../components/Footer';
 import Header from '../components/Header';
-import { getAllPosts } from '../services/post.service';
-import { deleteUser, getAllUsers } from '../services/user.service';
-import type { Post } from '../types/Posts';
+import { getAllUsers } from '../services/user.service';
 import type { Role } from '../types/Roles';
 import type { User } from '../types/User';
 import { buildApiImageUrl } from '../utils/functions';
 import userImage from '../assets/user-default-image.png';
 import { useUser } from '../context/AuthContext';
+import { Toast, ToastCloseButton } from '../components/ToastComponents';
 
 const USER_GROUPS: { title: string; role: Role }[] = [
   { title: 'Administradores', role: 'ADMIN' },
@@ -162,47 +161,6 @@ const Message = styled.p`
   color: ${({ theme }) => theme.colors.primary};
 `;
 
-const Toast = styled.div`
-  align-items: center;
-  display: flex;
-  gap: 1rem;
-  justify-content: space-between;
-  position: fixed;
-  top: 1.5rem;
-  right: 1.5rem;
-  z-index: 10;
-  width: min(22rem, calc(100% - 2rem));
-  border-left: 0.35rem solid #6fb9a9;
-  border-radius: 0.75rem;
-  background: ${({ theme }) => theme.colors.fieldBackground};
-  box-shadow: 0 0.5rem 1.5rem rgba(50, 67, 77, 0.16);
-  color: ${({ theme }) => theme.colors.text};
-  font-size: ${({ theme }) => theme.typography.field.fontSize};
-  font-weight: ${({ theme }) => theme.typography.field.fontWeight};
-  line-height: ${({ theme }) => theme.typography.field.lineHeight};
-  padding: 1rem 1.25rem;
-
-  @media (max-width: 720px) {
-    top: 1rem;
-    right: 1rem;
-  }
-`;
-
-const ToastCloseButton = styled.button`
-  align-items: center;
-  background: transparent;
-  border: 0;
-  color: ${({ theme }) => theme.colors.text};
-  cursor: pointer;
-  display: inline-flex;
-  padding: 0;
-
-  span {
-    font-size: 1.25rem;
-    line-height: 1;
-  }
-`;
-
 function formatBirthDate(birthDate?: Date | string | null) {
   if (!birthDate) {
     return '-';
@@ -220,7 +178,6 @@ export default function UserList() {
     (location.state as { toastMessage?: string } | null)?.toastMessage ?? ''
   );
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
-  const [selectedUserPosts, setSelectedUserPosts] = useState<Post[]>([]);
 
   useEffect(() => {
     document.title = 'Edify | Lista de Usuários';
@@ -249,37 +206,19 @@ export default function UserList() {
   }, [toastMessage]);
 
   async function openDeleteModal(selectedUser: User) {
-    try {
-      const posts = await getAllPosts();
-      const postsCreatedByUser = posts.filter(post => post.criadoPor?.id === selectedUser.id);
-
-      setSelectedUser(selectedUser);
-      setSelectedUserPosts(postsCreatedByUser);
-    } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : 'Erro ao carregar posts do usuário.';
-      setToastMessage(message);
-    }
+    setSelectedUser(selectedUser);
   }
 
   function closeDeleteModal() {
     setSelectedUser(null);
-    setSelectedUserPosts([]);
   }
 
-  async function handleDeleteUser() {
-    if (!selectedUser) {
-      return;
-    }
+  function handleSuccessDeleteMessage() {
+    setToastMessage(`O usuário foi deletado com sucesso`);
+  }
 
-    try {
-      await deleteUser(selectedUser.id);
-      setUsers(currentUsers => currentUsers.filter(user => user.id !== selectedUser.id));
-      setToastMessage('Usuário deletado com sucesso.');
-      closeDeleteModal();
-    } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : 'Erro ao deletar usuário.';
-      setToastMessage(message);
-    }
+  function handleDeleteErrorMessage() {
+    setToastMessage(`Erro ao deletar usuário`);
   }
 
   return (
@@ -317,67 +256,72 @@ export default function UserList() {
 
         {message && <Message>{message}</Message>}
 
-        {loggedUser?.role === 'ADMIN' ? USER_GROUPS.map(group => (
-          <Section key={group.role}>
-            <SectionTitle>{group.title}</SectionTitle>
+        {loggedUser?.role === 'ADMIN' ? (
+          USER_GROUPS.map(group => (
+            <Section key={group.role}>
+              <SectionTitle>{group.title}</SectionTitle>
 
-            <TableWrapper>
-              <Table>
-                <thead>
-                  <tr>
-                    <Th>Foto</Th>
-                    <Th>Nome completo</Th>
-                    <Th>Data de nascimento</Th>
-                    <Th>Matrícula</Th>
-                    <Th>Ações</Th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {users
-                    .filter(user => user.role === group.role)
-                    .map(user => (
-                      <tr key={user.id}>
-                        <PhotoCell>
-                          <UserPhoto
-                            src={user.image ? buildApiImageUrl(user.image) : userImage}
-                            alt={`Foto de ${user.nome}`}
-                            onError={event => {
-                              event.currentTarget.src = userImage;
-                            }}
-                          />
-                        </PhotoCell>
-                        <Td>
-                          <UserName>{user.nome}</UserName>
-                        </Td>
-                        <CenteredTd>{formatBirthDate(user.birthDate)}</CenteredTd>
-                        <Td>{user.matricula}</Td>
-                        <CenteredTd>
-                          <Actions>
-                            <ActionLink
-                              to={`/user/edit/${user.id}`}
-                              state={{ from: 'user-list' }}
-                              aria-label={`Editar ${user.nome}`}
-                            >
-                              <ActionIcon className="material-symbols-outlined">edit</ActionIcon>
-                            </ActionLink>
-                            {user.id !== loggedUser?.id && (
-                              <ActionButton
-                                type="button"
-                                onClick={() => openDeleteModal(user)}
-                                aria-label={`Deletar ${user.nome}`}
+              <TableWrapper>
+                <Table>
+                  <thead>
+                    <tr>
+                      <Th>Foto</Th>
+                      <Th>Nome completo</Th>
+                      <Th>Data de nascimento</Th>
+                      <Th>Matrícula</Th>
+                      <Th>Ações</Th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {users
+                      .filter(user => user.role === group.role)
+                      .map(user => (
+                        <tr key={user.id}>
+                          <PhotoCell>
+                            <UserPhoto
+                              src={user.image ? buildApiImageUrl(user.image) : userImage}
+                              alt={`Foto de ${user.nome}`}
+                              onError={event => {
+                                event.currentTarget.src = userImage;
+                              }}
+                            />
+                          </PhotoCell>
+                          <Td>
+                            <UserName>{user.nome}</UserName>
+                          </Td>
+                          <CenteredTd>{formatBirthDate(user.birthDate)}</CenteredTd>
+                          <Td>{user.matricula}</Td>
+                          <CenteredTd>
+                            <Actions>
+                              <ActionLink
+                                to={`/user/edit/${user.id}`}
+                                state={{ from: 'user-list' }}
+                                aria-label={`Editar ${user.nome}`}
                               >
-                                <ActionIcon className="material-symbols-outlined">delete</ActionIcon>
-                              </ActionButton>
-                            )}
-                          </Actions>
-                        </CenteredTd>
-                      </tr>
-                    ))}
-                </tbody>
-              </Table>
-            </TableWrapper>
-          </Section>
-        )) : loggedUser?.role === 'PROFESSOR' ? (<Section>
+                                <ActionIcon className="material-symbols-outlined">edit</ActionIcon>
+                              </ActionLink>
+                              {user.id !== loggedUser?.id && (
+                                <ActionButton
+                                  type="button"
+                                  onClick={() => openDeleteModal(user)}
+                                  aria-label={`Deletar ${user.nome}`}
+                                >
+                                  <ActionIcon className="material-symbols-outlined">
+                                    delete
+                                  </ActionIcon>
+                                </ActionButton>
+                              )}
+                            </Actions>
+                          </CenteredTd>
+                        </tr>
+                      ))}
+                  </tbody>
+                </Table>
+              </TableWrapper>
+            </Section>
+          ))
+        ) : loggedUser?.role === 'PROFESSOR' ? (
+          <Section>
             <SectionTitle>Alunos</SectionTitle>
 
             <TableWrapper>
@@ -426,17 +370,11 @@ export default function UserList() {
                 </tbody>
               </Table>
             </TableWrapper>
-          </Section>) : null}
+          </Section>
+        ) : null}
       </Main>
 
-      {selectedUser && (
-        <DeleteUserModal
-          user={selectedUser}
-          posts={selectedUserPosts}
-          onCancel={closeDeleteModal}
-          onConfirm={handleDeleteUser}
-        />
-      )}
+      {selectedUser && <DeleteUserModal user={selectedUser} onCancel={closeDeleteModal} showSucessMessage={handleSuccessDeleteMessage} showErrorMessage={handleDeleteErrorMessage} />}
 
       <Footer />
     </>

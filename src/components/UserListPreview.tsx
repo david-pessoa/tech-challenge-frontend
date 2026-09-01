@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import type { Role } from '../types/Roles';
 
 import bubbles from '../assets/bubbles.png';
@@ -155,14 +155,18 @@ const AccessUserListButton = styled(Link)`
 
 export default function UserListPreview({ role }: UserListPreviewProps) {
   const { user: loggedUser } = useUser();
+  const location = useLocation();
+  
   const [allUsersList, setAllUsersList] = useState<User[]>([]);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
-  const [selectedUserPosts, setSelectedUserPosts] = useState<Post[]>([]);
+  const [toastMessage, setToastMessage] = useState(
+    (location.state as { toastMessage?: string } | null)?.toastMessage ?? ''
+  );
 
   useEffect(() => {
     async function getAllUsersList() {
       const usersList = await getAllUsers();
-      const miniList = usersList.slice(0, 5); // .filter(user => user.id !== userId);
+      const miniList = usersList.filter((user: User) => user.id !== loggedUser?.id).slice(0, 5);
       setAllUsersList(miniList);
     }
     if (role !== 'ALUNO') getAllUsersList();
@@ -170,36 +174,23 @@ export default function UserListPreview({ role }: UserListPreviewProps) {
 
   async function openDeleteModal(user: User) {
     setSelectedUser(user);
-
-    const posts = await getAllPosts();
-    setSelectedUserPosts(posts.filter(post => post.criadoPor?.id === user.id));
   }
 
-  function closeDeleteModal() {
+  function handleCancel() {
     setSelectedUser(null);
-    setSelectedUserPosts([]);
   }
 
-  async function handleDeleteUser() {
-    if (!selectedUser) {
-      return;
-    }
+  function handleSuccessDeleteMessage() {
+    setToastMessage(`O usuário foi deletado com sucesso`);
+  }
 
-    await deleteUser(selectedUser.id);
-    setAllUsersList(currentUsers => currentUsers.filter(user => user.id !== selectedUser.id));
-    closeDeleteModal();
+  function handleDeleteErrorMessage() {
+    setToastMessage(`Erro ao deletar usuário`);
   }
 
   return (
     <>
-      {selectedUser && (
-        <DeleteUserModal
-          user={selectedUser}
-          posts={selectedUserPosts}
-          onCancel={closeDeleteModal}
-          onConfirm={handleDeleteUser}
-        />
-      )}
+      {selectedUser && <DeleteUserModal user={selectedUser} onCancel={handleCancel} showSucessMessage={handleSuccessDeleteMessage} showErrorMessage={handleDeleteErrorMessage} />}
 
       {role === 'ALUNO' ? (
         <MessageContainer>

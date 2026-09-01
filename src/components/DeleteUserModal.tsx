@@ -2,12 +2,15 @@ import styled from 'styled-components';
 
 import type { Post } from '../types/Posts';
 import type { User } from '../types/User';
+import { useEffect, useState } from 'react';
+import { getAllPosts } from '../services/post.service';
+import { deleteUser } from '../services/user.service';
 
 type DeleteUserModalProps = {
   user: User;
-  posts: Post[];
   onCancel: () => void;
-  onConfirm: () => void;
+  showSucessMessage: () => void;
+  showErrorMessage: () => void;
 };
 
 const ModalOverlay = styled.div`
@@ -96,34 +99,75 @@ const ModalButton = styled.button<{ $secondary?: boolean }>`
   padding: 0 1.25rem;
 `;
 
-export default function DeleteUserModal({ user, posts, onCancel, onConfirm }: DeleteUserModalProps) {
-  return (
-    <ModalOverlay>
-      <Modal role="dialog" aria-modal="true" aria-labelledby="delete-user-title">
-        <ModalHeader>
-          <AlertIcon className="material-symbols-outlined">error</AlertIcon>
-          <ModalTitle id="delete-user-title">Você deseja remover o usuário "{user.nome}"?</ModalTitle>
-        </ModalHeader>
-        {posts.length > 0 && (
-          <>
-            <ModalText>Os seguintes posts serão removidos:</ModalText>
-            <PostList>
-              {posts.map(post => (
-                <PostItem key={post.postId}>{post.titulo}</PostItem>
-              ))}
-            </PostList>
-          </>
-        )}
+export default function DeleteUserModal({
+  user,
+  onCancel,
+  showSucessMessage,
+  showErrorMessage,
+}: DeleteUserModalProps) {
+  const [userPosts, setUserPosts] = useState<Post[]>([]);
 
-        <ModalActions>
-          <ModalButton type="button" $secondary onClick={onCancel}>
-            Cancelar
-          </ModalButton>
-          <ModalButton type="button" onClick={onConfirm}>
-            Remover
-          </ModalButton>
-        </ModalActions>
-      </Modal>
-    </ModalOverlay>
+  useEffect(() => {
+    async function getUsersPost() {
+      try {
+        const posts = await getAllPosts();
+        setUserPosts(posts.filter((post: Post) => post.criadoPor?.userId === user.id));
+      } catch (error) {
+        setUserPosts([]);
+      }
+    }
+    if (user.role !== 'ALUNO') {
+      getUsersPost();
+    }
+  }, []);
+
+  async function handleDelete() {
+    if (!user) {
+      return;
+    }
+    try {
+      await deleteUser(user.id);
+      showSucessMessage();
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Erro ao deletar o usuário';
+      console.error(message);
+      showErrorMessage();
+    }
+    onCancel();
+  }
+
+  return (
+    <>
+      <ModalOverlay>
+        <Modal role="dialog" aria-modal="true" aria-labelledby="delete-user-title">
+          <ModalHeader>
+            <>{console.log(userPosts)}</>
+            <AlertIcon className="material-symbols-outlined">error</AlertIcon>
+            <ModalTitle id="delete-user-title">
+              Você deseja remover o usuário "{user.nome}"?
+            </ModalTitle>
+          </ModalHeader>
+          {userPosts.length > 0 && (
+            <>
+              <ModalText>Os seguintes posts serão removidos:</ModalText>
+              <PostList>
+                {userPosts.map(post => (
+                  <PostItem key={post.postId}>{post.titulo}</PostItem>
+                ))}
+              </PostList>
+            </>
+          )}
+
+          <ModalActions>
+            <ModalButton type="button" $secondary onClick={onCancel}>
+              Cancelar
+            </ModalButton>
+            <ModalButton type="button" onClick={handleDelete}>
+              Remover
+            </ModalButton>
+          </ModalActions>
+        </Modal>
+      </ModalOverlay>
+    </>
   );
 }
