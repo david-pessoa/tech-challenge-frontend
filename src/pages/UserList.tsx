@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 
 import DeleteUserModal from '../components/DeleteUserModal';
@@ -40,7 +40,7 @@ const Title = styled.h1`
   margin: 0 0 0.5rem;
 `;
 
-const HeaderLink = styled.a`
+const HeaderLink = styled(Link)`
   align-items: center;
   color: #3a505d;
   display: inline-flex;
@@ -131,7 +131,7 @@ const Actions = styled.div`
   gap: 10px;
 `;
 
-const ActionLink = styled.a`
+const ActionLink = styled(Link)`
   color: #a15e6d;
   display: grid;
   height: 2rem;
@@ -273,13 +273,13 @@ export default function UserList() {
         <HeaderRow>
           <div>
             <Title>Lista completa</Title>
-            <HeaderLink href="/">
+            <HeaderLink to="/">
               <BackIcon className="material-symbols-outlined">arrow_upward</BackIcon>
               Voltar a tela de início
             </HeaderLink>
           </div>
 
-          <HeaderLink href="/user/new">
+          <HeaderLink to="/user/new" state={{ from: 'user-list' }}>
             <AddIcon className="material-symbols-outlined">add</AddIcon>
             Novo Usuário
           </HeaderLink>
@@ -324,7 +324,8 @@ export default function UserList() {
                         <CenteredTd>
                           <Actions>
                             <ActionLink
-                              href={`/user/edit/${user.id}`}
+                              to={`/user/edit/${user.id}`}
+                              state={{ from: 'user-list' }}
                               aria-label={`Editar ${user.nome}`}
                             >
                               <ActionIcon className="material-symbols-outlined">edit</ActionIcon>
@@ -382,7 +383,8 @@ export default function UserList() {
                         <CenteredTd>
                           <Actions>
                             <ActionLink
-                              href={`/user/edit/${user.id}`}
+                              to={`/user/edit/${user.id}`}
+                              state={{ from: 'user-list' }}
                               aria-label={`Editar ${user.nome}`}
                             >
                               <ActionIcon className="material-symbols-outlined">edit</ActionIcon>

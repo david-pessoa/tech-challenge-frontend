@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import type { FormEvent } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import styled from 'styled-components';
 
 import Footer from '../components/Footer';
@@ -45,8 +45,11 @@ const Main = styled.main`
   padding: 0 clamp(1rem, 8.55vw, 7.6875rem);
 `;
 
-const BackLink = styled.a`
+const BackLink = styled.button`
+  background: transparent;
+  border: 0;
   color: ${({ theme }) => theme.colors.backLink};
+  cursor: pointer;
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
@@ -54,6 +57,7 @@ const BackLink = styled.a`
   font-size: ${({ theme }) => theme.typography.backLink.fontSize};
   font-weight: ${({ theme }) => theme.typography.backLink.fontWeight};
   margin-bottom: 1.5rem;
+  padding: 0;
   text-decoration: none;
 
   span {
@@ -387,6 +391,7 @@ const Toast = styled.div<{ $status: ToastStatus }>`
 export default function UserRegister({ isNew }: UserRegisterProps) {
   const { id } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const { user: loggedUser } = useUser();
   const imageInputRef = useRef<HTMLInputElement>(null);
   const [formData, setFormData] = useState<UserFormData>(initialFormData);
@@ -408,6 +413,8 @@ export default function UserRegister({ isNew }: UserRegisterProps) {
     hasRequiredPasswordFields &&
     !hasPasswordMismatch;
   const isProfessor = loggedUser?.role === 'PROFESSOR';
+  const cameFromUserList = (location.state as { from?: string } | null)?.from === 'user-list';
+  const backButtonText = cameFromUserList ? 'Voltar para listagem' : 'Voltar a tela de início';
 
   document.title = isNew ? 'Edify | Cadastro de Usuários' : 'Edify | Edição de Usuários';
 
@@ -537,6 +544,15 @@ export default function UserRegister({ isNew }: UserRegisterProps) {
     }
   }
 
+  function handleGoBack() {
+    if (window.history.length > 1) {
+      navigate(-1);
+      return;
+    }
+
+    navigate('/');
+  }
+
   return (
     <>
       {toast && <Toast $status={toast.status}>{toast.message}</Toast>}
@@ -544,9 +560,9 @@ export default function UserRegister({ isNew }: UserRegisterProps) {
       <Header />
 
       <Main>
-        <BackLink href="/">
+        <BackLink type="button" onClick={handleGoBack}>
           <span className="material-symbols-outlined">arrow_upward</span>
-          Voltar a tela de início
+          {backButtonText}
         </BackLink>
 
         <TitleContainer>
