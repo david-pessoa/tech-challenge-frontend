@@ -1,5 +1,11 @@
 import type { Role } from "./Roles";
 
+type PostView = {
+  nome: string;
+  tipoUsuario: Role;
+  viewedAt: Date;
+}
+
 export type Post = {
   postId: string;
   subject: {
@@ -10,10 +16,11 @@ export type Post = {
   descricao: string;
   criadoPor: {
     userId: string;
-    nome: string
-    tipoUsuario: Role
+    nome?: string
+    tipoUsuario?: Role
   }
-  foiVisto: boolean;
+  foiVisto?: boolean;
+  visualizacoes?: PostView[];
   dataCriacao: Date;
   dataModificacao: Date;
 };
