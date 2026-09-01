@@ -1,7 +1,6 @@
 import styled from 'styled-components';
 import logo from '../../public/Logo.png';
 import type { Role } from '../types/Roles';
-import { capitalize } from '../utils/functions';
 import { logout } from '../services/auth.service';
 import { useNavigate } from 'react-router-dom';
 import { useUser } from '../context/AuthContext';
@@ -23,6 +22,10 @@ const Background = styled.header<{ $role: Role }>`
   width: 100%;
   height: 5.125rem;
   margin-bottom: 4.438rem;
+
+  @media (max-width: 500px) {
+    height: 2.75rem;
+  }
 `;
 
 const userCircleColors = {
@@ -46,6 +49,11 @@ const Circle = styled.img<{ $role: Role }>`
   border-radius: 50%;
   background-color: ${({ $role }) => userCircleColors[$role].background};
   border: ${({ $role }) => userCircleColors[$role].border};
+
+  @media (max-width: 500px) {
+    width: 18px;
+    height: 18px;
+  }
 `;
 
 const Nav = styled.nav`
@@ -63,12 +71,40 @@ const LogoButton = styled.a`
   text-decoration: none;
   margin-left: 6.25rem;
   gap: 10px;
+
+  @media (max-width: 834px) {
+    margin-left: 1.25rem;
+  }
+`;
+
+const LogoImage = styled.img`
+  width: 61px;
+  height: 57px;
+
+  @media (max-width: 500px) {
+    height: 1.125rem;
+    width: 1.25rem;
+  }
 `;
 
 const Title = styled.h4`
   color: ${({ theme }) => theme.colors.text};
   font-weight: 400;
   font-size: 1.5rem;
+
+  @media (max-width: 500px) {
+    font-size: 10px;
+  }
+`;
+
+const UserName = styled.span`
+  color: ${({ theme }) => theme.colors.text};
+  font-weight: 400;
+
+
+  @media (max-width: 500px) {
+    font-size: 12px;
+  }
 `;
 
 const LogoutContainer = styled.div`
@@ -77,6 +113,10 @@ const LogoutContainer = styled.div`
   justify-content: space-between;
   gap: 1rem;
   margin-right: 6.25rem;
+
+  @media (max-width: 834px) {
+    margin-right: 1.25rem;
+  }
 `;
 
 const LogoutButton = styled.button`
@@ -84,6 +124,12 @@ const LogoutButton = styled.button`
   border: none;
   display: flex;
   cursor: pointer;
+`;
+
+const LogoutIcon = styled.span`
+  @media (max-width: 500px) {
+    font-size: 14px;
+  }
 `;
 
 export default function Header() {
@@ -97,27 +143,24 @@ export default function Header() {
   };
 
   async function handleLogout() {
-    logout()
-    await refreshUser()
-    debugger
-    navigate('/login')
+    logout();
+    await refreshUser();
+    navigate('/login');
   }
-
-  
 
   return (
     user && (
       <Background $role={user.role}>
         <Nav>
           <LogoButton href="/">
-            <img src={logo} alt="Edify Logo" width={61} height={57} />
+            <LogoImage src={logo} alt="Edify Logo" />
             <Title>Edify {roleName[user.role]}</Title>
           </LogoButton>
           <LogoutContainer>
             <Circle src={user.image ? BASE_URL + user.image : userImage} $role={user.role} />
-            <span>{capitalize(user.role)}</span>
+            <UserName>{user.nome}</UserName>
             <LogoutButton onClick={handleLogout}>
-              <span className="material-symbols-outlined">logout</span>
+              <LogoutIcon className="material-symbols-outlined">logout</LogoutIcon>
             </LogoutButton>
           </LogoutContainer>
         </Nav>
