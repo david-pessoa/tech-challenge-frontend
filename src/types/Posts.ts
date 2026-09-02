@@ -1,26 +1,25 @@
 import type { Role } from "./Roles";
 
-type PostView = {
-  nome: string;
-  tipoUsuario: Role;
-  viewedAt: Date;
-}
-
 export type Post = {
   postId: string;
-  subject: {
-    id: string;
-    nome: string;
-  }
+  userId?: string | null;
+  materia: string;
   titulo: string;
   descricao: string;
-  criadoPor: {
+  conteudo?: string;
+  autor: string;
+  image?: string | null;
+  subject?: {
+    id: string;
+    nome: string;
+  };
+  criadoPor?: {
     userId: string;
-    nome?: string
-    tipoUsuario?: Role
-  }
-  foiVisto?: boolean;
-  visualizacoes?: PostView[];
-  dataCriacao: Date;
-  dataModificacao: Date;
+    nome: string;
+    tipoUsuario: Role;
+  };
+  createdAt: Date;
+  editedAt: Date;
+  dataCriacao?: Date;
+  dataModificacao?: Date;
 };

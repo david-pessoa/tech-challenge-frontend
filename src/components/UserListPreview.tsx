@@ -1,15 +1,18 @@
 import styled from 'styled-components';
+import { Link, useLocation } from 'react-router-dom';
 import type { Role } from '../types/Roles';
 
 import bubbles from '../assets/bubbles.png';
 import galaxy from '../assets/galaxy.png';
 import userImage from '../assets/user-default-image.png';
-import { capitalize } from '../utils/functions';
+import { buildApiImageUrl, capitalize } from '../utils/functions';
 import { useEffect, useState } from 'react';
 import type { User } from '../types/User';
-import { getAllUsers } from '../services/user.service';
-
-const BASE_URL = import.meta.env.VITE_BASE_URL;
+import { deleteUser, getAllUsers } from '../services/user.service';
+import DeleteUserModal from './DeleteUserModal';
+import { getAllPosts } from '../services/post.service';
+import type { Post } from '../types/Posts';
+import { useUser } from '../context/AuthContext';
 
 type UserListPreviewProps = {
   role: Role;
@@ -116,8 +119,8 @@ const DeleteIcon = styled.span`
   font-size: 24px;
 `;
 
-const AccessUserListButton = styled.a`
-  color: inherit;
+const AccessUserListButton = styled(Link)`
+  color: #32434d;
   font-weight: 600;
   display: flex;
   align-items: center;
@@ -147,21 +150,44 @@ const AccessUserListButton = styled.a`
 `;
 
 export default function UserListPreview({ role }: UserListPreviewProps) {
+  const { user: loggedUser } = useUser();
+  const location = useLocation();
+  
   const [allUsersList, setAllUsersList] = useState<User[]>([]);
-
-  //Edit and delete handlers
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [toastMessage, setToastMessage] = useState(
+    (location.state as { toastMessage?: string } | null)?.toastMessage ?? ''
+  );
 
   useEffect(() => {
     async function getAllUsersList() {
       const usersList = await getAllUsers();
-      const miniList = usersList.slice(0, 5); // .filter(user => user.id !== userId);
+      const miniList = usersList.filter((user: User) => user.id !== loggedUser?.id).slice(0, 5);
       setAllUsersList(miniList);
     }
     if (role !== 'ALUNO') getAllUsersList();
-  }, []);
+  }, [role]);
+
+  async function openDeleteModal(user: User) {
+    setSelectedUser(user);
+  }
+
+  function handleCancel() {
+    setSelectedUser(null);
+  }
+
+  function handleSuccessDeleteMessage() {
+    setToastMessage(`O usuário foi deletado com sucesso`);
+  }
+
+  function handleDeleteErrorMessage() {
+    setToastMessage(`Erro ao deletar usuário`);
+  }
 
   return (
     <>
+      {selectedUser && <DeleteUserModal user={selectedUser} onCancel={handleCancel} showSucessMessage={handleSuccessDeleteMessage} showErrorMessage={handleDeleteErrorMessage} />}
+
       {role === 'ALUNO' ? (
         <MessageContainer>
           <GalaxyImage src={galaxy} alt="Desenho de Galáxia" />
@@ -172,38 +198,41 @@ export default function UserListPreview({ role }: UserListPreviewProps) {
         <UserListContainer>
           <h3>Todos os Usuários</h3>
           <UserList>
-            {allUsersList.length === 0 ? (
-              <div>
-                <div>Não há alunos na lista de usuários</div>
-              </div>
-            ) : (
-              allUsersList.map((user, i) => (
-                <Item key={i}>
-                  <div>
-                    <UserProfilePhoto
-                      src={user?.image ? `${BASE_URL}${user?.image}` : userImage}
-                      alt={`Foto de perfil da ${user.nome}`}
-                    />
-                  </div>
-                  <UserNameRoleContainer>
-                    <UserName>{user.nome}</UserName>
-                    <UserRole>
-                      {user.role === 'ADMIN' ? 'Administrador' : capitalize(user.role)}
-                    </UserRole>
-                  </UserNameRoleContainer>
-                  <ActionContainer>
-                    <EditButton href={`/user/edit/${user.id}`}>
-                      <EditIcon className="material-symbols-outlined">edit</EditIcon>
-                    </EditButton>
-                    <DeleteButton hidden={role !== 'ADMIN'}>
+            {allUsersList.map(user => (
+              <Item key={user.id}>
+                <div>
+                  <UserProfilePhoto
+                    src={user?.image ? buildApiImageUrl(user.image) : userImage}
+                    alt={`Foto de perfil da ${user.nome}`}
+                    onError={event => {
+                      event.currentTarget.src = userImage;
+                    }}
+                  />
+                </div>
+                <UserNameRoleContainer>
+                  <UserName>{user.nome}</UserName>
+                  <UserRole>
+                    {user.role === 'ADMIN' ? 'Administrador' : capitalize(user.role)}
+                  </UserRole>
+                </UserNameRoleContainer>
+                <ActionContainer>
+                  <EditButton href={`/user/edit/${user.id}`} aria-label={`Editar ${user.nome}`}>
+                    <EditIcon className="material-symbols-outlined">edit</EditIcon>
+                  </EditButton>
+                  {role === 'ADMIN' && user.id !== loggedUser?.id && (
+                    <DeleteButton
+                      type="button"
+                      onClick={() => openDeleteModal(user)}
+                      aria-label={`Deletar ${user.nome}`}
+                    >
                       <DeleteIcon className="material-symbols-outlined">delete</DeleteIcon>
                     </DeleteButton>
-                  </ActionContainer>
-                </Item>
-              ))
-            )}
+                  )}
+                </ActionContainer>
+              </Item>
+            ))}
           </UserList>
-          <AccessUserListButton href="/user/list">
+          <AccessUserListButton to="/user/list">
             <span className="sentence">Acessar lista completa</span>
             <span className="material-symbols-outlined arrow-icon">arrow_right_alt</span>
           </AccessUserListButton>

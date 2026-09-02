@@ -5,8 +5,7 @@ import { logout } from '../services/auth.service';
 import { useNavigate } from 'react-router-dom';
 import { useUser } from '../context/AuthContext';
 import userImage from '../assets/user-default-image.png';
-
-const BASE_URL = import.meta.env.VITE_BASE_URL;
+import { buildApiImageUrl } from '../utils/functions';
 
 const RoleColors = {
   ADMIN:
@@ -49,6 +48,7 @@ const Circle = styled.img<{ $role: Role }>`
   border-radius: 50%;
   background-color: ${({ $role }) => userCircleColors[$role].background};
   border: ${({ $role }) => userCircleColors[$role].border};
+  object-fit: cover;
 
   @media (max-width: 500px) {
     width: 18px;
@@ -157,8 +157,8 @@ export default function Header() {
             <Title>Edify {roleName[user.role]}</Title>
           </LogoButton>
           <LogoutContainer>
-            <Circle src={user.image ? BASE_URL + user.image : userImage} $role={user.role} />
-            <UserName>{user.nome}</UserName>
+            <Circle src={user.image ? buildApiImageUrl(user.image) : userImage} $role={user.role} />
+            <span>{user.nome}</span>
             <LogoutButton onClick={handleLogout}>
               <LogoutIcon className="material-symbols-outlined">logout</LogoutIcon>
             </LogoutButton>

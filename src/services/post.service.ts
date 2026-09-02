@@ -1,4 +1,6 @@
 import axios from 'axios';
+
+import type { Post } from '../types/Posts';
 import { getLocalStorageToken } from '../utils/functions';
 import { getBackendErrorMessage } from './auth.service';
 
@@ -6,7 +8,7 @@ const BASE_URL = import.meta.env.VITE_BASE_URL + '/api';
 
 export async function getAllPosts() {
   try {
-    const response = await axios.get(`${BASE_URL}/posts`, {
+    const response = await axios.get<Post[]>(`${BASE_URL}/posts`, {
       headers: {
         Authorization: `Bearer ${getLocalStorageToken()}`,
       },
