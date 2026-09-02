@@ -158,7 +158,7 @@ export default function Header() {
           </LogoButton>
           <LogoutContainer>
             <Circle src={user.image ? buildApiImageUrl(user.image) : userImage} $role={user.role} />
-            <span>{user.nome}</span>
+            <UserName>{user.nome}</UserName>
             <LogoutButton onClick={handleLogout}>
               <LogoutIcon className="material-symbols-outlined">logout</LogoutIcon>
             </LogoutButton>

@@ -161,14 +161,13 @@ export default function Home() {
   const debouncedQuery = useDebounce(searchedText, 300);
 
   async function handleInputChange() {
-    // setSearchedText(e.target.value);
     if (searchedText === '') {
       setSearchedPostsList([]);
       return;
     }
     try {
       const relatedPosts = await searchPost(searchedText);
-      setSearchedPostsList(relatedPosts);
+      setSearchedPostsList(relatedPosts.slice(0, 10));
     } catch (error) {
       setSearchedPostsList([]);
     }

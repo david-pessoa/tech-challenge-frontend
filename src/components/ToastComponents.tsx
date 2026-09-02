@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 
-export const Toast = styled.div`
+export const Toast = styled.div<{ $isSucess: boolean }>`
   align-items: center;
   display: flex;
   gap: 1rem;
@@ -10,7 +10,8 @@ export const Toast = styled.div`
   right: 1.5rem;
   z-index: 10;
   width: min(22rem, calc(100% - 2rem));
-  border-left: 0.35rem solid #6fb9a9;
+  border-left: 0.35rem solid
+    ${({ theme, $isSucess }) => ($isSucess ? '#6fb9a9' : `${theme.colors.primary}`)};
   border-radius: 0.75rem;
   background: ${({ theme }) => theme.colors.fieldBackground};
   box-shadow: 0 0.5rem 1.5rem rgba(50, 67, 77, 0.16);

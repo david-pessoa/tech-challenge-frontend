@@ -8,11 +8,10 @@ import userImage from '../assets/user-default-image.png';
 import { buildApiImageUrl, capitalize } from '../utils/functions';
 import { useEffect, useState } from 'react';
 import type { User } from '../types/User';
-import { deleteUser, getAllUsers } from '../services/user.service';
+import { getAllUsers } from '../services/user.service';
 import DeleteUserModal from './DeleteUserModal';
-import { getAllPosts } from '../services/post.service';
-import type { Post } from '../types/Posts';
 import { useUser } from '../context/AuthContext';
+import { Toast, ToastCloseButton } from './ToastComponents';
 
 type UserListPreviewProps = {
   role: Role;
@@ -152,12 +151,13 @@ const AccessUserListButton = styled(Link)`
 export default function UserListPreview({ role }: UserListPreviewProps) {
   const { user: loggedUser } = useUser();
   const location = useLocation();
-  
+
   const [allUsersList, setAllUsersList] = useState<User[]>([]);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [toastMessage, setToastMessage] = useState(
     (location.state as { toastMessage?: string } | null)?.toastMessage ?? ''
   );
+  const [toastSucess, setToastSucess] = useState<boolean>(false);
 
   useEffect(() => {
     async function getAllUsersList() {
@@ -166,7 +166,7 @@ export default function UserListPreview({ role }: UserListPreviewProps) {
       setAllUsersList(miniList);
     }
     if (role !== 'ALUNO') getAllUsersList();
-  }, [role]);
+  }, []);
 
   async function openDeleteModal(user: User) {
     setSelectedUser(user);
@@ -177,16 +177,40 @@ export default function UserListPreview({ role }: UserListPreviewProps) {
   }
 
   function handleSuccessDeleteMessage() {
-    setToastMessage(`O usuário foi deletado com sucesso`);
+    setAllUsersList(prevUserlist =>
+      prevUserlist.filter((user: User) => user.id !== selectedUser?.id)
+    );
+    setToastSucess(true);
+    setToastMessage('O usuário foi deletado com sucesso');
   }
 
   function handleDeleteErrorMessage() {
-    setToastMessage(`Erro ao deletar usuário`);
+    setToastSucess(false);
+    setToastMessage('Erro ao deletar usuário');
   }
 
   return (
     <>
-      {selectedUser && <DeleteUserModal user={selectedUser} onCancel={handleCancel} showSucessMessage={handleSuccessDeleteMessage} showErrorMessage={handleDeleteErrorMessage} />}
+      {toastMessage && (
+        <Toast $isSucess={toastSucess}>
+          <span>{toastMessage}</span>
+          <ToastCloseButton
+            type="button"
+            onClick={() => setToastMessage('')}
+            aria-label="Fechar mensagem"
+          >
+            <span className="material-symbols-outlined">close</span>
+          </ToastCloseButton>
+        </Toast>
+      )}
+      {selectedUser && (
+        <DeleteUserModal
+          user={selectedUser}
+          onCancel={handleCancel}
+          showSucessMessage={handleSuccessDeleteMessage}
+          showErrorMessage={handleDeleteErrorMessage}
+        />
+      )}
 
       {role === 'ALUNO' ? (
         <MessageContainer>
