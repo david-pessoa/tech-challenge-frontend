@@ -65,7 +65,7 @@ type CarouselCardProps = {
 };
 
 export default function CarouselCard({ dado }: CarouselCardProps) {
-  const materiaName = dado.subject.nome;
+  const materiaName = dado?.subject?.nome ?? 'Geral';
   const materiaConfig = materias[materiaName];
   
 
@@ -81,7 +81,7 @@ export default function CarouselCard({ dado }: CarouselCardProps) {
         <MateriaSubTitle $color={materiaConfig.color}>{materiaName}</MateriaSubTitle>
         <PostTitle>{dado.titulo}</PostTitle>
         <p>
-          Publicado em {formatarData(dado.dataCriacao)} por {dado.criadoPor.nome}
+          Publicado em {formatarData(dado.dataCriacao)} por {dado?.criadoPor?.nome}
         </p>
       </DescriptionContainer>
     </Card>

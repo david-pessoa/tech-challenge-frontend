@@ -25,7 +25,11 @@ export function buildApiImageUrl(image: string | null) {
   return `${BASE_URL}${image}`;
 }
 
-export function formatarData(data: string | Date) {
+export function formatarData(data: string | Date | undefined) {
+  if(!data) {
+    return '--'
+  }
+
   const dataConvertida = new Date(data);
 
   if (Number.isNaN(dataConvertida.getTime())) {

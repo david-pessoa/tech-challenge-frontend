@@ -6,36 +6,12 @@ import { formatarData } from '../utils/functions';
 import { deletePost } from '../services/post.service';
 import { useState } from 'react';
 import { useUser } from '../context/AuthContext';
+import { Toast, ToastCloseButton, type ToastStatus } from './ToastComponents';
+import DeletePostModal from './DeletePostModal';
 
 type AdminPostsTableProps = {
   dados: Post[];
 };
-
-type ToastStatus = 'success' | 'error';
-
-const Toast = styled.div<{ $status: ToastStatus }>`
-  position: fixed;
-  top: 1.5rem;
-  right: 1.5rem;
-  z-index: 10;
-  width: min(22rem, calc(100% - 2rem));
-  border-left: 0.35rem solid
-    ${({ $status, theme }) => ($status === 'success' ? '#6FB9A9' : theme.colors.primary)};
-  border-radius: 0.75rem;
-  background: ${({ theme }) => theme.colors.fieldBackground};
-  box-shadow: 0 0.5rem 1.5rem rgba(50, 67, 77, 0.16);
-  color: ${({ theme }) => theme.colors.text};
-  font-family: ${({ theme }) => theme.typography.fontFamily};
-  font-size: ${({ theme }) => theme.typography.field.fontSize};
-  font-weight: ${({ theme }) => theme.typography.field.fontWeight};
-  line-height: ${({ theme }) => theme.typography.field.lineHeight};
-  padding: 1rem 1.25rem;
-
-  @media (max-width: 720px) {
-    top: 1rem;
-    right: 1rem;
-  }
-`;
 
 const Table = styled.table`
   width: 100%;
@@ -123,81 +99,113 @@ const MateriaTitle = styled.p<FontColorProps>`
 `;
 
 export default function ManagementPostsTable({ dados }: AdminPostsTableProps) {
-  const [toast, setToast] = useState<{ message: string; status: ToastStatus } | null>(null);
+  const [toast, setToast] = useState<{ message: string; status: boolean } | null>(null);
   const [postList, setPostList] = useState<Post[]>(dados);
+  const [selectedPost, setSelectedPost] = useState<Post | null>(null);
   const { user } = useUser();
 
-  async function handleDeletePost(id: string) {
-    try {
-      const response = await deletePost(id);
-      const message = response.message;
-      setToast({ message, status: 'success' });
-      setPostList(currentList => currentList.filter(p => p.postId !== id));
-    } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : 'Erro ao deletar post.';
-      setToast({ message, status: 'error' });
-    }
+  async function openDeleteModal(post: Post) {
+    setSelectedPost(post);
   }
+
+  function handleCancel() {
+    setSelectedPost(null);
+  }
+
+  function handleSuccessDeleteMessage() {
+    setPostList(prevPostList =>
+      prevPostList.filter((post: Post) => post.postId !== selectedPost?.postId)
+    );
+    setToast({ message: 'O usuário foi deletado com sucesso', status: true });
+  }
+
+  function handleDeleteErrorMessage() {
+    setToast({ message: 'Erro ao deletar usuário', status: false });
+  }
+
   return (
-    <Table>
-      {toast && <Toast $status={toast.status}>{toast.message}</Toast>}
-      <thead>
-        <tr>
-          <th>Matérias</th>
-          <th>Título</th>
-          <th>Descrição</th>
-          <th>Data de Criação</th>
-          <th>Data de Modificação</th>
-          {user?.role === 'ADMIN' && <th>Professor</th>}
-          <th>Ações</th>
-        </tr>
-      </thead>
-      <tbody>
-        {postList.length === 0 ? (
+    <>
+      {toast && (
+        <Toast $isSucess={toast.status}>
+          <span>{toast.message}</span>
+          <ToastCloseButton
+            type="button"
+            onClick={() => setToast(null)}
+            aria-label="Fechar mensagem"
+          >
+            <span className="material-symbols-outlined">close</span>
+          </ToastCloseButton>
+        </Toast>
+      )}
+      {selectedPost && (
+        <DeletePostModal
+          post={selectedPost}
+          onCancel={handleCancel}
+          showSucessMessage={handleSuccessDeleteMessage}
+          showErrorMessage={handleDeleteErrorMessage}
+        />
+      )}
+      <Table>
+        <thead>
           <tr>
-            <Td colSpan={user?.role === 'ADMIN' ? 7 : 6}>Não há posts para visualizar</Td>
+            <th>Matérias</th>
+            <th>Título</th>
+            <th>Descrição</th>
+            <th>Data de Criação</th>
+            <th>Data de Modificação</th>
+            {user?.role === 'ADMIN' && <th>Professor</th>}
+            <th>Ações</th>
           </tr>
-        ) : (
-          postList.map((post, i) => (
-            <Tr key={i}>
-              <Td>
-                <MateriaContainer>
-                  <IconContainer
-                    $backgroundColor={materias[post.subject.nome].backgroundColor}
-                    $color={materias[post.subject.nome].color}
-                  >
-                    <Icon className="material-symbols-outlined">
-                      {materias[post.subject.nome].icon}
-                    </Icon>
-                  </IconContainer>
-                  <MateriaTitle $color={materias[post.subject.nome].color}>
-                    {post.subject.nome}
-                  </MateriaTitle>
-                </MateriaContainer>
-              </Td>
-              <Td className="bold">
-                <Link href={`/post/${post.postId}`}>{post.titulo}</Link>
-              </Td>
-              <Td>{post.descricao}</Td>
-              <Td>{formatarData(post.dataCriacao)}</Td>
-              <Td>{formatarData(post.dataModificacao)}</Td>
-              {user?.role === 'ADMIN' && <Td>{post.criadoPor.nome}</Td>}
-              <Td>
-                <ActionContainer>
-                  <EditButton href={`/post/edit/${post.postId}`}>
-                    <EditIcon className="material-symbols-outlined">edit</EditIcon>
-                  </EditButton>
-                  {user?.role === 'ADMIN' && (
-                    <DeleteButton onClick={() => handleDeletePost(post.postId)}>
-                      <DeleteIcon className="material-symbols-outlined">delete</DeleteIcon>
-                    </DeleteButton>
-                  )}
-                </ActionContainer>
-              </Td>
-            </Tr>
-          ))
-        )}
-      </tbody>
-    </Table>
+        </thead>
+        <tbody>
+          {postList.length === 0 ? (
+            <tr>
+              <Td colSpan={user?.role === 'ADMIN' ? 7 : 6}>Não há posts para visualizar</Td>
+            </tr>
+          ) : (
+            postList.map((post, i) => (
+              <Tr key={i}>
+                <Td>
+                  <MateriaContainer>
+                    <IconContainer
+                      $backgroundColor={materias[post?.subject?.nome ?? 'Geral'].backgroundColor}
+                      $color={materias[post?.subject?.nome ?? 'Geral'].color}
+                    >
+                      <Icon className="material-symbols-outlined">
+                        {materias[post?.subject?.nome ?? 'Geral'].icon}
+                      </Icon>
+                    </IconContainer>
+                    <MateriaTitle $color={materias[post?.subject?.nome ?? 'Geral'].color}>
+                      {post?.subject?.nome}
+                    </MateriaTitle>
+                  </MateriaContainer>
+                </Td>
+                <Td className="bold">
+                  <Link href={`/post/${post.postId}`}>{post.titulo}</Link>
+                </Td>
+                <Td>{post.descricao}</Td>
+                <Td>{formatarData(post?.dataCriacao)}</Td>
+                <Td>{formatarData(post?.dataModificacao)}</Td>
+                {user?.role === 'ADMIN' && (
+                  <Td>{post?.criadoPor?.nome ? post.criadoPor.nome : '--'}</Td>
+                )}
+                <Td>
+                  <ActionContainer>
+                    <EditButton href={`/post/edit/${post.postId}`}>
+                      <EditIcon className="material-symbols-outlined">edit</EditIcon>
+                    </EditButton>
+                    {user?.role === 'ADMIN' && (
+                      <DeleteButton onClick={() => openDeleteModal(post)}>
+                        <DeleteIcon className="material-symbols-outlined">delete</DeleteIcon>
+                      </DeleteButton>
+                    )}
+                  </ActionContainer>
+                </Td>
+              </Tr>
+            ))
+          )}
+        </tbody>
+      </Table>
+    </>
   );
 }

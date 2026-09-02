@@ -41,3 +41,5 @@ export const ToastCloseButton = styled.button`
     line-height: 1;
   }
 `;
+
+export type ToastStatus = 'success' | 'error';
