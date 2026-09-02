@@ -1,5 +1,6 @@
 import styled from 'styled-components';
 import logo from '../../public/Logo.png';
+import { useScreenWidth } from '../hooks/screenWidth';
 
 const FooterContainer = styled.footer`
   background-color: #fff7de;
@@ -10,6 +11,10 @@ const FooterContainer = styled.footer`
   display: flex;
   justify-content: center;
   align-items: center;
+
+  @media (max-width: 700px) {
+    height: 19rem;
+  }
 `;
 
 const Box = styled.div`
@@ -22,6 +27,11 @@ const Box = styled.div`
   padding-left: 2.438rem;
   padding-right: 1.5rem;
   box-sizing: border-box;
+
+  @media (max-width: 700px) {
+    padding: 1rem 11px;
+    height: 93.12%;
+  }
 `;
 
 const LogoContainer = styled.div`
@@ -40,6 +50,14 @@ const Title = styled.h4`
 const Paragraph = styled.p`
   font-weight: 400;
   font-size: 0.813rem;
+
+  &.description {
+    margin-right: 30px;
+  }
+
+  @media (max-width: 700px) {
+    font-size: 10px;
+  }
 `;
 
 const UpperContainer = styled.div`
@@ -47,12 +65,22 @@ const UpperContainer = styled.div`
   border-bottom: 2px solid #d3cbaf;
   display: flex;
   justify-content: space-between;
+
+  @media (max-width: 700px) {
+    display: block;
+    padding-bottom: 1.188rem;
+  }
 `;
 
 const BottomContainer = styled.div`
   padding-top: 1.125rem;
   display: flex;
   justify-content: space-between;
+
+  @media (max-width: 700px) {
+    padding-top: 13px;
+    gap: 1.688rem
+  }
 `;
 
 const LinksContainer = styled.div`
@@ -60,6 +88,11 @@ const LinksContainer = styled.div`
   display: flex;
   gap: 3.188rem;
   margin-top: 1.063rem;
+
+  @media (max-width: 700px) {
+    gap: 10px;
+    margin-top: 0.875rem;
+  }
 `;
 
 const OtherLinksList = styled.ul`
@@ -72,9 +105,15 @@ const OtherLinksList = styled.ul`
 
 const ListItem = styled.li`
   font-size: 13px;
+
+  @media (max-width: 700px) {
+    font-size: 10px;
+  }
 `;
 
 export default function Footer() {
+  const screenWidth = useScreenWidth();
+
   return (
     <FooterContainer>
       <Box>
@@ -84,9 +123,9 @@ export default function Footer() {
               <img src={logo} alt="Edify Logo" width={47} height={44} />
               <Title>Edify</Title>
             </LogoContainer>
-            <Paragraph>
-              O Edify conecta professores e alunos da rede pública, oferecendo um espaço seguro,{' '}
-              <br />
+            <Paragraph className='description'>
+              O Edify conecta professores e alunos da rede pública, oferecendo um espaço seguro,
+              {(screenWidth > 900) && (<br />)}
               gratuito e divertido para reforço escolar e muito aprendizado.
             </Paragraph>
           </div>
