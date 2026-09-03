@@ -81,6 +81,11 @@ const ActionContainer = styled.div`
   display: flex;
   gap: 10px;
   margin-right: 10px;
+
+  @media (max-width: 900px) {
+    gap: 0;
+  }
+
 `;
 
 const ActionButton = styled.button`

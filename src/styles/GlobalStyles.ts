@@ -75,7 +75,7 @@ export const GlobalStyles = createGlobalStyle`
     height: 100%;
   }
 
-  @media (max-width: 900px) {
+  @media (max-width: 1000px) {
     h1 {
       font-size: 1.5rem
     }
@@ -98,12 +98,26 @@ export const GlobalStyles = createGlobalStyle`
 
     th {
       padding: 5px;
-      max-width: 98px;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     td {
       padding: 5px 0 0 5px;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
+
+    td.bold {
+    a {
+      display: -webkit-box;
+  -webkit-line-clamp: 4; /* Defina aqui o número máximo de linhas */
+  -webkit-box-orient: vertical;  
+  overflow: hidden;
+    }
+  }
+
+
   }
 
 `;

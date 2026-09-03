@@ -18,13 +18,19 @@ import { useScreenWidth } from '../hooks/screenWidth';
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 
 const Main = styled.main`
-  margin-left: 6.188rem;
+  padding-left: 6.188rem;
   display: flex;
-  gap: 18px;
   width: 100%;
+  justify-content: space-between;
+  gap: 18px;
+  padding-right: 15px;
 
   @media (max-width: 1200px) {
-    margin-left: 1.25rem;
+    padding-left: 1.25rem;
+  }
+
+  @media (max-width: 854px) {
+    justify-content: flex-start;
   }
 `;
 
@@ -33,6 +39,10 @@ const MainContentContainer = styled.div`
 
   @media (max-width: 1200px) {
     width: 58.27vw;
+  }
+
+  @media (max-width: 854px) {
+    width: 65vw;
   }
 `;
 
@@ -67,7 +77,6 @@ const SparkleImage = styled.img`
   }
 `;
 
-
 const InputContainer = styled.div`
   background-color: #fde9a06b;
   border-radius: 20px;
@@ -90,13 +99,7 @@ const InputSearch = styled.input`
 `;
 
 const Aside = styled.aside`
-  margin-left: 20px;
-
-  @media (max-width: 1200px) {
-    margin-left: 0;
-    margin-right: 1rem;
-    width: 36.81vw;
-  }
+  width: 36.81vw;
 `;
 
 const ProfileImageContainer = styled.div`
@@ -148,6 +151,26 @@ export default function Home() {
   return (
     <>
       <Header />
+      {screenWidth < 600 && (
+          <Aside>
+            <h1>Perfil</h1>
+            <div>
+              <Figure>
+                <ProfileImageContainer>
+                  <DoodleImage src={redDoodle} alt="" />
+                  <ProfileImage
+                    src={user?.image ? `${BASE_URL}${user?.image}` : userImage}
+                    alt={`Foto de ${user?.nome}`}
+                  />
+                </ProfileImageContainer>
+                <Figcaption>
+                  {user && <StudentName>{user.nome}</StudentName>}
+                  <p>{capitalize(user?.role ?? 'aluno')}</p>
+                </Figcaption>
+              </Figure>
+            </div>
+          </Aside>
+        )}
       <Main>
         <MainContentContainer>
           <TopContainer>
@@ -162,31 +185,39 @@ export default function Home() {
           </TopContainer>
           <PostsContainer />
         </MainContentContainer>
-        <Aside>
-          <h1>Perfil</h1>
-          <div>
-            <Figure>
-              <ProfileImageContainer>
-                <DoodleImage src={redDoodle} alt="" />
-                <ProfileImage src={user?.image ? `${BASE_URL}${user?.image}` : userImage} alt={`Foto de ${user?.nome}`} />
-              </ProfileImageContainer>
-              <Figcaption>
-                {user && <StudentName>{user.nome}</StudentName>}
-                <p>{capitalize(user?.role ?? 'aluno')}</p>
-              </Figcaption>
-            </Figure>
-          </div>
-          <div>
-            <CalendarTitle>Calendário</CalendarTitle>
-            <p>
-              {capitalize(new Date().toLocaleString('pt-BR', { month: 'long' }))}{' '}
-              {new Date().getFullYear()}
-            </p>
-            {user && <Calendar role={user.role} />}
-          </div>
-          {user && <UserListPreview role={user.role} />}
-        </Aside>
+        {screenWidth >= 600 && (
+          <Aside>
+            <h1>Perfil</h1>
+            <div>
+              <Figure>
+                <ProfileImageContainer>
+                  <DoodleImage src={redDoodle} alt="" />
+                  <ProfileImage
+                    src={user?.image ? `${BASE_URL}${user?.image}` : userImage}
+                    alt={`Foto de ${user?.nome}`}
+                  />
+                </ProfileImageContainer>
+                <Figcaption>
+                  {user && <StudentName>{user.nome}</StudentName>}
+                  <p>{capitalize(user?.role ?? 'aluno')}</p>
+                </Figcaption>
+              </Figure>
+            </div>
+            {screenWidth >= 1100 && (
+              <div>
+                <CalendarTitle>Calendário</CalendarTitle>
+                <p>
+                  {capitalize(new Date().toLocaleString('pt-BR', { month: 'long' }))}{' '}
+                  {new Date().getFullYear()}
+                </p>
+                {user && <Calendar role={user.role} />}
+              </div>
+            )}
+            {user && screenWidth >= 860 && <UserListPreview role={user.role} />}
+          </Aside>
+        )}
       </Main>
+      {user && screenWidth < 860 && <UserListPreview role={user.role} />}
       <Footer />
     </>
   );
