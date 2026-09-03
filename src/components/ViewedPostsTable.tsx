@@ -20,6 +20,10 @@ const MateriaContainer = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
+
+  @media (max-width: 900px) {
+    max-width: 50px;
+  }
 `;
 
 const Link = styled.a`
@@ -43,10 +47,19 @@ const IconContainer = styled.div<ColorProps>`
   justify-content: center;
   align-items: center;
   margin-bottom: 5px;
+
+  @media (max-width: 900px) {
+    height: 42px;
+    width: 42px;
+  }
 `;
 
 const Icon = styled.span`
   font-size: 32px;
+
+  @media (max-width: 900px) {
+    font-size: 20px;
+  }
 `;
 
 type FontColorProps = {
@@ -56,6 +69,10 @@ type FontColorProps = {
 const MateriaTitle = styled.p<FontColorProps>`
   font-size: 12px;
   color: ${({ $color }) => $color};
+
+  @media (max-width: 900px) {
+    font-size: 10px;
+  }
 `;
 
 export default function ViewedPostsTable({ dados }: ViewedPostsTableProps) {
@@ -88,10 +105,10 @@ export default function ViewedPostsTable({ dados }: ViewedPostsTableProps) {
             <Td className="bold">
               <Link href={`/post/${post.postId}`}>{post.titulo}</Link>
             </Td>
-            <td>{post.descricao}</td>
-            <td>{new Intl.DateTimeFormat('pt-BR').format(post.createdAt)}</td>
-            <td>{new Intl.DateTimeFormat('pt-BR').format(post.editedAt)}</td>
-            <td>{post.autor}</td>
+            <Td>{post.descricao}</Td>
+            <Td>{new Intl.DateTimeFormat('pt-BR').format(post.createdAt)}</Td>
+            <Td>{new Intl.DateTimeFormat('pt-BR').format(post.editedAt)}</Td>
+            <Td>{post.autor}</Td>
           </tr>
         ))}
       </tbody>

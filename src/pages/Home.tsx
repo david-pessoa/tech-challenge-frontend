@@ -13,37 +13,70 @@ import userImage from '../assets/user-default-image.png';
 import { capitalize } from '../utils/functions';
 import Calendar from '../components/Calendar';
 import UserListPreview from '../components/UserListPreview';
+import { useScreenWidth } from '../hooks/screenWidth';
 
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 
 const Main = styled.main`
   margin-left: 6.188rem;
   display: flex;
+  gap: 18px;
+  width: 100%;
+
+  @media (max-width: 1200px) {
+    margin-left: 1.25rem;
+  }
+`;
+
+const MainContentContainer = styled.div`
+  width: 64.4135vw;
+
+  @media (max-width: 1200px) {
+    width: 58.27vw;
+  }
 `;
 
 const TopContainer = styled.div`
   display: flex;
   gap: 2.25rem;
   align-items: center;
+  justify-content: space-between;
   margin-bottom: 2.125rem;
+  width: 100%;
+
+  @media (max-width: 900px) {
+    gap: 0;
+  }
 `;
 
 const TitleContainer = styled.div`
   display: flex;
   align-items: center;
   gap: 10px;
+  min-width: 15.688rem;
+
+  @media (max-width: 900px) {
+    gap: 0;
+    min-width: 11.063rem;
+  }
 `;
+
+const SparkleImage = styled.img`
+  @media (max-width: 900px) {
+    height: 42px;
+  }
+`;
+
 
 const InputContainer = styled.div`
   background-color: #fde9a06b;
   border-radius: 20px;
   height: 2.625rem;
-  width: 40.5rem;
+  width: 38rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 0 19px;
-  box-sizing: border-box;
 `;
 
 const InputSearch = styled.input`
@@ -58,7 +91,12 @@ const InputSearch = styled.input`
 
 const Aside = styled.aside`
   margin-left: 20px;
-  width: 23.459vw;
+
+  @media (max-width: 1200px) {
+    margin-left: 0;
+    margin-right: 1rem;
+    width: 36.81vw;
+  }
 `;
 
 const ProfileImageContainer = styled.div`
@@ -105,16 +143,17 @@ const CalendarTitle = styled.h2`
 export default function Home() {
   document.title = 'Edify | Home';
   const { user } = useUser();
+  const screenWidth = useScreenWidth();
 
   return (
     <>
       <Header />
       <Main>
-        <div>
+        <MainContentContainer>
           <TopContainer>
             <TitleContainer>
               <h1>Tela Inicial</h1>
-              <img src={sparkle} alt="Sparkle" />
+              <SparkleImage src={sparkle} alt="Sparkle" />
             </TitleContainer>
             <InputContainer>
               <InputSearch type="text" placeholder="Pesquise aqui..." />
@@ -122,7 +161,7 @@ export default function Home() {
             </InputContainer>
           </TopContainer>
           <PostsContainer />
-        </div>
+        </MainContentContainer>
         <Aside>
           <h1>Perfil</h1>
           <div>

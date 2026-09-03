@@ -3,10 +3,14 @@
   top: -50px;
   width: 32px;
   height: 32px;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .swiper-button-next {
-  right: 20px;
+  right: 0;
   transform: translateY(-20px) ;
 }
 
@@ -16,12 +20,12 @@
 
 .swiper-button-prev {
   left: auto;
-  right: 70px;
+  right: 50px;
   transform: translateY(-31px) rotate(180deg)
 }
 
 .isAdmin .swiper-button-prev {
-  transform: translateY(-51px) rotate(180deg)
+  transform: translateY(-39px) rotate(180deg)
 }
 
 .swiper {

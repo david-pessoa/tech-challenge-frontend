@@ -39,7 +39,6 @@ const initialFormData: UserFormData = {
 };
 
 const Main = styled.main`
-  box-sizing: border-box;
   width: 100%;
   margin: 0 auto 5rem;
   padding: 0 clamp(1rem, 8.55vw, 7.6875rem);

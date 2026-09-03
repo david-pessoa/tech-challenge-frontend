@@ -34,23 +34,34 @@ const Message = styled.p`
   text-align: center;
   color: #021c41;
   width: 250px;
+
+  @media (max-width: 900px) {
+    font-size: 1rem;
+  }
 `;
 
 const GalaxyImage = styled.img`
   width: 164.43px;
   angle: 26.48 deg;
   margin-right: auto;
+
+  @media (max-width: 900px) {
+    width: 110px
+  }
 `;
 
 const BubblesImage = styled.img`
   width: 102.12px;
   angle: -65.39 deg;
   margin-left: auto;
+
+   @media (max-width: 900px) {
+    width: 83px
+  }
 `;
 
 const UserListContainer = styled.div`
   padding: 1.813rem 1.188rem;
-  box-sizing: border-box;
   width: 100%;
   border: 1px solid #f0d2c7;
   border-radius: 7px;

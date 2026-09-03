@@ -41,13 +41,18 @@ export default function Calendar({ role }: CalendarProp) {
 
   const CalendarRow = styled.li`
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
+    gap: 3px;
   `;
 
   const WeekDays = styled.p`
     width: 48px;
     display: flex;
     justify-content: center;
+
+    @media (max-width: 900px) {
+      width: 38px;
+    }
   `;
 
   const CalendarDay = styled.p<{ $role: Role }>`
@@ -60,6 +65,11 @@ export default function Calendar({ role }: CalendarProp) {
     background-color: ${({ $role }) => roleStyle[$role].backgroundColor};
     color: ${({ $role }) => roleStyle[$role].color};
     font-weight: 700;
+
+    @media (max-width: 900px) {
+      width: 38px;
+      height: 38px;
+    }
   `;
   const CalendarEmptyDay = styled.p`
     height: 48px;
@@ -67,6 +77,11 @@ export default function Calendar({ role }: CalendarProp) {
     display: flex;
     justify-content: center;
     align-items: center;
+
+    @media (max-width: 900px) {
+      width: 38px;
+      height: 38px;
+    }
   `;
 
   const CalendarWeekendDay = styled.p`
@@ -78,6 +93,11 @@ export default function Calendar({ role }: CalendarProp) {
     color: #32434D;
     opacity: 40%;
     font-weight: 700;
+
+    @media (max-width: 900px) {
+      width: 38px;
+      height: 38px;
+    }
   `;
 
   const Today = styled.p`
@@ -90,6 +110,11 @@ export default function Calendar({ role }: CalendarProp) {
     background-color: #e44cd29b;
     color: #72316b;
     font-weight: 700;
+
+    @media (max-width: 900px) {
+      width: 38px;
+      height: 38px;
+    }
   `;
 
   return (

@@ -21,6 +21,10 @@ const Background = styled.header<{ $role: Role }>`
   width: 100%;
   height: 5.125rem;
   margin-bottom: 4.438rem;
+
+  @media (max-width: 900px) {
+    margin-bottom: 1.75rem;
+  }
 `;
 
 const userCircleColors = {

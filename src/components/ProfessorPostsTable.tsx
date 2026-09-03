@@ -21,6 +21,10 @@ const MateriaContainer = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
+
+  @media (max-width: 900px) {
+    max-width: 50px;
+  }
 `;
 
 const Link = styled.a`
@@ -44,10 +48,32 @@ const IconContainer = styled.div<ColorProps>`
   justify-content: center;
   align-items: center;
   margin-bottom: 5px;
+
+  @media (max-width: 900px) {
+    height: 42px;
+    width: 42px;
+  }
 `;
 
 const Icon = styled.span`
   font-size: 32px;
+
+  @media (max-width: 900px) {
+    font-size: 20px;
+  }
+`;
+
+type FontColorProps = {
+  $color: string;
+};
+
+const MateriaTitle = styled.p<FontColorProps>`
+  font-size: 12px;
+  color: ${({ $color }) => $color};
+
+  @media (max-width: 900px) {
+    font-size: 10px;
+  }
 `;
 
 const ActionContainer = styled.div`
@@ -70,15 +96,6 @@ const EditIcon = styled.span`
 const DeleteIcon = styled.span`
   color: #e64b63;
   font-size: 24px;
-`;
-
-type FontColorProps = {
-  $color: string;
-};
-
-const MateriaTitle = styled.p<FontColorProps>`
-  font-size: 12px;
-  color: ${({ $color }) => $color};
 `;
 
 export default function ProfessorPostsTable({ dados }: ProfessorPostsTableProps) {
@@ -114,7 +131,7 @@ export default function ProfessorPostsTable({ dados }: ProfessorPostsTableProps)
             <Td>{post.descricao}</Td>
             <Td>{new Intl.DateTimeFormat('pt-BR').format(post.createdAt)}</Td>
             <Td>{new Intl.DateTimeFormat('pt-BR').format(post.editedAt)}</Td>
-            <td>
+            <Td>
               <ActionContainer>
                 <ActionButton>
                   <EditIcon className="material-symbols-outlined">edit</EditIcon>
@@ -123,7 +140,7 @@ export default function ProfessorPostsTable({ dados }: ProfessorPostsTableProps)
                   <DeleteIcon className="material-symbols-outlined">delete</DeleteIcon>
                 </ActionButton>
               </ActionContainer>
-            </td>
+            </Td>
           </tr>
         ))}
       </tbody>

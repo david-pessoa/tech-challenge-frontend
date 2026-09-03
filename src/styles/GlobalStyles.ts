@@ -4,12 +4,14 @@ export const GlobalStyles = createGlobalStyle`
   * {
     margin: 0;
     padding: 0;
+    box-sizing: border-box;
   }
 
   body {
     font-family: ${({ theme }) => theme.typography.fontFamily};
     color: ${({ theme }) => theme.colors.text};
     background: ${({ theme }) => theme.colors.background};
+    overflow-x: hidden;
   }
 
   h1,h2,h3,h4,h5,h6 {
@@ -54,12 +56,12 @@ export const GlobalStyles = createGlobalStyle`
 
   tbody {
     background-color: #FFFBEB;
-    box-sizing: border-box;
   }
 
   td {
     padding-left: 10px;
     padding-top: 10px;
+    max-width: 118px;
   }
   
   td.bold {
@@ -71,6 +73,37 @@ export const GlobalStyles = createGlobalStyle`
     justify-content: center;
     align-items: center;
     height: 100%;
+  }
+
+  @media (max-width: 900px) {
+    h1 {
+      font-size: 1.5rem
+    }
+
+    h2 {
+      font-size: 1.25rem
+    }
+
+    h3 {
+      font-size: 0.75rem
+    }
+
+    p, td, th {
+      font-size: 14px
+    }
+
+    thead {
+      height: 62px;
+    }
+
+    th {
+      padding: 5px;
+      max-width: 98px;
+    }
+
+    td {
+      padding: 5px 0 0 5px;
+    }
   }
 
 `;

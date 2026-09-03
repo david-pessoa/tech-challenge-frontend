@@ -45,7 +45,6 @@ const FormBlock = styled.div`
   align-items: center;
   justify-content: flex-start;
   padding: clamp(1.5rem, 5vw, 3rem);
-  box-sizing: border-box;
 `;
 
 // O card em si: aqui sim definimos uma largura máxima, pra ele não esticar
@@ -141,7 +140,6 @@ const Input = styled.input<{ $hasTrailingIcon?: boolean }>`
   font-family: ${({ theme }) => theme.typography.fontFamily};
   font-size: 1.125rem;
   color: ${({ theme }) => theme.colors.text};
-  box-sizing: border-box;
   box-shadow: 0 4px 14px rgba(252, 187, 163, 0.35);
 
   &::placeholder {
