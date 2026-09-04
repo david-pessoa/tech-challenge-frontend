@@ -1,7 +1,39 @@
-import { type ReactNode } from 'react';
+import { useEffect, type ReactNode } from 'react';
 import { useUser } from '../context/AuthContext';
 import { Navigate, useNavigate } from 'react-router-dom';
+import styled from 'styled-components';
 import type { Role } from '../types/Roles';
+
+const LoadingWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh; /* Ocupa a tela inteira */
+  width: 100%;
+  background-color: #FFFCF7; /* Mesma cor de fundo do seu sistema */
+`;
+
+const Spinner = styled.div`
+  width: 60px;
+  height: 60px;
+  border: 6px solid #F6D4D9;
+  border-top-color: ${({ theme }) => theme.colors.primary};
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+`;
+
+const LoadingText = styled.p`
+  margin-top: 16px;
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: ${({ theme }) => theme.colors.primary};
+  font-family: ${({ theme }) => theme.typography.fontFamily};
+`;
 
 type PrivateRoutesProps = {
   children: ReactNode;
@@ -12,17 +44,28 @@ export default function PrivateRoute({ children, acceptedRoles }: PrivateRoutesP
   const { user, isLoading } = useUser();
   const navigate = useNavigate();
   
-  //Se o usuário está carregando, exibe tela de carregamento
-  if (isLoading) return <div>Carregando...</div>;
+  useEffect(() => {
+    if (!isLoading && user && !acceptedRoles.includes(user.role)) {
+      navigate(-1);
+    }
+  }, [isLoading, user, acceptedRoles, navigate]);
 
-  // Se não consegue obter os dados do usuário, redireciona para o login
-  if (!user) return <Navigate to="/login" replace />;
-
-  // Caso o usuário esteja logado, mas não tenha permissão para acessar a rota, redireciona ele pra última página que visitou
-  if (!acceptedRoles.includes(user.role)) {
-    navigate(-1);
-    return;
+  if (isLoading) {
+    return (
+      <LoadingWrapper>
+        <Spinner />
+        <LoadingText>Verificando acessos...</LoadingText>
+      </LoadingWrapper>
+    );
   }
 
-  return children;
+  if (!user) {
+    return <Navigate to="/login" replace />;
+  }
+
+  if (!acceptedRoles.includes(user.role)) {
+    return null;
+  }
+
+  return <>{children}</>;
 }

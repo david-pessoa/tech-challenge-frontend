@@ -1,5 +1,5 @@
 import axios from 'axios';
-import type { Post } from '../types/Posts';
+import type { Post , CommentAPI } from '../types/Posts';
 import { getLocalStorageToken } from '../utils/functions';
 import { getBackendErrorMessage } from './auth.service';
 
@@ -48,5 +48,78 @@ export async function getPostById(id: string): Promise<Post> {
   } catch (error) {
     console.error(`Erro na obtenção do post ${id}:`, error);
     throw error;
+  }
+}
+
+export async function deletePost(id: string): Promise<void> {
+  try {
+    await axios.delete(`${BASE_URL}/posts/${id}`, {
+      headers: {
+        Authorization: `Bearer ${getLocalStorageToken()}`,
+      },
+    });
+  } catch (error) {
+    console.error(`Erro ao deletar o post ${id}:`, error);
+    throw new Error(getBackendErrorMessage(error));
+  }
+}
+
+export async function createPost(postData: FormData): Promise<void> {
+  try {
+    await axios.post(`${BASE_URL}/posts`, postData, {
+      headers: {
+        Authorization: `Bearer ${getLocalStorageToken()}`,
+        'Content-Type': 'multipart/form-data', 
+      },
+    });
+  } catch (error) {
+    console.error('Erro ao criar post:', error);
+    throw new Error(getBackendErrorMessage(error));
+  }
+}
+
+export async function updatePost(id: string, postData: FormData): Promise<void> {
+  try {
+    await axios.put(`${BASE_URL}/posts/${id}`, postData, {
+      headers: {
+        Authorization: `Bearer ${getLocalStorageToken()}`,
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+  } catch (error) {
+    console.error(`Erro ao atualizar post ${id}:`, error);
+    throw new Error(getBackendErrorMessage(error));
+  }
+}
+
+export async function createComment(postId: string, comentario: string, parentCommentId?: string): Promise<void> {
+  try {
+    const payload = parentCommentId 
+      ? { conteudo: comentario, parentCommentId } 
+      : { conteudo: comentario };
+
+    await axios.post(`${BASE_URL}/post/comment/${postId}`, payload, {
+        headers: {
+          Authorization: `Bearer ${getLocalStorageToken()}`,
+        },
+      }
+    );
+  } catch (error) {
+    console.error(`Erro ao enviar comentário no post ${postId}:`, error);
+    throw new Error(getBackendErrorMessage(error));
+  }
+}
+
+export async function getCommentsByPostId(postId: string): Promise<CommentAPI[]> {
+  try {
+    const response = await axios.get(`${BASE_URL}/post/comment/list/${postId}`, {
+      headers: {
+        Authorization: `Bearer ${getLocalStorageToken()}`,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.error(`Erro ao buscar comentários do post ${postId}:`, error);
+    return []; 
   }
 }

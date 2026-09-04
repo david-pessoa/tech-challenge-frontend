@@ -1,5 +1,6 @@
 import styled from 'styled-components';
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { getPosts } from '../services/post.service';
 
 import { Autoplay, Navigation, Pagination, Scrollbar, A11y } from 'swiper/modules';
@@ -7,12 +8,12 @@ import { Swiper, SwiperSlide } from 'swiper/react';
 
 import CarouselCard from './CarouselCard';
 import ViewedPostsTable from './ViewedPostsTable';
+import ProfessorPostsTable from './ProfessorPostsTable';
+import AdminPostsTable from './AdminPostsTable';
 
 import 'swiper/css';
 import '../styles/swiper-style.css';
 import type { Post } from '../types/Posts';
-import ProfessorPostsTable from './ProfessorPostsTable';
-import AdminPostsTable from './AdminPostsTable';
 import { useUser } from '../context/AuthContext';
 
 
@@ -51,6 +52,11 @@ const AddClassButton = styled.button`
   align-items: center;
   justify-content: space-between;
   cursor: pointer;
+  transition: opacity 0.2s;
+
+  &:hover {
+    opacity: 0.7;
+  }
 `;
 
 const AddIcon = styled.span`
@@ -60,56 +66,26 @@ const AddIcon = styled.span`
 
 export default function PostsContainer() {
   const { user } = useUser();
-  
-  const creation_date = new Date('2026-08-04');
+  const navigate = useNavigate();
+  const [apiPosts, setApiPosts] = useState<Post[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const dados = [
-    {
-      postId: '0b70e39b-58ef-4d04-b039-3036a65b0bbe',
-      materia: 'Ciências',
-      titulo: 'Aula 20 - Sapos no meio dos humanos',
-      descricao: 'Pirâmides etárias',
-      autor: 'José',
-      createdAt: creation_date,
-      editedAt: creation_date,
-    },
-    {
-      postId: '0b70e39b-58ef-4d04-b039-3036a65b0bbe',
-      materia: 'História',
-      titulo: 'Aula 20 - Sapos no meio dos humanos',
-      descricao: 'Pirâmides etárias',
-      autor: 'José',
-      createdAt: creation_date,
-      editedAt: creation_date,
-    },
-    {
-      postId: '0b70e39b-58ef-4d04-b039-3036a65b0bbe',
-      materia: 'Português',
-      titulo: 'Aula 20 - Sapos no meio dos humanos',
-      descricao: 'Pirâmides etárias',
-      autor: 'José',
-      createdAt: creation_date,
-      editedAt: creation_date,
-    },
-    {
-      postId: '0b70e39b-58ef-4d04-b039-3036a65b0bbe',
-      materia: 'Matemática',
-      titulo: 'Aula 20 - Sapos no meio dos humanos',
-      descricao: 'Pirâmides etárias',
-      autor: 'José',
-      createdAt: creation_date,
-      editedAt: creation_date,
-    },
-    {
-      postId: '0b70e39b-58ef-4d04-b039-3036a65b0bbe',
-      materia: 'Geografia',
-      titulo: 'Aula 20 - Sapos no meio dos humanos',
-      descricao: 'Pirâmides etárias',
-      autor: 'José',
-      createdAt: creation_date,
-      editedAt: creation_date,
-    },
-  ];
+  useEffect(() => {
+    getPosts()
+      .then((data) => {
+        setApiPosts(data);
+      })
+      .catch((error) => {
+        console.error("Erro ao buscar posts:", error);
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
+  }, []);
+
+  const handlePostDeleted = (deletedId: string) => {
+    setApiPosts((prevPosts) => prevPosts.filter((post) => post.postId !== deletedId));
+  };
 
   function AlunoContainer() {
     return (
@@ -117,124 +93,129 @@ export default function PostsContainer() {
         <Container>
           <Title>Novas Aulas</Title>
           <Paragraph>Últimas postagens de aulas feitas pelos seus professores</Paragraph>
-          <Swiper
-            modules={[Autoplay, Navigation, Pagination, Scrollbar, A11y]}
-            spaceBetween={12}
-            slidesPerView="auto"
-            loop={true}
-            pagination={{ clickable: true }}
-            navigation
-            onSwiper={swiper => console.log(swiper)}
-          >
-            {dados.map((dado: Post, i) => (
-              <SwiperSlide key={i} style={{ width: '12.5rem' }}>
-                <Link href={`/post/${dado.postId}`}>
-                  <CarouselCard dado={dado} />
-                </Link>
-              </SwiperSlide>
-            ))}
-          </Swiper>
+          
+          {isLoading ? (
+            <Paragraph>Carregando aulas...</Paragraph>
+          ) : (
+            <Swiper
+              modules={[Autoplay, Navigation, Pagination, Scrollbar, A11y]}
+              spaceBetween={12}
+              slidesPerView="auto"
+              loop={false} 
+              pagination={{ clickable: true }}
+              navigation
+            >
+              {apiPosts.map((dado: Post) => (
+                <SwiperSlide key={dado.postId} style={{ width: '12.5rem' }}>
+                  <Link href={`/post/${dado.postId}`}>
+                    <CarouselCard dado={dado} />
+                  </Link>
+                </SwiperSlide>
+              ))}
+            </Swiper>
+          )}
         </Container>
         <Container>
           <Title>Aulas Finalizadas</Title>
           <Paragraph>Você já finalizou estas atividades</Paragraph>
-          <ViewedPostsTable dados={dados} />
+          <ViewedPostsTable dados={isLoading ? [] : apiPosts} />
         </Container>
       </>
     );
   }
-  function ProfessorContainer() {
+
+ function ProfessorContainer() {
+    const minhasAulas = apiPosts.filter((post) => post.autor === user?.nome);
+    const outrasAulas = apiPosts.filter((post) => post.autor !== user?.nome);
+
     return (
       <>
         <Container>
           <Title>Suas aulas</Title>
           <AddClassContainer>
             <Paragraph>Veja as aulas que você postou</Paragraph>
-            <AddClassButton>
+            <AddClassButton onClick={() => navigate('/post/new')}>
               <AddIcon className="material-symbols-outlined">add</AddIcon>
               <p>Nova aula</p>
             </AddClassButton>
           </AddClassContainer>
-          <ProfessorPostsTable dados={dados} />
+          {isLoading ? (
+            <Paragraph>Carregando aulas...</Paragraph>
+          ) : (
+            <ProfessorPostsTable dados={minhasAulas} />
+          )}
         </Container>
         <Container>
           <Title>Outras aulas</Title>
           <Paragraph>Aulas criadas por outros professores</Paragraph>
-          <ViewedPostsTable dados={dados} />
+          {isLoading ? (
+            <Paragraph>Carregando aulas...</Paragraph>
+          ) : (
+            <ViewedPostsTable dados={outrasAulas} />
+          )}
         </Container>
       </>
     );
   }
+
   function AdminContainer() {
-    const [adminPosts, setAdminPosts] = useState<Post[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
-
-    useEffect(() => {
-      getPosts()
-        .then((data) => {
-          setAdminPosts(data);
-        })
-        .catch((error) => {
-          console.error("Erro ao buscar posts do acervo:", error);
-        })
-        .finally(() => {
-          setIsLoading(false);
-        });
-    }, []);
-
     return (
       <>
         <Container>
           <Title>Novas aulas</Title>
           <AddClassContainer>
             <Paragraph>Últimas postagens de aulas feitas pelos professores</Paragraph>
-            <AddClassButton>
+            <AddClassButton onClick={() => navigate('/post/new')}>
               <AddIcon className="material-symbols-outlined">add</AddIcon>
               <p>Nova aula</p>
             </AddClassButton>
           </AddClassContainer>
-          
+
           {isLoading ? (
-             <Paragraph>Carregando acervo...</Paragraph>
+            <Paragraph>Carregando aulas...</Paragraph>
           ) : (
-             <Swiper
-               modules={[Autoplay, Navigation, Pagination, Scrollbar, A11y]}
-               spaceBetween={12}
-               slidesPerView="auto"
-               loop={false} 
-               pagination={{ clickable: true }}
-               navigation
-               className='isAdmin'
-             >
-               {adminPosts.map((dado: Post) => (
-                 <SwiperSlide key={dado.postId} style={{ width: '12.5rem' }}>
-                   <Link href={`/post/${dado.postId}`}>
-                     <CarouselCard dado={dado} />
-                   </Link>
-                 </SwiperSlide>
-               ))}
-             </Swiper>
+            <Swiper
+              modules={[Autoplay, Navigation, Pagination, Scrollbar, A11y]}
+              spaceBetween={12}
+              slidesPerView="auto"
+              loop={false}
+              pagination={{ clickable: true }}
+              navigation
+              className='isAdmin'
+            >
+              {apiPosts.map((dado: Post) => (
+                <SwiperSlide key={dado.postId} style={{ width: '12.5rem' }}>
+                  <Link href={`/post/${dado.postId}`}>
+                    <CarouselCard dado={dado} />
+                  </Link>
+                </SwiperSlide>
+              ))}
+            </Swiper>
           )}
         </Container>
         <Container>
           <Title>Acervo da Escola</Title>
           <Paragraph>Todas as aulas postadas</Paragraph>
-          <AdminPostsTable dados={isLoading ? [] : adminPosts}/>
+          <AdminPostsTable
+            dados={isLoading ? [] : apiPosts}
+            onDeleteSuccess={handlePostDeleted}
+          />
         </Container>
       </>
     );
   }
 
   return (
-    user &&
-    <div>
-      {user.role === 'PROFESSOR' ? (
-        <ProfessorContainer />
-      ) : user.role === 'ALUNO' ? (
-        <AlunoContainer />
-      ) : (
-        <AdminContainer />
-      )}
-    </div>
+    user && (
+      <div>
+        {user.role === 'PROFESSOR' ? (
+          <ProfessorContainer />
+        ) : user.role === 'ALUNO' ? (
+          <AlunoContainer />
+        ) : (
+          <AdminContainer />
+        )}
+      </div>
+    )
   );
 }

@@ -1,6 +1,8 @@
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import PostsContainer from '../components/PostsContainer';
+import { useState, useEffect } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 import sparkle from '../assets/sparkle.png';
 import redDoodle from '../assets/red-doodle.png';
@@ -15,6 +17,22 @@ import Calendar from '../components/Calendar';
 import UserListPreview from '../components/UserListPreview';
 
 const BASE_URL = import.meta.env.VITE_BASE_URL;
+
+type ToastStatus = 'success' | 'error';
+
+const Toast = styled.div<{ $status: ToastStatus }>`
+  position: fixed;
+  top: 1.5rem;
+  right: 1.5rem;
+  z-index: 1000;
+  width: min(22rem, calc(100% - 2rem));
+  border-left: 0.35rem solid ${({ $status }) => ($status === 'success' ? '#6FB9A9' : '#e64b63')};
+  border-radius: 0.75rem;
+  background: #FAF7EA;
+  box-shadow: 0 0.5rem 1.5rem rgba(50, 67, 77, 0.16);
+  color: #32434D;
+  padding: 1rem 1.25rem;
+`;
 
 const Main = styled.main`
   margin-left: 6.188rem;
@@ -105,9 +123,30 @@ const CalendarTitle = styled.h2`
 export default function Home() {
   document.title = 'Edify | Home';
   const { user } = useUser();
+  const location = useLocation();
+  const navigate = useNavigate();
+  const [toast, setToast] = useState<{ message: string; status: ToastStatus } | null>(null);
 
-  return (
+  useEffect(() => {
+    if (location.state?.toastMessage) {
+      setToast({
+        message: location.state.toastMessage,
+        status: location.state.toastStatus || 'success'
+      });
+      navigate(location.pathname, { replace: true, state: {} });
+    }
+  }, [location, navigate]);
+
+  useEffect(() => {
+    if (!toast) return;
+    const timeout = window.setTimeout(() => setToast(null), 4000);
+    return () => window.clearTimeout(timeout);
+  }, [toast]);
+
+ return (
     <>
+      {toast && <Toast $status={toast.status}>{toast.message}</Toast>}
+      
       <Header />
       <Main>
         <div>
