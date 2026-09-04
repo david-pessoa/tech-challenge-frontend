@@ -616,7 +616,7 @@ export default function UserRegister({ isNew }: UserRegisterProps) {
                 id="image"
                 name="image"
                 type="file"
-                accept="image/png"
+                accept="image/png, image/jpeg"
                 onChange={event => {
                   const file = event.target.files?.[0] ?? null;
 

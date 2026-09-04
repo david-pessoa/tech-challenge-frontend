@@ -1,13 +1,10 @@
 import styled from 'styled-components';
 
 import type { Post } from '../types/Posts';
-import type { User } from '../types/User';
-import { useEffect, useState } from 'react';
-import { getAllPosts } from '../services/post.service';
-import { deleteUser } from '../services/user.service';
+import { deletePost } from '../services/post.service';
 
-type DeleteUserModalProps = {
-  user: User;
+type DeletePostModalProps = {
+  post: Post;
   onCancel: () => void;
   showSucessMessage: () => void;
   showErrorMessage: () => void;
@@ -63,23 +60,6 @@ const ModalTitle = styled.h2`
   margin: 0;
 `;
 
-const ModalText = styled.p`
-  font-size: 1rem;
-  line-height: 1.5;
-  margin: 0 0 1rem;
-`;
-
-const PostList = styled.ul`
-  margin: 0 0 1.5rem;
-  padding-left: 1.25rem;
-`;
-
-const PostItem = styled.li`
-  font-size: 0.875rem;
-  font-weight: 600;
-  line-height: 1.5;
-`;
-
 const ModalActions = styled.div`
   display: flex;
   justify-content: flex-end;
@@ -99,37 +79,21 @@ const ModalButton = styled.button<{ $secondary?: boolean }>`
   padding: 0 1.25rem;
 `;
 
-export default function DeleteUserModal({
-  user,
+export default function DeletePostModal({
+  post,
   onCancel,
   showSucessMessage,
   showErrorMessage,
-}: DeleteUserModalProps) {
-  const [userPosts, setUserPosts] = useState<Post[]>([]);
-
-  useEffect(() => {
-    async function getUsersPost() {
-      try {
-        const posts = await getAllPosts();
-        setUserPosts(posts.filter((post: Post) => post.criadoPor?.userId === user.id));
-      } catch (error) {
-        setUserPosts([]);
-      }
-    }
-    if (user.role !== 'ALUNO') {
-      getUsersPost();
-    }
-  }, []);
-
+}: DeletePostModalProps) {
   async function handleDelete() {
-    if (!user) {
+    if (!post) {
       return;
     }
     try {
-      await deleteUser(user.id);
+      await deletePost(post.postId);
       showSucessMessage();
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Erro ao deletar o usuário';
+      const message = error instanceof Error ? error.message : 'Erro ao deletar o post';
       console.error(message);
       showErrorMessage();
     }
@@ -143,19 +107,9 @@ export default function DeleteUserModal({
           <ModalHeader>
             <AlertIcon className="material-symbols-outlined">error</AlertIcon>
             <ModalTitle id="delete-user-title">
-              Você deseja remover o usuário "{user.nome}"?
+              Você deseja remover o post "{post.titulo}" criado por {post.criadoPor?.nome}?
             </ModalTitle>
           </ModalHeader>
-          {userPosts.length > 0 && (
-            <>
-              <ModalText>Os seguintes posts serão removidos:</ModalText>
-              <PostList>
-                {userPosts.map(post => (
-                  <PostItem key={post.postId}>{post.titulo}</PostItem>
-                ))}
-              </PostList>
-            </>
-          )}
 
           <ModalActions>
             <ModalButton type="button" $secondary onClick={onCancel}>

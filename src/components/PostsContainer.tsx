@@ -1,19 +1,16 @@
 import styled from 'styled-components';
-import type { Role } from '../types/Roles';
 
-import { Autoplay, Navigation, Pagination, Scrollbar, A11y } from 'swiper/modules';
-import { Swiper, SwiperSlide } from 'swiper/react';
-
+import Carousel from './Carousel';
 import CarouselCard from './CarouselCard';
 import ViewedPostsTable from './ViewedPostsTable';
+import ManagementPostsTable from './ManagementPostsTable';
 
 import 'swiper/css';
 import '../styles/swiper-style.css';
 import type { Post } from '../types/Posts';
-import ProfessorPostsTable from './ProfessorPostsTable';
-import AdminPostsTable from './AdminPostsTable';
 import { useUser } from '../context/AuthContext';
-
+import { useEffect, useState } from 'react';
+import { getAllPosts } from '../services/post.service';
 
 const Container = styled.div`
   width: 64.4135vw;
@@ -28,12 +25,6 @@ const Paragraph = styled.p`
   margin-bottom: 1.813rem;
 `;
 
-const Link = styled.a`
-  color: inherit;
-  text-decoration: none;
-  display: block;
-`;
-
 const AddClassContainer = styled.div`
   display: flex;
   justify-content: space-between;
@@ -41,7 +32,7 @@ const AddClassContainer = styled.div`
   margin-bottom: 1.813rem;
 `;
 
-const AddClassButton = styled.button`
+const AddClassButton = styled.a`
   height: 100%;
   width: 6.938rem;
   border: none;
@@ -49,7 +40,6 @@ const AddClassButton = styled.button`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  cursor: pointer;
 `;
 
 const AddIcon = styled.span`
@@ -59,163 +49,107 @@ const AddIcon = styled.span`
 
 export default function PostsContainer() {
   const { user } = useUser();
-  
-  const creation_date = new Date('2026-08-04');
+  const [posts, setPosts] = useState<Post[]>([]);
 
-  const dados = [
-    {
-      postId: '0b70e39b-58ef-4d04-b039-3036a65b0bbe',
-      materia: 'Ciências',
-      titulo: 'Aula 20 - Sapos no meio dos humanos',
-      descricao: 'Pirâmides etárias',
-      autor: 'José',
-      createdAt: creation_date,
-      editedAt: creation_date,
-    },
-    {
-      postId: '0b70e39b-58ef-4d04-b039-3036a65b0bbe',
-      materia: 'História',
-      titulo: 'Aula 20 - Sapos no meio dos humanos',
-      descricao: 'Pirâmides etárias',
-      autor: 'José',
-      createdAt: creation_date,
-      editedAt: creation_date,
-    },
-    {
-      postId: '0b70e39b-58ef-4d04-b039-3036a65b0bbe',
-      materia: 'Português',
-      titulo: 'Aula 20 - Sapos no meio dos humanos',
-      descricao: 'Pirâmides etárias',
-      autor: 'José',
-      createdAt: creation_date,
-      editedAt: creation_date,
-    },
-    {
-      postId: '0b70e39b-58ef-4d04-b039-3036a65b0bbe',
-      materia: 'Matemática',
-      titulo: 'Aula 20 - Sapos no meio dos humanos',
-      descricao: 'Pirâmides etárias',
-      autor: 'José',
-      createdAt: creation_date,
-      editedAt: creation_date,
-    },
-    {
-      postId: '0b70e39b-58ef-4d04-b039-3036a65b0bbe',
-      materia: 'Geografia',
-      titulo: 'Aula 20 - Sapos no meio dos humanos',
-      descricao: 'Pirâmides etárias',
-      autor: 'José',
-      createdAt: creation_date,
-      editedAt: creation_date,
-    },
-  ];
+  useEffect(() => {
+    async function returnAllPosts() {
+      try {
+        const postsList = await getAllPosts();
+        setPosts(postsList);
+      } catch (error) {
+        setPosts([]);
+      }
+    }
+    returnAllPosts();
+  }, []);
 
   function AlunoContainer() {
-    //Obter dados dos posts do back-end
+    
+    // Os posts já visualizados são exibidos na tabela
+    const viewedPosts = posts.filter(p => p.foiVisto != false)
+    // Obtém os posts não vistos e exibe no carrossel
+    const newPosts = posts.filter(p => p.foiVisto != true)
 
     return (
       <>
         <Container>
           <Title>Novas Aulas</Title>
           <Paragraph>Últimas postagens de aulas feitas pelos seus professores</Paragraph>
-          <Swiper
-            modules={[Autoplay, Navigation, Pagination, Scrollbar, A11y]}
-            spaceBetween={12}
-            slidesPerView="auto"
-            loop={true}
-            pagination={{ clickable: true }}
-            navigation
-            onSwiper={swiper => console.log(swiper)}
-          >
-            {dados.map((dado: Post, i) => (
-              <SwiperSlide key={i} style={{ width: '12.5rem' }}>
-                <Link href={`/post/${dado.postId}`}>
-                  <CarouselCard dado={dado} />
-                </Link>
-              </SwiperSlide>
-            ))}
-          </Swiper>
+          <Carousel newPosts={newPosts} isAdmin={false}/>
         </Container>
         <Container>
           <Title>Aulas Finalizadas</Title>
           <Paragraph>Você já finalizou estas atividades</Paragraph>
-          <ViewedPostsTable dados={dados} />
+          <ViewedPostsTable dados={viewedPosts} />
         </Container>
       </>
     );
   }
-  function ProfessorContainer() {
+  function TeacherContainer() {
+    // Os posts do próprio professor
+    const myPosts = posts.filter(p => p.criadoPor.userId === user?.id)
+
+    // Obtém os posts de outros professores
+    const otherPosts = posts.filter(p => p.criadoPor.userId !== user?.id)
+
     return (
       <>
         <Container>
           <Title>Suas aulas</Title>
           <AddClassContainer>
             <Paragraph>Veja as aulas que você postou</Paragraph>
-            <AddClassButton>
+            <AddClassButton href='/post/new'>
               <AddIcon className="material-symbols-outlined">add</AddIcon>
               <p>Nova aula</p>
             </AddClassButton>
           </AddClassContainer>
-          <ProfessorPostsTable dados={dados} />
+          <ManagementPostsTable dados={myPosts} />
         </Container>
         <Container>
           <Title>Outras aulas</Title>
           <Paragraph>Aulas criadas por outros professores</Paragraph>
-          <ViewedPostsTable dados={dados} />
+          <ViewedPostsTable dados={otherPosts} />
         </Container>
       </>
     );
   }
   function AdminContainer() {
+     // Obtém os posts não vistos e exibe no carrossel
+    const newPosts = posts.filter(p => p.foiVisto != true)
+
     return (
       <>
         <Container>
           <Title>Novas aulas</Title>
           <AddClassContainer>
             <Paragraph>Últimas postagens de aulas feitas pelos professores</Paragraph>
-            <AddClassButton>
+            <AddClassButton href='/post/new'>
               <AddIcon className="material-symbols-outlined">add</AddIcon>
               <p>Nova aula</p>
             </AddClassButton>
           </AddClassContainer>
-          <Swiper
-            modules={[Autoplay, Navigation, Pagination, Scrollbar, A11y]}
-            spaceBetween={12}
-            slidesPerView="auto"
-            loop={true}
-            pagination={{ clickable: true }}
-            navigation
-            onSwiper={swiper => console.log(swiper)}
-            className='isAdmin'
-          >
-            {dados.map((dado: Post, i) => (
-              <SwiperSlide key={i} style={{ width: '12.5rem' }}>
-                <Link href={`/post/${dado.postId}`}>
-                  <CarouselCard dado={dado} />
-                </Link>
-              </SwiperSlide>
-            ))}
-          </Swiper>
+          <Carousel newPosts={newPosts} isAdmin={true}/>
         </Container>
         <Container>
           <Title>Acervo da Escola</Title>
           <Paragraph>Todas as aulas postadas</Paragraph>
-          <AdminPostsTable dados={dados}/>
+          <ManagementPostsTable dados={posts} />
         </Container>
       </>
     );
   }
 
   return (
-    user &&
-    <div>
-      {user.role === 'PROFESSOR' ? (
-        <ProfessorContainer />
-      ) : user.role === 'ALUNO' ? (
-        <AlunoContainer />
-      ) : (
-        <AdminContainer />
-      )}
-    </div>
+    user && (
+      <div>
+        {user.role === 'PROFESSOR' ? (
+          <TeacherContainer />
+        ) : user.role === 'ALUNO' ? (
+          <AlunoContainer />
+        ) : (
+          <AdminContainer />
+        )}
+      </div>
+    )
   );
 }

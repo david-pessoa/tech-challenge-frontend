@@ -2,6 +2,7 @@ import styled from 'styled-components';
 
 import type { Post } from '../types/Posts';
 import { materias } from '../types/Materias';
+import { formatarData } from '../utils/functions';
 
 const Card = styled.div`
   height: 15.188rem;
@@ -64,21 +65,23 @@ type CarouselCardProps = {
 };
 
 export default function CarouselCard({ dado }: CarouselCardProps) {
-  const materia = materias[dado.materia];
+  const materiaName = dado?.subject?.nome ?? 'Geral';
+  const materiaConfig = materias[materiaName];
+  
 
   return (
     <Card>
-      <IconContainer $backgroundColor={materia.backgroundColor}>
-        <Icon $color={materia.color} className="material-symbols-outlined">
-          {materia.icon}
+      <IconContainer $backgroundColor={materiaConfig.backgroundColor}>
+        <Icon $color={materiaConfig.color} className="material-symbols-outlined">
+          {materiaConfig.icon}
         </Icon>
-        <MateriaTitle $color={materia.color}>{dado.materia}</MateriaTitle>
+        <MateriaTitle $color={materiaConfig.color}>{materiaName}</MateriaTitle>
       </IconContainer>
       <DescriptionContainer>
-        <MateriaSubTitle $color={materia.color}>{dado.materia}</MateriaSubTitle>
+        <MateriaSubTitle $color={materiaConfig.color}>{materiaName}</MateriaSubTitle>
         <PostTitle>{dado.titulo}</PostTitle>
         <p>
-          Publicado em {new Intl.DateTimeFormat('pt-BR').format(dado.createdAt)} por {dado.autor}
+          Publicado em {formatarData(dado.dataCriacao)} por {dado?.criadoPor?.nome}
         </p>
       </DescriptionContainer>
     </Card>
