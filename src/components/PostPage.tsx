@@ -2,7 +2,7 @@ import styled from 'styled-components';
 import type { Role } from '../types/Roles';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
-import { getPostById, createComment, getCommentsByPostId } from '../services/post.service';
+import { getPostById, createComment, getCommentsByPostId, updateComment, deleteComment } from '../services/post.service';
 import type { Post, CommentAPI } from '../types/Posts';
 
 import { useUser } from '../context/AuthContext';
@@ -36,7 +36,6 @@ function calcularTempoAtras(dataString: string) {
   if (diferencaHoras < 24) return `${diferencaHoras} hora${diferencaHoras !== 1 ? 's' : ''} atrás`;
   const diferencaDias = Math.floor(diferencaHoras / 24);
   if (diferencaDias < 30) return `${diferencaDias} dia${diferencaDias !== 1 ? 's' : ''} atrás`;
-  
   return new Intl.DateTimeFormat('pt-BR').format(data);
 }
 
@@ -101,6 +100,82 @@ const LoadingText = styled.p`
   font-weight: 600;
   color: ${({ theme }) => theme.colors.primary};
   font-family: ${({ theme }) => theme.typography.fontFamily};
+`;
+
+const ModalOverlay = styled.div`
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(2px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+`;
+
+const ModalContent = styled.div`
+  background: #FFFCF7;
+  padding: 2.5rem 3rem;
+  border-radius: 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+  box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.2);
+  max-width: 450px;
+  text-align: center;
+`;
+
+const ModalIconWrapper = styled.div`
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background-color: #F6D4D9;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #e64b63;
+`;
+
+const ModalText = styled.p`
+  font-size: 1.1rem;
+  color: #32434D;
+  font-weight: 600;
+  margin: 0;
+`;
+
+const ModalActions = styled.div`
+  display: flex;
+  gap: 1rem;
+  width: 100%;
+  justify-content: center;
+  margin-top: 0.5rem;
+`;
+
+const ModalButton = styled.button<{ $variant: 'cancel' | 'confirm' }>`
+  padding: 0.5rem 1.5rem;
+  border-radius: 20px;
+  font-family: inherit;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: opacity 0.2s;
+
+  ${({ $variant }) =>
+    $variant === 'cancel'
+      ? `
+        background: transparent;
+        border: 1px solid #e64b63;
+        color: #e64b63;
+      `
+      : `
+        background: #e64b63;
+        border: none;
+        color: #ffffff;
+      `}
+
+  &:hover { opacity: 0.8; }
+  &:disabled { opacity: 0.5; cursor: not-allowed; }
 `;
 
 const PageContainer = styled.main`
@@ -334,22 +409,53 @@ const CommentContent = styled.div`
   display: flex;
   flex-direction: column;
   gap: 6px;
+  width: 100%;
 `;
 
 const CommentHeader = styled.div`
   display: flex;
-  flex-direction: column;
+  justify-content: space-between;
+  width: 100%;
 `;
 
 const CommentTime = styled.span`
   color: #7892A1;
   font-size: 11px;
   margin-top: 4px;
+  display: block;
 `;
 
 const CommentText = styled.p`
   color: #32434D;
   font-size: 14px;
+  line-height: 1.4;
+`;
+
+const CommentActions = styled.div`
+  display: flex;
+  gap: 8px;
+  
+  button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    transition: opacity 0.2s;
+
+    &:hover { opacity: 0.7; }
+  }
+`;
+
+const EditIcon = styled.span`
+  color: #A15E6D;
+  font-size: 20px;
+`;
+
+const DeleteIcon = styled.span`
+  color: #E64B63;
+  font-size: 20px;
 `;
 
 const ReplyButton = styled.button`
@@ -374,6 +480,40 @@ const ReplyInputContainer = styled(InputContainer)`
   box-shadow: 0px 2px 2px 0px rgba(0, 0, 0, 0.15);
   
   textarea { min-height: 40px; }
+`;
+
+const EditInputContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  background-color: #FAF7EA;
+  padding: 10px;
+  border-radius: 8px;
+  box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
+
+  textarea {
+    width: 100%;
+    border: none;
+    resize: vertical;
+    font-size: 14px;
+    font-family: inherit;
+    outline: none;
+    color: #603C24;
+    background-color: #FAF7EA;
+    min-height: 40px;
+  }
+`;
+
+const EditActions = styled.div`
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+
+  button {
+    padding: 4px 12px;
+    font-size: 12px;
+  }
 `;
 
 const Doodle = styled.img<{ $top?: string, $right?: string, $left?: string, $bottom?: string, $width?: string }>`
@@ -402,36 +542,35 @@ export default function PostPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { user } = useUser();
-
   const [post, setPost] = useState<Post | null>(null);
   const [comments, setComments] = useState<CommentAPI[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  
   const [toast, setToast] = useState<{ message: string; status: ToastStatus } | null>(null);
-
   const [newComment, setNewComment] = useState('');
   const [isSubmittingComment, setIsSubmittingComment] = useState(false);
-
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
   const [replyContent, setReplyContent] = useState('');
   const [isSubmittingReply, setIsSubmittingReply] = useState(false);
+  const [editingCommentId, setEditingCommentId] = useState<string | null>(null);
+  const [editContent, setEditContent] = useState('');
+  const [isSubmittingEdit, setIsSubmittingEdit] = useState(false);
+  const [commentToDelete, setCommentToDelete] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const carregarAulaEComentarios = async () => {
     if (!id) return;
-    
     try {
       const postData = await getPostById(id);
       setPost(postData);
-      
       const commentsData = await getCommentsByPostId(id);
       setComments(commentsData);
 
       const imgSrc = postData.image ? `${BASE_URL}${postData.image}` : imagePost;
-      const img = new Image(); 
+      const img = new Image();
 
-      img.onload = () => setIsLoading(false); 
-      img.onerror = () => setIsLoading(false); 
-      img.src = imgSrc; 
+      img.onload = () => setIsLoading(false);
+      img.onerror = () => setIsLoading(false);
+      img.src = imgSrc;
     } catch (err) {
       console.error("Erro ao carregar post ou comentários:", err);
       setPost(null);
@@ -460,7 +599,7 @@ export default function PostPage() {
       await carregarAulaEComentarios();
       setToast({ message: 'Pergunta enviada com sucesso!', status: 'success' });
     } catch (error) {
-      setToast({ message: 'Ocorreu um erro ao enviar sua pergunta. Tente novamente.', status: 'error' });
+      setToast({ message: 'Ocorreu um erro ao enviar sua pergunta.', status: 'error' });
     } finally {
       setIsSubmittingComment(false);
     }
@@ -474,12 +613,50 @@ export default function PostPage() {
       await createComment(id, replyContent, parentId);
       setReplyContent('');
       setReplyingTo(null);
-      await carregarAulaEComentarios(); 
+      await carregarAulaEComentarios();
       setToast({ message: 'Resposta enviada com sucesso!', status: 'success' });
     } catch (error) {
-      setToast({ message: 'Ocorreu um erro ao enviar a resposta. Tente novamente.', status: 'error' });
+      setToast({ message: 'Ocorreu um erro ao enviar a resposta.', status: 'error' });
     } finally {
       setIsSubmittingReply(false);
+    }
+  };
+
+  const startEditing = (commentId: string, currentContent: string) => {
+    setEditingCommentId(commentId);
+    setEditContent(currentContent);
+  };
+
+  const handleEditSubmit = async (commentId: string) => {
+    if (!editContent.trim()) return;
+
+    setIsSubmittingEdit(true);
+    try {
+      await updateComment(commentId, editContent);
+      setEditingCommentId(null);
+      setEditContent('');
+      await carregarAulaEComentarios();
+      setToast({ message: 'Comentário atualizado!', status: 'success' });
+    } catch (error) {
+      setToast({ message: 'Erro ao atualizar o comentário.', status: 'error' });
+    } finally {
+      setIsSubmittingEdit(false);
+    }
+  };
+
+  const confirmDeleteComment = async () => {
+    if (!commentToDelete) return;
+
+    setIsDeleting(true);
+    try {
+      await deleteComment(commentToDelete);
+      setCommentToDelete(null);
+      await carregarAulaEComentarios();
+      setToast({ message: 'Comentário removido!', status: 'success' });
+    } catch (error) {
+      setToast({ message: 'Erro ao remover o comentário.', status: 'error' });
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -519,19 +696,49 @@ export default function PostPage() {
   const authorRole = post.criadoPor?.tipoUsuario || 'ADMIN';
   const authorImage = post.criadoPor?.image ? `${BASE_URL}${post.criadoPor.image}` : userDefaultImage;
   const isOwner = user?.nome === post.autor;
-  const isOverlayLoading = isSubmittingComment || isSubmittingReply;
+  const isOverlayLoading = isSubmittingComment || isSubmittingReply || isSubmittingEdit || isDeleting;
+
+  const canEditComment = (commentAuthor: string) => {
+    return user?.nome === commentAuthor;
+  };
+
+  const canDeleteComment = (commentAuthor: string) => {
+    if (user?.role === 'ADMIN') return true;
+    if (user?.role === 'PROFESSOR' && isOwner) return true;
+    if (user?.nome === commentAuthor) return true;
+    return false;
+  };
 
   return (
     <>
       {isOverlayLoading && (
-          <Overlay>
-              <Spinner />
-              <LoadingText>{isSubmittingComment ? 'Enviando pergunta...' : 'Enviando resposta...'}</LoadingText>
-          </Overlay>
+        <Overlay>
+          <Spinner />
+          <LoadingText>
+            {isDeleting ? 'Removendo...' : isSubmittingEdit ? 'Atualizando...' : 'Enviando...'}
+          </LoadingText>
+        </Overlay>
       )}
-    
+
+      {commentToDelete && (
+        <ModalOverlay>
+          <ModalContent>
+            <ModalIconWrapper>
+              <span className="material-symbols-outlined" style={{ fontSize: '32px' }}>error</span>
+            </ModalIconWrapper>
+            <ModalText>Você deseja remover este comentário?</ModalText>
+            <ModalActions>
+              <ModalButton $variant="cancel" onClick={() => setCommentToDelete(null)} disabled={isDeleting}>
+                Cancelar
+              </ModalButton>
+              <ModalButton $variant="confirm" onClick={confirmDeleteComment} disabled={isDeleting}>
+                {isDeleting ? 'Removendo...' : 'Remover'}
+              </ModalButton>
+            </ModalActions>
+          </ModalContent>
+        </ModalOverlay>
+      )}
       {toast && <Toast $status={toast.status}>{toast.message}</Toast>}
-      
       <Header />
       <PageContainer>
         <ContentWrapper>
@@ -577,19 +784,19 @@ export default function PostPage() {
           <QuestionsSection>
             <QuestionsTitle>Perguntas</QuestionsTitle>
             <InputContainer>
-              <StyledTextarea 
-                placeholder="Faça uma pergunta" 
+              <StyledTextarea
+                placeholder="Faça uma pergunta"
                 value={newComment}
                 onChange={(e) => setNewComment(e.target.value)}
                 disabled={isSubmittingComment}
               />
-              <SubmitButton 
-                onClick={handleCommentSubmit} 
+              <SubmitButton
+                onClick={handleCommentSubmit}
                 disabled={isSubmittingComment || !newComment.trim()}
               >
                 {isSubmittingComment ? 'Enviando...' : 'Enviar'}
               </SubmitButton>
-            </InputContainer>           
+            </InputContainer>
 
             <CommentsList>
               {comments.length === 0 ? (
@@ -597,66 +804,145 @@ export default function PostPage() {
               ) : (
                 comments.map((comment) => (
                   <CommentGroup key={comment.id}>
-                    {/* --- PERGUNTA PRINCIPAL --- */}
                     <CommentItem>
                       {comment.image ? (
-                        <Circle 
-                          src={`${BASE_URL}${comment.image}`} 
-                          alt={comment.user} 
-                          style={{ width: '32px', height: '32px' }} 
-                        />
+                        <Circle src={`${BASE_URL}${comment.image}`} alt={comment.user} style={{ width: '32px', height: '32px' }} />
                       ) : (
                         <AvatarCircle $bg={getAvatarColor(comment.user)}>
                           {comment.user.charAt(0).toUpperCase()}
                         </AvatarCircle>
                       )}
-                      
                       <CommentContent>
                         <CommentHeader>
-                          <AuthorName>{comment.user}</AuthorName>
-                          <CommentTime>{calcularTempoAtras(comment.dataCriacao)}</CommentTime>
+                          <div>
+                            <AuthorName>{comment.user}</AuthorName>
+                            <CommentTime>{calcularTempoAtras(comment.dataCriacao)}</CommentTime>
+                          </div>
+
+                          {(canEditComment(comment.user) || canDeleteComment(comment.user)) && (
+                            <CommentActions>
+                              {canEditComment(comment.user) && (
+                                <button onClick={() => startEditing(comment.id, comment.conteudo)} title="Editar">
+                                  <EditIcon className="material-symbols-outlined">edit</EditIcon>
+                                </button>
+                              )}
+                              {canDeleteComment(comment.user) && (
+                                <button onClick={() => setCommentToDelete(comment.id)} title="Excluir">
+                                  <DeleteIcon className="material-symbols-outlined">delete</DeleteIcon>
+                                </button>
+                              )}
+                            </CommentActions>
+                          )}
                         </CommentHeader>
-                        <CommentText>{comment.conteudo}</CommentText>
-                        
-                        {isOwner && !comment.childComment && (
+
+                        {editingCommentId === comment.id ? (
+                          <EditInputContainer>
+                            <textarea
+                              value={editContent}
+                              onChange={(e) => setEditContent(e.target.value)}
+                              disabled={isSubmittingEdit}
+                            />
+                            <EditActions>
+                              <SubmitButton
+                                onClick={() => setEditingCommentId(null)}
+                                disabled={isSubmittingEdit}
+                                style={{ background: 'transparent', color: '#e64b63', border: '1px solid #e64b63' }}
+                              >
+                                Cancelar
+                              </SubmitButton>
+                              <SubmitButton
+                                onClick={() => handleEditSubmit(comment.id)}
+                                disabled={isSubmittingEdit || !editContent.trim()}
+                              >
+                                Salvar
+                              </SubmitButton>
+                            </EditActions>
+                          </EditInputContainer>
+                        ) : (
+                          <CommentText>{comment.conteudo}</CommentText>
+                        )}
+
+                        {isOwner && !comment.childComment && editingCommentId !== comment.id && (
                           <ReplyButton onClick={() => setReplyingTo(replyingTo === comment.id ? null : comment.id)}>
                             {replyingTo === comment.id ? 'Cancelar resposta' : 'Responder'}
                           </ReplyButton>
                         )}
                       </CommentContent>
                     </CommentItem>
-
                     {replyingTo === comment.id && (
                       <ReplyInputContainer>
-                        <StyledTextarea 
-                          placeholder="Escreva sua resposta..." 
+                        <StyledTextarea
+                          placeholder="Escreva sua resposta..."
                           value={replyContent}
                           onChange={(e) => setReplyContent(e.target.value)}
                           disabled={isSubmittingReply}
                         />
-                        <SubmitButton 
-                          onClick={() => handleReplySubmit(comment.id)} 
+                        <SubmitButton
+                          onClick={() => handleReplySubmit(comment.id)}
                           disabled={isSubmittingReply || !replyContent.trim()}
                         >
                           {isSubmittingReply ? 'Enviando...' : 'Responder'}
                         </SubmitButton>
                       </ReplyInputContainer>
                     )}
-
                     {comment.childComment && (
                       <CommentItem $isReply>
-                        <Circle 
-                          src={comment.childComment.image ? `${BASE_URL}${comment.childComment.image}` : authorImage} 
-                          $role={authorRole} 
-                          alt={post.autor} 
-                          style={{ width: '32px', height: '32px' }} 
+                        <Circle
+                          src={comment.childComment.image ? `${BASE_URL}${comment.childComment.image}` : authorImage}
+                          $role={authorRole}
+                          alt={post.autor}
+                          style={{ width: '32px', height: '32px' }}
                         />
                         <CommentContent>
                           <CommentHeader>
-                            <AuthorName>{post.autor}</AuthorName>
-                            <CommentTime>{calcularTempoAtras(comment.childComment.dataCriacao)}</CommentTime>
+                            <div>
+                              <AuthorName>{post.autor}</AuthorName>
+                              <CommentTime>{calcularTempoAtras(comment.childComment.dataCriacao)}</CommentTime>
+                            </div>
+
+                            {(canEditComment(post.autor) || canDeleteComment(post.autor)) && (
+                              <CommentActions>
+                                {canEditComment(post.autor) && (
+                                  <button onClick={() => startEditing(comment.childComment!.id, comment.childComment!.conteudo)} title="Editar">
+                                    <EditIcon className="material-symbols-outlined">edit</EditIcon>
+                                  </button>
+                                )}
+                                {canDeleteComment(post.autor) && (
+                                  <button onClick={() => setCommentToDelete(comment.childComment!.id)} title="Excluir">
+                                    <DeleteIcon className="material-symbols-outlined">delete</DeleteIcon>
+                                  </button>
+                                )}
+                              </CommentActions>
+                            )}
                           </CommentHeader>
-                          <CommentText>{comment.childComment.conteudo}</CommentText>
+
+                          {editingCommentId === comment.childComment.id ? (
+                            <EditInputContainer>
+                              <textarea
+                                value={editContent}
+                                onChange={(e) => setEditContent(e.target.value)}
+                                disabled={isSubmittingEdit}
+                              />
+                              <EditActions>
+                                <SubmitButton
+                                  onClick={() => setEditingCommentId(null)}
+                                  disabled={isSubmittingEdit}
+                                  style={{ background: 'transparent', color: '#e64b63', border: '1px solid #e64b63' }}
+                                >
+                                  Cancelar
+                                </SubmitButton>
+                                <SubmitButton
+                                  onClick={() => handleEditSubmit(comment.childComment!.id)}
+                                  disabled={isSubmittingEdit || !editContent.trim()}
+                                >
+                                  Salvar
+                                </SubmitButton>
+                              </EditActions>
+                            </EditInputContainer>
+                          ) : (
+                            <CommentText>{comment.childComment.conteudo}</CommentText>
+                          )}
+
                         </CommentContent>
                       </CommentItem>
                     )}

@@ -123,3 +123,32 @@ export async function getCommentsByPostId(postId: string): Promise<CommentAPI[]>
     return []; 
   }
 }
+
+export async function updateComment(id: string, conteudo: string): Promise<void> {
+  try {
+    await axios.patch(`${BASE_URL}/post/comment/${id}`, 
+      { conteudo }, 
+      {
+        headers: {
+          Authorization: `Bearer ${getLocalStorageToken()}`,
+        },
+      }
+    );
+  } catch (error) {
+    console.error(`Erro ao atualizar comentário ${id}:`, error);
+    throw new Error(getBackendErrorMessage(error));
+  }
+}
+
+export async function deleteComment(id: string): Promise<void> {
+  try {
+    await axios.delete(`${BASE_URL}/post/comment/${id}`, {
+      headers: {
+        Authorization: `Bearer ${getLocalStorageToken()}`,
+      },
+    });
+  } catch (error) {
+    console.error(`Erro ao deletar comentário ${id}:`, error);
+    throw new Error(getBackendErrorMessage(error));
+  }
+}
