@@ -178,6 +178,7 @@ export default function UserList() {
     (location.state as { toastMessage?: string } | null)?.toastMessage ?? ''
   );
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [toastSucess, setToastSucess] = useState<boolean>(false);
 
   useEffect(() => {
     document.title = 'Edify | Lista de Usuários';
@@ -214,17 +215,22 @@ export default function UserList() {
   }
 
   function handleSuccessDeleteMessage() {
-    setToastMessage(`O usuário foi deletado com sucesso`);
+    setUsers(prevUserlist =>
+      prevUserlist.filter((user: User) => user.id !== selectedUser?.id)
+    );
+    setToastSucess(true);
+    setToastMessage('O usuário foi deletado com sucesso');
   }
 
   function handleDeleteErrorMessage() {
-    setToastMessage(`Erro ao deletar usuário`);
+    setToastSucess(false);
+    setToastMessage('Erro ao deletar usuário');
   }
 
   return (
     <>
       {toastMessage && (
-        <Toast>
+        <Toast $isSucess={toastSucess}>
           <span>{toastMessage}</span>
           <ToastCloseButton
             type="button"

@@ -1,3 +1,5 @@
+import type { Role } from "./Roles";
+
 export type Post = {
   postId: string;
   userId?: string | null;
@@ -5,6 +7,7 @@ export type Post = {
   titulo: string;
   descricao: string;
   conteudo?: string;
+  foiVisto?: boolean;
   autor: string;
   image?: string | null;
   subject?: {
@@ -14,7 +17,7 @@ export type Post = {
   criadoPor?: {
     userId: string;
     nome: string;
-    tipoUsuario: string;
+    tipoUsuario: Role;
   };
   createdAt: Date;
   editedAt: Date;

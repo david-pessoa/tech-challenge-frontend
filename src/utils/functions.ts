@@ -24,3 +24,17 @@ export function buildApiImageUrl(image: string | null) {
 
   return `${BASE_URL}${image}`;
 }
+
+export function formatarData(data: string | Date | undefined) {
+  if(!data) {
+    return '--'
+  }
+
+  const dataConvertida = new Date(data);
+
+  if (Number.isNaN(dataConvertida.getTime())) {
+    return '--';
+  }
+
+  return new Intl.DateTimeFormat('pt-BR').format(dataConvertida);
+};
