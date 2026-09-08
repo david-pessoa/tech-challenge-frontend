@@ -125,6 +125,18 @@ export const GlobalStyles = createGlobalStyle`
     td.bold, td.descp {
       max-width: 1rem
     }
+
+    h1, h2 {
+    font-size: 15px;
+  }
+  
+  h3 {
+    font-size: 1rem;
+  }
+
+  p {
+    font-size: 10px;
+  }
   }
 
   }

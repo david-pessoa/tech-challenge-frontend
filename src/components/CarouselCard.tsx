@@ -15,6 +15,9 @@ const Card = styled.div`
     width: 9.875rem;
     height: 13.438rem;
   }
+  @media (max-width: 600px) {
+    width: 7.938rem;
+  }
 `;
 
 type BackgroundProps = {
@@ -82,7 +85,8 @@ const PostTitle = styled.h5`
   text-overflow: ellipsis;
 
   @media (max-width: 900px) {
-    font-size: 14px
+    font-size: 14px;
+    margin-bottom: 8px;
   }
 `;
 

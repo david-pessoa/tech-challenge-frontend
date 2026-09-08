@@ -19,6 +19,11 @@ const InputContainer = styled.div`
     min-height: 2.438rem;
     padding: 9px;
   }
+
+  @media (max-width: 600px) {
+    min-height: 1.313rem;
+    padding: 3px;
+  }
 `;
 
 const InnerInputContainer = styled.div`
@@ -26,6 +31,15 @@ const InnerInputContainer = styled.div`
   align-items: center;
   justify-content: space-between;
   height: 100%;
+
+  @media (max-width: 600px) {
+    min-height: 1.313rem;
+    padding: 0 6px;
+
+    span {
+      font-size: 1rem
+    }
+  }
 `;
 
 const ResultsList = styled.ul`
@@ -53,7 +67,6 @@ const ListItemLink = styled.a`
   display: flex;
   margin-top: 10px;
   align-items: center;
-  gap: 2.5rem;
   color: inherit;
   text-decoration: none;
   height: 2rem;
@@ -66,6 +79,11 @@ const ListItemLink = styled.a`
   &:active {
     background-color: #e0a7e3;
   }
+
+  @media (max-width: 600px) {
+    margin: 0;
+    height: 1.5rem;
+  }
 `;
 
 const ListItem = styled.li`
@@ -77,6 +95,10 @@ const ListItem = styled.li`
     max-width: 15rem;
     white-space: nowrap;
   }
+
+  @media (max-width: 600px) {
+    gap: 1rem;
+  }
 `;
 
 const InputSearch = styled.input`
@@ -86,6 +108,10 @@ const InputSearch = styled.input`
   width: 100%;
   &:focus {
     outline: none;
+  }
+
+  @media (max-width: 600px) {
+    font-size: 10px;
   }
 `;
 

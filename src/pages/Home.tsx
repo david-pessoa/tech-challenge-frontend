@@ -59,6 +59,10 @@ const TopContainer = styled.div`
   @media (max-width: 1000px) {
     gap: 0;
   }
+  @media (max-width: 600px) {
+    justify-content: flex-start;
+    margin-bottom: 1.125rem;
+  }
 `;
 
 const TitleContainer = styled.div`
@@ -68,8 +72,12 @@ const TitleContainer = styled.div`
   min-width: 15.688rem;
 
   @media (max-width: 900px) {
+    min-width: 12rem;
     gap: 0;
-    min-width: 11.063rem;
+  }
+
+  @media (max-width: 600px) {
+    min-width: 7.7rem;
   }
 `;
 
@@ -96,6 +104,10 @@ const DoodleImage = styled.img`
   position: absolute;
   top: 180px;
   right: 130px;
+
+  @media (max-width: 900px) {
+    width: 2.813rem
+  }
 `;
 
 const ProfileImage = styled.img`
@@ -103,11 +115,22 @@ const ProfileImage = styled.img`
   border-radius: 50%;
   aspect-ratio: 1 / 1;
   width: 8.75rem;
-  margin-top: 20px;
+
+  @media (max-width: 900px) {
+    width: 10.125rem;
+    margin-top: 0;
+  }
+  @media (max-width: 600px) {
+    width: 5.688rem
+  }
 `;
 
 const StudentName = styled.h3`
   font-size: 1.25rem;
+
+  @media (max-width: 600px) {
+    font-size: 11px;
+  }
 `;
 
 const Figcaption = styled.figcaption`

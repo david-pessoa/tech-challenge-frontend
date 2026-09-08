@@ -27,6 +27,7 @@ const Background = styled.header<{ $role: Role }>`
   }
   @media (max-width: 500px) {
     height: 2.75rem;
+    margin-bottom: 1rem;
   }
 `;
 

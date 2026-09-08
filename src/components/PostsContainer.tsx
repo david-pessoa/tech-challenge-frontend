@@ -14,6 +14,10 @@ import { getAllPosts } from '../services/post.service';
 const Container = styled.div`
   width: 100%;
   margin-bottom: 3.625rem;
+
+  @media (max-width: 900px) {
+    margin-bottom: 2.188rem
+  }
 `;
 
 const Title = styled.h2`
@@ -27,6 +31,9 @@ const Title = styled.h2`
 const Paragraph = styled.p`
   margin-bottom: 1.813rem;
 
+  @media (max-width: 900px) {
+    margin-bottom: 1.563rem;
+  }
   @media (max-width: 900px) {
     margin-bottom: 1.563rem;
   }
@@ -51,11 +58,19 @@ const AddClassButton = styled.a`
   display: flex;
   align-items: center;
   justify-content: space-between;
+
+  @media (max-width: 600px) {
+    width: 4.75rem;
+  }
 `;
 
 const AddIcon = styled.span`
   color: #ee798a;
   font-size: 32px;
+
+  @media (max-width: 600px) {
+    font-size: 24px;
+  }
 `;
 
 export default function PostsContainer() {

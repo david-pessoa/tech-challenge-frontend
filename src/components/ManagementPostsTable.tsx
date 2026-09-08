@@ -12,13 +12,14 @@ type ManagementPostsTableProps = {
   dados: Post[];
 };
 
+const TableContainer = styled.div`
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+`;
+
 const Table = styled.table`
   width: 100%;
-  margin-bottom: 3.625rem;
-
-  @media (max-width: 900px) {
-    margin-bottom: 2.5rem;
-  }
 `;
 
 const Tr = styled.tr`
@@ -138,16 +139,16 @@ const EditIcon = styled.span`
   font-size: 24px;
 
   @media (max-width: 600px) {
-    font-size: 12px
+    font-size: 12px;
   }
 `;
 
 const DeleteIcon = styled.span`
   color: #e64b63;
   font-size: 24px;
-  
+
   @media (max-width: 600px) {
-    font-size: 12px
+    font-size: 12px;
   }
 `;
 
@@ -198,67 +199,69 @@ export default function ManagementPostsTable({ dados }: ManagementPostsTableProp
           showErrorMessage={handleDeleteErrorMessage}
         />
       )}
-      <Table>
-        <thead>
-          <tr>
-            <th>Matérias</th>
-            <th>Título</th>
-            <th>Descrição</th>
-            <th>Data de Criação</th>
-            <th>Data de Modificação</th>
-            {user?.role === 'ADMIN' && <th>Professor</th>}
-            <th>Ações</th>
-          </tr>
-        </thead>
-        <tbody>
-          {postList.length === 0 ? (
+      <TableContainer>
+        <Table>
+          <thead>
             <tr>
-              <Td colSpan={user?.role === 'ADMIN' ? 7 : 6}>Não há posts para visualizar</Td>
+              <th>Matérias</th>
+              <th>Título</th>
+              <th>Descrição</th>
+              <th>Data de Criação</th>
+              <th>Data de Modificação</th>
+              {user?.role === 'ADMIN' && <th>Professor</th>}
+              <th>Ações</th>
             </tr>
-          ) : (
-            postList.map((post, i) => (
-              <Tr key={i}>
-                <Td>
-                  <MateriaContainer>
-                    <IconContainer
-                      $backgroundColor={materias[post?.subject?.nome ?? 'Geral'].backgroundColor}
-                      $color={materias[post?.subject?.nome ?? 'Geral'].color}
-                    >
-                      <Icon className="material-symbols-outlined">
-                        {materias[post?.subject?.nome ?? 'Geral'].icon}
-                      </Icon>
-                    </IconContainer>
-                    <MateriaTitle $color={materias[post?.subject?.nome ?? 'Geral'].color}>
-                      {post?.subject?.nome}
-                    </MateriaTitle>
-                  </MateriaContainer>
-                </Td>
-                <Td className="bold">
-                  <Link href={`/post/${post.postId}`}>{post.titulo}</Link>
-                </Td>
-                <Td className='descp'>{post.descricao}</Td>
-                <Td>{formatarData(post?.dataCriacao)}</Td>
-                <Td>{formatarData(post?.dataModificacao)}</Td>
-                {user?.role === 'ADMIN' && (
-                  <Td>{post?.criadoPor?.nome ? post.criadoPor.nome : '--'}</Td>
-                )}
-                <Td>
-                  <ActionContainer>
-                    <EditButton href={`/post/edit/${post.postId}`}>
-                      <EditIcon className="material-symbols-outlined">edit</EditIcon>
-                    </EditButton>
-                    {user?.role === 'ADMIN' && (
-                      <DeleteButton onClick={() => openDeleteModal(post)}>
-                        <DeleteIcon className="material-symbols-outlined">delete</DeleteIcon>
-                      </DeleteButton>
-                    )}
-                  </ActionContainer>
-                </Td>
-              </Tr>
-            ))
-          )}
-        </tbody>
-      </Table>
+          </thead>
+          <tbody>
+            {postList.length === 0 ? (
+              <tr>
+                <Td colSpan={user?.role === 'ADMIN' ? 7 : 6}>Não há posts para visualizar</Td>
+              </tr>
+            ) : (
+              postList.map((post, i) => (
+                <Tr key={i}>
+                  <Td>
+                    <MateriaContainer>
+                      <IconContainer
+                        $backgroundColor={materias[post?.subject?.nome ?? 'Geral'].backgroundColor}
+                        $color={materias[post?.subject?.nome ?? 'Geral'].color}
+                      >
+                        <Icon className="material-symbols-outlined">
+                          {materias[post?.subject?.nome ?? 'Geral'].icon}
+                        </Icon>
+                      </IconContainer>
+                      <MateriaTitle $color={materias[post?.subject?.nome ?? 'Geral'].color}>
+                        {post?.subject?.nome}
+                      </MateriaTitle>
+                    </MateriaContainer>
+                  </Td>
+                  <Td className="bold">
+                    <Link href={`/post/${post.postId}`}>{post.titulo}</Link>
+                  </Td>
+                  <Td className="descp">{post.descricao}</Td>
+                  <Td>{formatarData(post?.dataCriacao)}</Td>
+                  <Td>{formatarData(post?.dataModificacao)}</Td>
+                  {user?.role === 'ADMIN' && (
+                    <Td>{post?.criadoPor?.nome ? post.criadoPor.nome : '--'}</Td>
+                  )}
+                  <Td>
+                    <ActionContainer>
+                      <EditButton href={`/post/edit/${post.postId}`}>
+                        <EditIcon className="material-symbols-outlined">edit</EditIcon>
+                      </EditButton>
+                      {user?.role === 'ADMIN' && (
+                        <DeleteButton onClick={() => openDeleteModal(post)}>
+                          <DeleteIcon className="material-symbols-outlined">delete</DeleteIcon>
+                        </DeleteButton>
+                      )}
+                    </ActionContainer>
+                  </Td>
+                </Tr>
+              ))
+            )}
+          </tbody>
+        </Table>
+      </TableContainer>
     </>
   );
 }
