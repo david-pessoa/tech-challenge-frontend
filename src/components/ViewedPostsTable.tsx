@@ -9,6 +9,16 @@ type ViewedPostsTableProps = {
   dados: Post[];
 };
 
+const TableContainer = styled.div`
+  width: 100%;
+  overflow-x: visible;
+  -webkit-overflow-scrolling: touch;
+
+  @media (max-width: 600px) {
+    overflow-x: auto;
+  }
+`;
+
 const Table = styled.table`
   width: 100%;
 `;
@@ -24,6 +34,12 @@ const Tr = styled.tr`
 const Td = styled.td`
   max-width: 118px;
   text-align: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  @media (max-width: 600px) {
+    font-size: 10px;
+  }
 `;
 
 const MateriaContainer = styled.div`
@@ -57,6 +73,11 @@ const IconContainer = styled.div<ColorProps>`
     height: 42px;
     width: 42px;
   }
+
+  @media (max-width: 600px) {
+    height: 31px;
+    width: 31px;
+  }
 `;
 
 const Icon = styled.span`
@@ -64,6 +85,10 @@ const Icon = styled.span`
 
   @media (max-width: 900px) {
     font-size: 20px;
+  }
+
+  @media (max-width: 600px) {
+    font-size: 15px;
   }
 `;
 
@@ -78,66 +103,72 @@ const MateriaTitle = styled.p<FontColorProps>`
   @media (max-width: 900px) {
     font-size: 10px;
   }
+
+  @media (max-width: 600px) {
+    font-size: 8px;
+  }
 `;
 
 export default function ViewedPostsTable({ dados }: ViewedPostsTableProps) {
   const navigate = useNavigate();
-  
+
   return (
-    <Table>
-      <thead>
-        <tr>
-          <th>Matérias</th>
-          <th>Título</th>
-          <th>Descrição</th>
-          <th>Data de Criação</th>
-          <th>Data de Modificação</th>
-          <th>Professor</th>
-        </tr>
-      </thead>
-      <tbody>
-        {dados.length === 0 ? (
+    <TableContainer>
+      <Table>
+        <thead>
           <tr>
-            <Td colSpan={6}>Não há posts para visualizar</Td>
+            <th>Matérias</th>
+            <th>Título</th>
+            <th>Descrição</th>
+            <th>Data de Criação</th>
+            <th>Data de Modificação</th>
+            <th>Professor</th>
           </tr>
-        ) : (dados.map((post, i) => (
-          <Tr
-            key={i}
-            onClick={() => navigate(`/post/${post.postId}`)}
-            onKeyDown={event => {
-              if (event.key === 'Enter' || event.key === ' ') {
-                event.preventDefault();
-                navigate(`/post/${post.postId}`);
-              }
-            }}
-            role="link"
-            tabIndex={0}
-          >
-            <Td>
-              <MateriaContainer>
-                <IconContainer
-                  $backgroundColor={materias[post.subject?.nome ?? 'Geral'].backgroundColor}
-                  $color={materias[post.subject?.nome ?? 'Geral'].color}
-                >
-                  <Icon className="material-symbols-outlined">
-                    {materias[post.subject?.nome ?? 'Geral'].icon}
-                  </Icon>
-                </IconContainer>
-                <MateriaTitle $color={materias[post.subject?.nome ?? 'Geral'].color}>
-                  {post.subject?.nome ?? 'Geral'}
-                </MateriaTitle>
-              </MateriaContainer>
-            </Td>
-            <Td className="bold">
-              {post.titulo}
-            </Td>
-            <Td>{post.descricao}</Td>
-            <Td>{formatarData(post.dataCriacao)}</Td>
-            <Td>{formatarData(post.dataModificacao)}</Td>
-            <Td>{post.criadoPor?.nome}</Td>
-          </Tr>
-        )))}
-      </tbody>
-    </Table>
+        </thead>
+        <tbody>
+          {dados.length === 0 ? (
+            <tr>
+              <Td colSpan={6}>Não há posts para visualizar</Td>
+            </tr>
+          ) : (
+            dados.map((post, i) => (
+              <Tr
+                key={i}
+                onClick={() => navigate(`/post/${post.postId}`)}
+                onKeyDown={event => {
+                  if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    navigate(`/post/${post.postId}`);
+                  }
+                }}
+                role="link"
+                tabIndex={0}
+              >
+                <Td>
+                  <MateriaContainer>
+                    <IconContainer
+                      $backgroundColor={materias[post.subject?.nome ?? 'Geral'].backgroundColor}
+                      $color={materias[post.subject?.nome ?? 'Geral'].color}
+                    >
+                      <Icon className="material-symbols-outlined">
+                        {materias[post.subject?.nome ?? 'Geral'].icon}
+                      </Icon>
+                    </IconContainer>
+                    <MateriaTitle $color={materias[post.subject?.nome ?? 'Geral'].color}>
+                      {post.subject?.nome ?? 'Geral'}
+                    </MateriaTitle>
+                  </MateriaContainer>
+                </Td>
+                <Td className="bold">{post.titulo}</Td>
+                <Td>{post.descricao}</Td>
+                <Td>{formatarData(post.dataCriacao)}</Td>
+                <Td>{formatarData(post.dataModificacao)}</Td>
+                <Td>{post.criadoPor?.nome}</Td>
+              </Tr>
+            ))
+          )}
+        </tbody>
+      </Table>
+    </TableContainer>
   );
 }

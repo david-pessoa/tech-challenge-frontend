@@ -21,6 +21,16 @@ const MessageContainer = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
+
+  @media (max-width: 900px) {
+    width: 400px;
+    margin: 0 auto;
+  }
+
+  @media (max-width: 600px) {
+    width: 70vw;
+    
+  }
 `;
 
 const Message = styled.p`

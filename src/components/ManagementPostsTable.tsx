@@ -5,7 +5,7 @@ import { materias } from '../types/Materias';
 import { formatarData } from '../utils/functions';
 import { useState } from 'react';
 import { useUser } from '../context/AuthContext';
-import { Toast, ToastCloseButton, type ToastStatus } from './ToastComponents';
+import { Toast, ToastCloseButton } from './ToastComponents';
 import DeletePostModal from './DeletePostModal';
 
 type ManagementPostsTableProps = {

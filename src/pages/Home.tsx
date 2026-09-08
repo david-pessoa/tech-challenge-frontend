@@ -42,7 +42,6 @@ const MainContentContainer = styled.div`
   @media (max-width: 1200px) {
     width: 58.27vw;
   }
-
   @media (max-width: 900px) {
     width: 100%;
   }
@@ -97,16 +96,26 @@ const ProfileImageContainer = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
+  position: relative;
+  width: fit-content;
+  margin: 0 auto;
 `;
 
 const DoodleImage = styled.img`
   width: 84.28px;
   position: absolute;
-  top: 180px;
-  right: 130px;
+  top: -15px;
+  left: 67px;
+  z-index: 1;
 
   @media (max-width: 900px) {
-    width: 2.813rem
+    top: -35px;
+    left: 85px
+  }
+  @media (max-width: 600px) {
+    width: 2.813rem;
+    top: -20px;
+    left: 45px;
   }
 `;
 
@@ -115,13 +124,14 @@ const ProfileImage = styled.img`
   border-radius: 50%;
   aspect-ratio: 1 / 1;
   width: 8.75rem;
+  margin-top: 1.25rem;
 
   @media (max-width: 900px) {
     width: 10.125rem;
     margin-top: 0;
   }
   @media (max-width: 600px) {
-    width: 5.688rem
+    width: 5.688rem;
   }
 `;
 
