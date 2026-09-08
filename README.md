@@ -32,7 +32,7 @@ são:
 ### Michele
  - Desenvolvimento da tela de listagem de usuários
  - Desenvolvimento da tela de criação/edição de usuários
- - Desenvolvimento de modais de confirmação de exclusão de usuário, mensagens de erro e feedbacks de operação.]
+ - Desenvolvimento de modais de confirmação de exclusão de usuário, mensagens de erro e feedbacks de operação.
  - Criação de testes unitários
  - Criação de testes end-to-end
  - Documentação
