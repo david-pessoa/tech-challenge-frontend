@@ -1,21 +1,16 @@
 import styled from 'styled-components';
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { getPosts } from '../services/post.service';
 
-import { Autoplay, Navigation, Pagination, Scrollbar, A11y } from 'swiper/modules';
-import { Swiper, SwiperSlide } from 'swiper/react';
-
-import CarouselCard from './CarouselCard';
+import Carousel from './Carousel';
 import ViewedPostsTable from './ViewedPostsTable';
-import ProfessorPostsTable from './ProfessorPostsTable';
-import AdminPostsTable from './AdminPostsTable';
+import ManagementPostsTable from './ManagementPostsTable';
 
 import 'swiper/css';
 import '../styles/swiper-style.css';
 import type { Post } from '../types/Posts';
 import { useUser } from '../context/AuthContext';
-
+import { useEffect, useState } from 'react';
+import { getAllPosts } from '../services/post.service';
+import { useNavigate } from 'react-router-dom';
 
 const Container = styled.div`
   width: 64.4135vw;
@@ -30,12 +25,6 @@ const Paragraph = styled.p`
   margin-bottom: 1.813rem;
 `;
 
-const Link = styled.a`
-  color: inherit;
-  text-decoration: none;
-  display: block;
-`;
-
 const AddClassContainer = styled.div`
   display: flex;
   justify-content: space-between;
@@ -43,7 +32,7 @@ const AddClassContainer = styled.div`
   margin-bottom: 1.813rem;
 `;
 
-const AddClassButton = styled.button`
+const AddClassButton = styled.a`
   height: 100%;
   width: 6.938rem;
   border: none;
@@ -66,67 +55,52 @@ const AddIcon = styled.span`
 
 export default function PostsContainer() {
   const { user } = useUser();
-  const navigate = useNavigate();
-  const [apiPosts, setApiPosts] = useState<Post[]>([]);
+  const [posts, setPosts] = useState<Post[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    getPosts()
-      .then((data) => {
-        setApiPosts(data);
-      })
-      .catch((error) => {
-        console.error("Erro ao buscar posts:", error);
-      })
-      .finally(() => {
-        setIsLoading(false);
-      });
+    async function returnAllPosts() {
+      try {
+        const postsList = await getAllPosts();
+        setPosts(postsList);
+      } catch (error) {
+        setPosts([]);
+      }
+      setIsLoading(false);
+    }
+    returnAllPosts();
   }, []);
 
-  const handlePostDeleted = (deletedId: string) => {
-    setApiPosts((prevPosts) => prevPosts.filter((post) => post.postId !== deletedId));
-  };
 
   function AlunoContainer() {
+    // Os posts já visualizados são exibidos na tabela
+    const viewedPosts = posts.filter(p => p.foiVisto != false)
+    // Obtém os posts não vistos e exibe no carrossel
+    const newPosts = posts.filter(p => p.foiVisto != true)
+
     return (
       <>
         <Container>
           <Title>Novas Aulas</Title>
           <Paragraph>Últimas postagens de aulas feitas pelos seus professores</Paragraph>
+          {isLoading ? (<Paragraph>Carregando aulas...</Paragraph>): <Carousel newPosts={newPosts} isAdmin={false}/>}
           
-          {isLoading ? (
-            <Paragraph>Carregando aulas...</Paragraph>
-          ) : (
-            <Swiper
-              modules={[Autoplay, Navigation, Pagination, Scrollbar, A11y]}
-              spaceBetween={12}
-              slidesPerView="auto"
-              loop={false} 
-              pagination={{ clickable: true }}
-              navigation
-            >
-              {apiPosts.map((dado: Post) => (
-                <SwiperSlide key={dado.postId} style={{ width: '12.5rem' }}>
-                  <Link href={`/post/${dado.postId}`}>
-                    <CarouselCard dado={dado} />
-                  </Link>
-                </SwiperSlide>
-              ))}
-            </Swiper>
-          )}
         </Container>
         <Container>
           <Title>Aulas Finalizadas</Title>
           <Paragraph>Você já finalizou estas atividades</Paragraph>
-          <ViewedPostsTable dados={isLoading ? [] : apiPosts} />
+          <ViewedPostsTable dados={isLoading ? [] : viewedPosts} />
         </Container>
       </>
     );
   }
+  
+  function TeacherContainer() {
+    // Os posts do próprio professor
+    const myPosts = posts.filter(p => p.criadoPor?.userId === user?.id)
 
- function ProfessorContainer() {
-    const minhasAulas = apiPosts.filter((post) => post.autor === user?.nome);
-    const outrasAulas = apiPosts.filter((post) => post.autor !== user?.nome);
+    // Obtém os posts de outros professores
+    const otherPosts = posts.filter(p => p.criadoPor?.userId !== user?.id)
 
     return (
       <>
@@ -134,7 +108,7 @@ export default function PostsContainer() {
           <Title>Suas aulas</Title>
           <AddClassContainer>
             <Paragraph>Veja as aulas que você postou</Paragraph>
-            <AddClassButton onClick={() => navigate('/post/new')}>
+            <AddClassButton href='/post/new'>
               <AddIcon className="material-symbols-outlined">add</AddIcon>
               <p>Nova aula</p>
             </AddClassButton>
@@ -142,7 +116,7 @@ export default function PostsContainer() {
           {isLoading ? (
             <Paragraph>Carregando aulas...</Paragraph>
           ) : (
-            <ProfessorPostsTable dados={minhasAulas} />
+            <ManagementPostsTable dados={myPosts} />
           )}
         </Container>
         <Container>
@@ -151,7 +125,7 @@ export default function PostsContainer() {
           {isLoading ? (
             <Paragraph>Carregando aulas...</Paragraph>
           ) : (
-            <ViewedPostsTable dados={outrasAulas} />
+            <ViewedPostsTable dados={otherPosts} />
           )}
         </Container>
       </>
@@ -159,47 +133,26 @@ export default function PostsContainer() {
   }
 
   function AdminContainer() {
+     // Obtém os posts não vistos e exibe no carrossel
+    const newPosts = posts.filter(p => p.foiVisto != true)
+
     return (
       <>
         <Container>
           <Title>Novas aulas</Title>
           <AddClassContainer>
             <Paragraph>Últimas postagens de aulas feitas pelos professores</Paragraph>
-            <AddClassButton onClick={() => navigate('/post/new')}>
+            <AddClassButton href='/post/new'>
               <AddIcon className="material-symbols-outlined">add</AddIcon>
               <p>Nova aula</p>
             </AddClassButton>
           </AddClassContainer>
-
-          {isLoading ? (
-            <Paragraph>Carregando aulas...</Paragraph>
-          ) : (
-            <Swiper
-              modules={[Autoplay, Navigation, Pagination, Scrollbar, A11y]}
-              spaceBetween={12}
-              slidesPerView="auto"
-              loop={false}
-              pagination={{ clickable: true }}
-              navigation
-              className='isAdmin'
-            >
-              {apiPosts.map((dado: Post) => (
-                <SwiperSlide key={dado.postId} style={{ width: '12.5rem' }}>
-                  <Link href={`/post/${dado.postId}`}>
-                    <CarouselCard dado={dado} />
-                  </Link>
-                </SwiperSlide>
-              ))}
-            </Swiper>
-          )}
+          {isLoading ? (<Paragraph>Carregando aulas...</Paragraph>): <Carousel newPosts={newPosts} isAdmin={true}/>}
         </Container>
         <Container>
           <Title>Acervo da Escola</Title>
           <Paragraph>Todas as aulas postadas</Paragraph>
-          <AdminPostsTable
-            dados={isLoading ? [] : apiPosts}
-            onDeleteSuccess={handlePostDeleted}
-          />
+          <ManagementPostsTable dados={isLoading ? [] : posts} />
         </Container>
       </>
     );
@@ -209,7 +162,7 @@ export default function PostsContainer() {
     user && (
       <div>
         {user.role === 'PROFESSOR' ? (
-          <ProfessorContainer />
+          <TeacherContainer />
         ) : user.role === 'ALUNO' ? (
           <AlunoContainer />
         ) : (

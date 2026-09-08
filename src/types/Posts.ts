@@ -2,33 +2,26 @@ import type { Role } from "./Roles";
 
 export type Post = {
   postId: string;
+  userId?: string | null;
   materia: string;
   titulo: string;
   descricao: string;
+  conteudo?: string;
+  foiVisto?: boolean;
   autor: string;
-  createdAt: Date;
-  editedAt: Date;
-  conteudo?: string; 
-  image?: string; 
+  image?: string | null;
+  subject?: {
+    id: string;
+    nome: string;
+  };
   criadoPor?: {
+    userId: string;
     nome: string;
     tipoUsuario: Role;
     image: string | null;
   };
-};
-
-export type CommentAPI = {
-  id: string;
-  childComment: {
-    id: string;
-    conteudo: string;
-    dataCriacao: string;
-    dataModificacao: string;
-    image?: string;
-  } | null;
-  user: string;
-  conteudo: string;
-  dataCriacao: string;
-  dataModificacao: string;
-  image?: string; 
+  createdAt: Date;
+  editedAt: Date;
+  dataCriacao?: Date;
+  dataModificacao?: Date;
 };

@@ -5,22 +5,22 @@ export type MateriaConfig = {
 };
 
 export const materias: Record<string, MateriaConfig> = {
-  Ciências: {
+  'Ciências': {
     backgroundColor: '#A4CDC6',
     color: '#287C6D',
     icon: 'microbiology',
   },
-  História: {
+  'História': {
     backgroundColor: '#E0A7E3',
     color: '#902995',
     icon: 'account_balance',
   },
-  Português: {
+  'Português': {
     backgroundColor: '#FCBBA3',
     color: '#AE4E2B',
     icon: 'menu_book',
   },
-  Matemática: {
+  'Matemática': {
     backgroundColor: '#A7CEE3',
     color: '#1D648A',
     icon: 'function',
@@ -29,5 +29,15 @@ export const materias: Record<string, MateriaConfig> = {
     backgroundColor: '#F3CE99',
     color: '#9D6719',
     icon: 'globe',
+  },
+  Geral: {
+    backgroundColor: '#A4CDC6',
+    color: '#287C6D',
+    icon: 'microbiology',
+  },
+  'Ensino Religioso': {
+    backgroundColor: '#A4CDC6',
+    color: '#287C6D',
+    icon: 'microbiology',
   },
 };

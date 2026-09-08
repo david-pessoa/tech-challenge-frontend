@@ -1,15 +1,17 @@
 import styled from 'styled-components';
+import { Link, useLocation } from 'react-router-dom';
 import type { Role } from '../types/Roles';
 
 import bubbles from '../assets/bubbles.png';
 import galaxy from '../assets/galaxy.png';
 import userImage from '../assets/user-default-image.png';
-import { capitalize } from '../utils/functions';
+import { buildApiImageUrl, capitalize } from '../utils/functions';
 import { useEffect, useState } from 'react';
 import type { User } from '../types/User';
 import { getAllUsers } from '../services/user.service';
-
-const BASE_URL = import.meta.env.VITE_BASE_URL;
+import DeleteUserModal from './DeleteUserModal';
+import { useUser } from '../context/AuthContext';
+import { Toast, ToastCloseButton } from './ToastComponents';
 
 type UserListPreviewProps = {
   role: Role;
@@ -25,7 +27,6 @@ const Message = styled.p`
   font-weight: 500;
   font-style: Medium;
   font-size: 24px;
-  leading-trim: NONE;
   line-height: 100%;
   letter-spacing: 0%;
   text-align: center;
@@ -35,13 +36,11 @@ const Message = styled.p`
 
 const GalaxyImage = styled.img`
   width: 164.43px;
-  angle: 26.48 deg;
   margin-right: auto;
 `;
 
 const BubblesImage = styled.img`
   width: 102.12px;
-  angle: -65.39 deg;
   margin-left: auto;
 `;
 
@@ -98,10 +97,15 @@ const ActionContainer = styled.div`
   margin-right: 10px;
 `;
 
-const ActionButton = styled.button`
+const DeleteButton = styled.button`
   border: none;
   background: transparent;
   cursor: pointer;
+`;
+
+const EditButton = styled.a`
+  border: none;
+  background: transparent;
 `;
 
 const EditIcon = styled.span`
@@ -114,10 +118,9 @@ const DeleteIcon = styled.span`
   font-size: 24px;
 `;
 
-const AccessUserListButton = styled.a`
+const AccessUserListButton = styled(Link)`
   color: #32434d;
   font-weight: 600;
-  text-decoration: none;
   display: flex;
   align-items: center;
 
@@ -146,21 +149,69 @@ const AccessUserListButton = styled.a`
 `;
 
 export default function UserListPreview({ role }: UserListPreviewProps) {
-  const [allUsersList, setAllUsersList] = useState<User[]>([]);
+  const { user: loggedUser } = useUser();
+  const location = useLocation();
 
-  //Edit and delete handlers
+  const [allUsersList, setAllUsersList] = useState<User[]>([]);
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [toastMessage, setToastMessage] = useState(
+    (location.state as { toastMessage?: string } | null)?.toastMessage ?? ''
+  );
+  const [toastSucess, setToastSucess] = useState<boolean>(false);
 
   useEffect(() => {
     async function getAllUsersList() {
       const usersList = await getAllUsers();
-      const miniList = usersList.slice(0, 5); // .filter(user => user.id !== userId);
+      const miniList = usersList.filter((user: User) => user.id !== loggedUser?.id).slice(0, 5);
       setAllUsersList(miniList);
     }
     if (role !== 'ALUNO') getAllUsersList();
   }, []);
 
+  async function openDeleteModal(user: User) {
+    setSelectedUser(user);
+  }
+
+  function handleCancel() {
+    setSelectedUser(null);
+  }
+
+  function handleSuccessDeleteMessage() {
+    setAllUsersList(prevUserlist =>
+      prevUserlist.filter((user: User) => user.id !== selectedUser?.id)
+    );
+    setToastSucess(true);
+    setToastMessage('O usuário foi deletado com sucesso');
+  }
+
+  function handleDeleteErrorMessage() {
+    setToastSucess(false);
+    setToastMessage('Erro ao deletar usuário');
+  }
+
   return (
     <>
+      {toastMessage && (
+        <Toast $isSucess={toastSucess}>
+          <span>{toastMessage}</span>
+          <ToastCloseButton
+            type="button"
+            onClick={() => setToastMessage('')}
+            aria-label="Fechar mensagem"
+          >
+            <span className="material-symbols-outlined">close</span>
+          </ToastCloseButton>
+        </Toast>
+      )}
+      {selectedUser && (
+        <DeleteUserModal
+          user={selectedUser}
+          onCancel={handleCancel}
+          showSucessMessage={handleSuccessDeleteMessage}
+          showErrorMessage={handleDeleteErrorMessage}
+        />
+      )}
+
       {role === 'ALUNO' ? (
         <MessageContainer>
           <GalaxyImage src={galaxy} alt="Desenho de Galáxia" />
@@ -171,12 +222,15 @@ export default function UserListPreview({ role }: UserListPreviewProps) {
         <UserListContainer>
           <h3>Todos os Usuários</h3>
           <UserList>
-            {allUsersList.map((user, i) => (
-              <Item key={i}>
+            {allUsersList.map(user => (
+              <Item key={user.id}>
                 <div>
                   <UserProfilePhoto
-                    src={user?.image ? `${BASE_URL}${user?.image}` : userImage}
+                    src={user?.image ? buildApiImageUrl(user.image) : userImage}
                     alt={`Foto de perfil da ${user.nome}`}
+                    onError={event => {
+                      event.currentTarget.src = userImage;
+                    }}
                   />
                 </div>
                 <UserNameRoleContainer>
@@ -186,17 +240,23 @@ export default function UserListPreview({ role }: UserListPreviewProps) {
                   </UserRole>
                 </UserNameRoleContainer>
                 <ActionContainer>
-                  <ActionButton>
+                  <EditButton href={`/user/edit/${user.id}`} aria-label={`Editar ${user.nome}`}>
                     <EditIcon className="material-symbols-outlined">edit</EditIcon>
-                  </ActionButton>
-                  <ActionButton>
-                    <DeleteIcon className="material-symbols-outlined">delete</DeleteIcon>
-                  </ActionButton>
+                  </EditButton>
+                  {role === 'ADMIN' && user.id !== loggedUser?.id && (
+                    <DeleteButton
+                      type="button"
+                      onClick={() => openDeleteModal(user)}
+                      aria-label={`Deletar ${user.nome}`}
+                    >
+                      <DeleteIcon className="material-symbols-outlined">delete</DeleteIcon>
+                    </DeleteButton>
+                  )}
                 </ActionContainer>
               </Item>
             ))}
           </UserList>
-          <AccessUserListButton href="/user/list">
+          <AccessUserListButton to="/user/list">
             <span className="sentence">Acessar lista completa</span>
             <span className="material-symbols-outlined arrow-icon">arrow_right_alt</span>
           </AccessUserListButton>

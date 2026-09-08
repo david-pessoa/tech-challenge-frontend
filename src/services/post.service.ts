@@ -1,68 +1,25 @@
 import axios from 'axios';
-import type { Post , CommentAPI } from '../types/Posts';
+
+import type { Post } from '../types/Posts';
 import { getLocalStorageToken } from '../utils/functions';
 import { getBackendErrorMessage } from './auth.service';
 
 const BASE_URL = import.meta.env.VITE_BASE_URL + '/api';
 
-export async function getPosts(): Promise<Post[]> {
+export async function getAllPosts() {
   try {
-    const response = await axios.get(`${BASE_URL}/posts`, {
+    const response = await axios.get<Post[]>(`${BASE_URL}/posts`, {
       headers: {
         Authorization: `Bearer ${getLocalStorageToken()}`,
       },
     });
-    
-    return response.data.map((item: any) => ({
-      postId: item.postId,
-      materia: item.subject.nome,
-      titulo: item.titulo,
-      descricao: item.descricao,
-      autor: item.criadoPor.nome,
-      createdAt: new Date(item.dataCriacao),
-      editedAt: new Date(item.dataModificacao),
-      conteudo: item.conteudo,
-      image: item.image,
-      criadoPor: {
-        nome: item.criadoPor.nome,
-        tipoUsuario: item.criadoPor.tipoUsuario,
-        image: item.criadoPor.image,
-      },
-    }));
+    return response.data;
   } catch (error) {
-    console.error('Erro na obtenção da lista de posts:', error);
+    console.error('Erro na obtenção de lista de posts:', error);
     throw new Error(getBackendErrorMessage(error));
   }
 }
 
-export async function getPostById(id: string): Promise<Post> {
-  try {
-    const posts = await getPosts();
-    const post = posts.find((p) => p.postId === id);
-    
-    if (!post) {
-      throw new Error('Post não encontrado');
-    }
-    
-    return post;
-  } catch (error) {
-    console.error(`Erro na obtenção do post ${id}:`, error);
-    throw error;
-  }
-}
-
-export async function deletePost(id: string): Promise<void> {
-  try {
-    await axios.delete(`${BASE_URL}/posts/${id}`, {
-      headers: {
-        Authorization: `Bearer ${getLocalStorageToken()}`,
-      },
-    });
-  } catch (error) {
-    console.error(`Erro ao deletar o post ${id}:`, error);
-    throw new Error(getBackendErrorMessage(error));
-  }
-}
 
 export async function createPost(postData: FormData): Promise<void> {
   try {
@@ -92,63 +49,48 @@ export async function updatePost(id: string, postData: FormData): Promise<void> 
   }
 }
 
-export async function createComment(postId: string, comentario: string, parentCommentId?: string): Promise<void> {
+export async function getPostById(id: string) {
   try {
-    const payload = parentCommentId 
-      ? { conteudo: comentario, parentCommentId } 
-      : { conteudo: comentario };
-
-    await axios.post(`${BASE_URL}/post/comment/${postId}`, payload, {
-        headers: {
-          Authorization: `Bearer ${getLocalStorageToken()}`,
-        },
-      }
-    );
-  } catch (error) {
-    console.error(`Erro ao enviar comentário no post ${postId}:`, error);
-    throw new Error(getBackendErrorMessage(error));
-  }
-}
-
-export async function getCommentsByPostId(postId: string): Promise<CommentAPI[]> {
-  try {
-    const response = await axios.get(`${BASE_URL}/post/comment/list/${postId}`, {
+    const response = await axios.get(`${BASE_URL}/posts/${id}`, {
       headers: {
         Authorization: `Bearer ${getLocalStorageToken()}`,
       },
     });
     return response.data;
   } catch (error) {
-    console.error(`Erro ao buscar comentários do post ${postId}:`, error);
-    return []; 
-  }
-}
-
-export async function updateComment(id: string, conteudo: string): Promise<void> {
-  try {
-    await axios.patch(`${BASE_URL}/post/comment/${id}`, 
-      { conteudo }, 
-      {
-        headers: {
-          Authorization: `Bearer ${getLocalStorageToken()}`,
-        },
-      }
-    );
-  } catch (error) {
-    console.error(`Erro ao atualizar comentário ${id}:`, error);
+    console.error('Erro na obtenção de post pelo ID:', error);
     throw new Error(getBackendErrorMessage(error));
   }
 }
 
-export async function deleteComment(id: string): Promise<void> {
+
+export async function deletePost(id: string) {
   try {
-    await axios.delete(`${BASE_URL}/post/comment/${id}`, {
+    const response = await axios.delete(`${BASE_URL}/posts/${id}`, {
       headers: {
         Authorization: `Bearer ${getLocalStorageToken()}`,
       },
     });
+    return response.data;
   } catch (error) {
-    console.error(`Erro ao deletar comentário ${id}:`, error);
+    console.error('Erro na deletar um post:', error);
+    throw new Error(getBackendErrorMessage(error));
+  }
+}
+
+export async function searchPost(text: string) {
+  try {
+    const response = await axios.get(`${BASE_URL}/posts/search`, {
+      params: {
+        termo: text
+      },
+      headers: {
+        Authorization: `Bearer ${getLocalStorageToken()}`,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Erro na deletar um post:', error);
     throw new Error(getBackendErrorMessage(error));
   }
 }

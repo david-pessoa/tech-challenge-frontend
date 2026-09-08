@@ -2,8 +2,9 @@ import styled from 'styled-components';
 import type { Role } from '../types/Roles';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
-import { getPostById, createComment, getCommentsByPostId, updateComment, deleteComment } from '../services/post.service';
-import type { Post, CommentAPI } from '../types/Posts';
+import { getPostById } from '../services/post.service';
+import type { Post } from '../types/Posts';
+import type { Comment } from '../types/Comment';
 
 import { useUser } from '../context/AuthContext';
 import Header from '../components/Header';
@@ -15,6 +16,7 @@ import cloudIcon from '../assets/cloudIcon.png';
 import sunIcon from '../assets/sunIcon.png';
 import flowerIcon from '../assets/flowerIcon.png';
 import userDefaultImage from '../assets/user-default-image.png';
+import { createComment, deleteComment, getCommentsByPostId, updateComment } from '../services/comment.service';
 
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 
@@ -543,7 +545,7 @@ export default function PostPage() {
   const navigate = useNavigate();
   const { user } = useUser();
   const [post, setPost] = useState<Post | null>(null);
-  const [comments, setComments] = useState<CommentAPI[]>([]);
+  const [comments, setComments] = useState<Comment[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [toast, setToast] = useState<{ message: string; status: ToastStatus } | null>(null);
   const [newComment, setNewComment] = useState('');

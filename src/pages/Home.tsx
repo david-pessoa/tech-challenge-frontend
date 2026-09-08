@@ -1,8 +1,6 @@
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import PostsContainer from '../components/PostsContainer';
-import { useState, useEffect } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
 
 import sparkle from '../assets/sparkle.png';
 import redDoodle from '../assets/red-doodle.png';
@@ -15,24 +13,12 @@ import userImage from '../assets/user-default-image.png';
 import { capitalize } from '../utils/functions';
 import Calendar from '../components/Calendar';
 import UserListPreview from '../components/UserListPreview';
+import { useEffect, useState } from 'react';
+import { searchPost } from '../services/post.service';
+import type { Post } from '../types/Posts';
+import { useDebounce } from '../hooks/debounce';
 
 const BASE_URL = import.meta.env.VITE_BASE_URL;
-
-type ToastStatus = 'success' | 'error';
-
-const Toast = styled.div<{ $status: ToastStatus }>`
-  position: fixed;
-  top: 1.5rem;
-  right: 1.5rem;
-  z-index: 1000;
-  width: min(22rem, calc(100% - 2rem));
-  border-left: 0.35rem solid ${({ $status }) => ($status === 'success' ? '#6FB9A9' : '#e64b63')};
-  border-radius: 0.75rem;
-  background: #FAF7EA;
-  box-shadow: 0 0.5rem 1.5rem rgba(50, 67, 77, 0.16);
-  color: #32434D;
-  padding: 1rem 1.25rem;
-`;
 
 const Main = styled.main`
   margin-left: 6.188rem;
@@ -53,15 +39,61 @@ const TitleContainer = styled.div`
 `;
 
 const InputContainer = styled.div`
+  position: relative;
   background-color: #fde9a06b;
   border-radius: 20px;
-  height: 2.625rem;
+  min-height: 2.625rem;
   width: 40.5rem;
+  display: flex;
+  flex-direction: column;
+  padding: 15px;
+  box-sizing: border-box;
+`;
+
+const InnerInputContainer = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 19px;
+  height: 100%;
+`;
+
+const ResultsList = styled.ul`
+  position: absolute;
+  width: 100%;
+  padding: 15px;
+  left: 0;
+  top: calc(70%);
   box-sizing: border-box;
+  z-index: 100;
+  list-style: none;
+  margin-top: 5px;
+  background-color: #fef4d0;
+  border-radius: 0 0 20px 20px;
+`;
+
+const ListItemLink = styled.a`
+  display: flex;
+  margin-top: 10px;
+  align-items: center;
+  gap: 2.5rem;
+  color: inherit;
+  text-decoration: none;
+  height: 2rem;
+  border-radius: 15px;
+
+  &:hover {
+    background-color: #fbbba3;
+  }
+
+  &:active {
+    background-color: #e0a7e3;
+  }
+`;
+
+const ListItem = styled.li`
+  display: flex;
+  gap: 2.5rem;
+  margin-left: 10px;
 `;
 
 const InputSearch = styled.input`
@@ -123,30 +155,32 @@ const CalendarTitle = styled.h2`
 export default function Home() {
   document.title = 'Edify | Home';
   const { user } = useUser();
-  const location = useLocation();
-  const navigate = useNavigate();
-  const [toast, setToast] = useState<{ message: string; status: ToastStatus } | null>(null);
+  const [searchedPostsList, setSearchedPostsList] = useState<Post[]>([]);
+  const [searchedText, setSearchedText] = useState('');
+  const [hideSearchResults, setHideSearchResults] = useState(true);
+  const debouncedQuery = useDebounce(searchedText, 300);
 
-  useEffect(() => {
-    if (location.state?.toastMessage) {
-      setToast({
-        message: location.state.toastMessage,
-        status: location.state.toastStatus || 'success'
-      });
-      navigate(location.pathname, { replace: true, state: {} });
+  async function handleInputChange() {
+    if (searchedText === '') {
+      setSearchedPostsList([]);
+      return;
     }
-  }, [location, navigate]);
+    try {
+      const relatedPosts = await searchPost(searchedText);
+      setSearchedPostsList(relatedPosts.slice(0, 10));
+    } catch (error) {
+      setSearchedPostsList([]);
+    }
+  }
 
   useEffect(() => {
-    if (!toast) return;
-    const timeout = window.setTimeout(() => setToast(null), 4000);
-    return () => window.clearTimeout(timeout);
-  }, [toast]);
+    if (debouncedQuery) {
+      handleInputChange();
+    }
+  }, [debouncedQuery]);
 
- return (
+  return (
     <>
-      {toast && <Toast $status={toast.status}>{toast.message}</Toast>}
-      
       <Header />
       <Main>
         <div>
@@ -155,9 +189,27 @@ export default function Home() {
               <h1>Tela Inicial</h1>
               <img src={sparkle} alt="Sparkle" />
             </TitleContainer>
-            <InputContainer>
-              <InputSearch type="text" placeholder="Pesquise aqui..." />
-              <span className="material-symbols-outlined">search</span>
+            <InputContainer onClick={() => setHideSearchResults(false)}>
+              <InnerInputContainer>
+                <InputSearch
+                  type="text"
+                  placeholder="Pesquise aqui..."
+                  value={searchedText}
+                  onChange={e => setSearchedText(e.target.value)}
+                  onBlur={() => setHideSearchResults(true)}
+                />
+                <span className="material-symbols-outlined">search</span>
+              </InnerInputContainer>
+              <ResultsList hidden={hideSearchResults}>
+                {searchedPostsList.map((post, i) => (
+                  <ListItemLink href={`/post/${post.postId}`} target="_blank">
+                    <ListItem key={i}>
+                      <p>{post.titulo}</p>
+                      <p>{post.descricao}</p>
+                    </ListItem>
+                  </ListItemLink>
+                ))}
+              </ResultsList>
             </InputContainer>
           </TopContainer>
           <PostsContainer />
@@ -168,7 +220,10 @@ export default function Home() {
             <Figure>
               <ProfileImageContainer>
                 <DoodleImage src={redDoodle} alt="" />
-                <ProfileImage src={user?.image ? `${BASE_URL}${user?.image}` : userImage} alt={`Foto de ${user?.nome}`} />
+                <ProfileImage
+                  src={user?.image ? `${BASE_URL}${user?.image}` : userImage}
+                  alt={`Foto de ${user?.nome}`}
+                />
               </ProfileImageContainer>
               <Figcaption>
                 {user && <StudentName>{user.nome}</StudentName>}
