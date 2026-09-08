@@ -21,16 +21,33 @@ de aulas, gerenciamento de usuários e uma interface adaptada a diferentes taman
 O escopo deste repositório é o front-end da aplicação. As responsabilidades cobertas por ele
 são:
 
-<!--(mostrar as responsabilidades separadas por pessoa)-->
+### David
+- Desenvolvimento dos componentes da Tela Inicial
+- Integração do front-end aos endpoints de autenticação, posts e usuários.
+- Implementação da busca de posts com debounce e apresentação de resultados.
+- Desenvolvimento das tabelas e carrosséis para exibição dos posts
+- Desenvolvimento de modais de confirmação de remoção de post
+- Documentação
 
-- Construir as páginas e componentes da interface do Edify.
-- Implementar a navegação entre páginas públicas e privadas.
-- Integrar o front-end aos endpoints de autenticação, posts e usuários.
-- Controlar a sessão do usuário e as permissões por perfil.
-- Criar os fluxos de cadastro, edição e remoção de usuários disponíveis na interface.
-- Implementar busca de posts com debounce e apresentação de resultados.
-- Desenvolver tabelas, carrosséis, modais, mensagens de erro e feedbacks de operação.
-- Aplicar tema visual, responsividade e estilos compartilhados com styled-components.
+### Michele
+ - Desenvolvimento da tela de listagem de usuários
+ - Desenvolvimento da tela de criação/edição de usuários
+ - Desenvolvimento de modais de confirmação de exclusão de usuário, mensagens de erro e feedbacks de operação.]
+ - Criação de testes unitários
+ - Criação de testes end-to-end
+ - Documentação
+
+### Beatriz
+- Desenvolvimento da tela de leitura de post
+- Desenvolvimento da tela de criação/edição de post
+- Integração do front-end aos endpoints de comentários de post
+- Implementação da funcionalidade de comentários em posts
+- Criação de tela de carregamento
+
+### Victor
+- Desenvolvimento da tela de login
+- Implementação da lógica de autenticação
+- Telas de erro 404 e 503
 
 ## Funcionalidades
 
