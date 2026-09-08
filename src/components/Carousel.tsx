@@ -33,7 +33,7 @@ export default function Carousel({ newPosts, isAdmin }: CarouselProps) {
       className={isAdmin ? 'isAdmin' : ''}
     >
       {newPosts.map((dado: Post, i) => (
-        <SwiperSlide key={i} style={{ width: screenWidth >= 900 ? '12.5rem' : '9.875rem'}}>
+        <SwiperSlide key={i} style={{ width: screenWidth > 900 ? '12.5rem' : '9.875rem'}}>
           <Link href={`/post/${dado.postId}`}>
             <CarouselCard dado={dado} />
           </Link>

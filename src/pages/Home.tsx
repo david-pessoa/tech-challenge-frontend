@@ -43,8 +43,8 @@ const MainContentContainer = styled.div`
     width: 58.27vw;
   }
 
-  @media (max-width: 854px) {
-    width: 65vw;
+  @media (max-width: 900px) {
+    width: 100%;
   }
 `;
 
@@ -56,7 +56,7 @@ const TopContainer = styled.div`
   margin-bottom: 2.125rem;
   width: 100%;
 
-  @media (max-width: 900px) {
+  @media (max-width: 1000px) {
     gap: 0;
   }
 `;
@@ -80,7 +80,9 @@ const SparkleImage = styled.img`
 `;
 
 const Aside = styled.aside`
-  width: 36.81vw;
+  @media (max-width: 900px) {
+    padding-left: 1.25rem;
+  }
 `;
 
 const ProfileImageContainer = styled.div`
@@ -132,7 +134,7 @@ export default function Home() {
   return (
     <>
       <Header />
-      {screenWidth < 600 && (
+      {screenWidth <= 900 && (
         <Aside>
           <h1>Perfil</h1>
           <div>
@@ -163,7 +165,7 @@ export default function Home() {
           </TopContainer>
           <PostsContainer />
         </MainContentContainer>
-        {screenWidth >= 600 && (
+        {screenWidth > 900 && (
           <Aside>
             <h1>Perfil</h1>
             <div>
@@ -191,11 +193,11 @@ export default function Home() {
                 {user && <Calendar role={user.role} />}
               </div>
             )}
-            {user && screenWidth >= 860 && <UserListPreview role={user.role} />}
+            {user && screenWidth >= 900 && <UserListPreview role={user.role} />}
           </Aside>
         )}
       </Main>
-      {user && screenWidth < 860 && <UserListPreview role={user.role} />}
+      {user && screenWidth < 900 && <UserListPreview role={user.role} />}
       <Footer />
     </>
   );

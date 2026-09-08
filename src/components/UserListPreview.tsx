@@ -62,6 +62,12 @@ const UserListContainer = styled.div`
   border: 1px solid #f0d2c7;
   border-radius: 7px;
   box-shadow: 0px 1px 4.9px 0px #0000005c;
+
+  @media (max-width: 900px) {
+    padding: 1rem 6px;
+    width: 90%;
+    margin: 0 auto 3.625rem auto;
+  }
 `;
 
 const UserList = styled.ul`

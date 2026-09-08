@@ -121,6 +121,11 @@ export const GlobalStyles = createGlobalStyle`
     }
   }
 
+  @media (max-width: 600px) {
+    td.bold, td.descp {
+      max-width: 1rem
+    }
+  }
 
   }
 

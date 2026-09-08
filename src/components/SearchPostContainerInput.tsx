@@ -14,13 +14,17 @@ const InputContainer = styled.div`
   flex-direction: column;
   padding: 15px;
   box-sizing: border-box;
+
+  @media (max-width: 900px) {
+    min-height: 2.438rem;
+    padding: 9px;
+  }
 `;
 
 const InnerInputContainer = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 19px;
   height: 100%;
 `;
 
@@ -36,6 +40,13 @@ const ResultsList = styled.ul`
   margin-top: 5px;
   background-color: #fef4d0;
   border-radius: 0 0 20px 20px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  @media (max-width: 900px) {
+    top: calc(55%);
+    padding: 9px
+  }
 `;
 
 const ListItemLink = styled.a`
@@ -60,7 +71,6 @@ const ListItemLink = styled.a`
 const ListItem = styled.li`
   display: flex;
   gap: 2.5rem;
-  margin-left: 10px;
   & p {
     overflow: hidden;
     text-overflow: ellipsis;

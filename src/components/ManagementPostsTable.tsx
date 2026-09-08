@@ -8,13 +8,17 @@ import { useUser } from '../context/AuthContext';
 import { Toast, ToastCloseButton, type ToastStatus } from './ToastComponents';
 import DeletePostModal from './DeletePostModal';
 
-type AdminPostsTableProps = {
+type ManagementPostsTableProps = {
   dados: Post[];
 };
 
 const Table = styled.table`
   width: 100%;
   margin-bottom: 3.625rem;
+
+  @media (max-width: 900px) {
+    margin-bottom: 2.5rem;
+  }
 `;
 
 const Tr = styled.tr`
@@ -30,6 +34,10 @@ const Td = styled.td`
   text-align: center;
   overflow: hidden;
   text-overflow: ellipsis;
+
+  @media (max-width: 600px) {
+    font-size: 10px;
+  }
 `;
 
 const MateriaContainer = styled.div`
@@ -64,10 +72,15 @@ const IconContainer = styled.div<ColorProps>`
   justify-content: center;
   align-items: center;
   margin-bottom: 5px;
-  
-    @media (max-width: 900px) {
+
+  @media (max-width: 900px) {
     height: 42px;
     width: 42px;
+  }
+
+  @media (max-width: 600px) {
+    height: 31px;
+    width: 31px;
   }
 `;
 
@@ -76,6 +89,10 @@ const Icon = styled.span`
 
   @media (max-width: 900px) {
     font-size: 20px;
+  }
+
+  @media (max-width: 600px) {
+    font-size: 15px;
   }
 `;
 
@@ -89,6 +106,10 @@ const MateriaTitle = styled.p<FontColorProps>`
 
   @media (max-width: 900px) {
     font-size: 10px;
+  }
+
+  @media (max-width: 600px) {
+    font-size: 8px;
   }
 `;
 
@@ -115,14 +136,22 @@ const EditButton = styled.a`
 const EditIcon = styled.span`
   color: #a15e6d;
   font-size: 24px;
+
+  @media (max-width: 600px) {
+    font-size: 12px
+  }
 `;
 
 const DeleteIcon = styled.span`
   color: #e64b63;
   font-size: 24px;
+  
+  @media (max-width: 600px) {
+    font-size: 12px
+  }
 `;
 
-export default function ManagementPostsTable({ dados }: AdminPostsTableProps) {
+export default function ManagementPostsTable({ dados }: ManagementPostsTableProps) {
   const [toast, setToast] = useState<{ message: string; status: boolean } | null>(null);
   const [postList, setPostList] = useState<Post[]>(dados);
   const [selectedPost, setSelectedPost] = useState<Post | null>(null);
@@ -207,7 +236,7 @@ export default function ManagementPostsTable({ dados }: AdminPostsTableProps) {
                 <Td className="bold">
                   <Link href={`/post/${post.postId}`}>{post.titulo}</Link>
                 </Td>
-                <Td>{post.descricao}</Td>
+                <Td className='descp'>{post.descricao}</Td>
                 <Td>{formatarData(post?.dataCriacao)}</Td>
                 <Td>{formatarData(post?.dataModificacao)}</Td>
                 {user?.role === 'ADMIN' && (
