@@ -74,6 +74,11 @@ export const GlobalStyles = createGlobalStyle`
     height: 100%;
   }
 
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+
   @media (max-width: 1000px) {
     h1 {
       font-size: 1.5rem

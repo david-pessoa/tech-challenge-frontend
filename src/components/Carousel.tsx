@@ -30,7 +30,6 @@ export default function Carousel({ newPosts, isAdmin }: CarouselProps) {
       loop={true}
       pagination={{ clickable: true }}
       navigation
-      onSwiper={swiper => console.log(swiper)}
       className={isAdmin ? 'isAdmin' : ''}
     >
       {newPosts.map((dado: Post, i) => (
