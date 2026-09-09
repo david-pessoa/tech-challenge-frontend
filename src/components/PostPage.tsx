@@ -16,8 +16,15 @@ import cloudIcon from '../assets/cloudIcon.png';
 import sunIcon from '../assets/sunIcon.png';
 import flowerIcon from '../assets/flowerIcon.png';
 import userDefaultImage from '../assets/user-default-image.png';
-import { createComment, deleteComment, getCommentsByPostId, updateComment } from '../services/comment.service';
+import {
+  createComment,
+  deleteComment,
+  getCommentsByPostId,
+  updateComment,
+} from '../services/comment.service';
 import { Toast } from './ToastComponents';
+import type { User } from '../types/User';
+import { getUserById } from '../services/user.service';
 
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 
@@ -34,7 +41,8 @@ function calcularTempoAtras(dataString: string) {
 
   if (diferencaSegundos < 60) return 'Agora mesmo';
   const diferencaMinutos = Math.floor(diferencaSegundos / 60);
-  if (diferencaMinutos < 60) return `${diferencaMinutos} minuto${diferencaMinutos !== 1 ? 's' : ''} atrás`;
+  if (diferencaMinutos < 60)
+    return `${diferencaMinutos} minuto${diferencaMinutos !== 1 ? 's' : ''} atrás`;
   const diferencaHoras = Math.floor(diferencaMinutos / 60);
   if (diferencaHoras < 24) return `${diferencaHoras} hora${diferencaHoras !== 1 ? 's' : ''} atrás`;
   const diferencaDias = Math.floor(diferencaHoras / 24);
@@ -64,20 +72,22 @@ const LoadingWrapper = styled.div`
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-height: 60vh; 
+  min-height: 60vh;
   width: 100%;
 `;
 
 const Spinner = styled.div`
   width: 60px;
   height: 60px;
-  border: 6px solid #F6D4D9;
+  border: 6px solid #f6d4d9;
   border-top-color: ${({ theme }) => theme.colors.primary};
   border-radius: 50%;
   animation: spin 1s linear infinite;
 
   @keyframes spin {
-    to { transform: rotate(360deg); }
+    to {
+      transform: rotate(360deg);
+    }
   }
 `;
 
@@ -101,7 +111,7 @@ const ModalOverlay = styled.div`
 `;
 
 const ModalContent = styled.div`
-  background: #FFFCF7;
+  background: #fffcf7;
   padding: 2.5rem 3rem;
   border-radius: 1rem;
   display: flex;
@@ -117,7 +127,7 @@ const ModalIconWrapper = styled.div`
   width: 64px;
   height: 64px;
   border-radius: 50%;
-  background-color: #F6D4D9;
+  background-color: #f6d4d9;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -126,7 +136,7 @@ const ModalIconWrapper = styled.div`
 
 const ModalText = styled.p`
   font-size: 1.1rem;
-  color: #32434D;
+  color: #32434d;
   font-weight: 600;
   margin: 0;
 `;
@@ -161,15 +171,20 @@ const ModalButton = styled.button<{ $variant: 'cancel' | 'confirm' }>`
         color: #ffffff;
       `}
 
-  &:hover { opacity: 0.8; }
-  &:disabled { opacity: 0.5; cursor: not-allowed; }
+  &:hover {
+    opacity: 0.8;
+  }
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
 `;
 
 const PageContainer = styled.main`
   display: flex;
   flex-direction: column;
   align-items: center;
-  background-color: #FFFCF7; 
+  background-color: #fffcf7;
   min-height: 100vh;
   position: relative;
   overflow-x: hidden;
@@ -190,7 +205,7 @@ const BackButton = styled.button`
   gap: 8px;
   background: none;
   border: none;
-  color: #3A505D;
+  color: #3a505d;
   font-size: 15px;
   cursor: pointer;
   position: absolute;
@@ -198,12 +213,14 @@ const BackButton = styled.button`
   left: -10px;
   transition: transform 0.2s ease-in-out;
 
-  &:hover { transform: translateY(-3px); }
+  &:hover {
+    transform: translateY(-3px);
+  }
 `;
 
 const BackIcon = styled.span`
-  color: #FDDF00; 
-  font-size: 24px; 
+  color: #fddf00;
+  font-size: 24px;
 `;
 
 const HeaderSection = styled.div`
@@ -214,7 +231,7 @@ const HeaderSection = styled.div`
 `;
 
 const Categoria = styled.p`
-  color: #287C6D; 
+  color: #287c6d;
   font-size: 18px;
   font-weight: 500;
   margin-bottom: 8px;
@@ -226,14 +243,14 @@ const TitleWrapper = styled.div`
 `;
 
 const Titulo = styled.h1`
-  color: #32434D;
+  color: #32434d;
   font-size: 36px;
   font-weight: bold;
-  margin-bottom: 12px; 
+  margin-bottom: 12px;
 `;
 
 const Subtitulo = styled.p`
-  color: #7A8B94; 
+  color: #7a8b94;
   font-size: 16px;
   font-weight: 400;
 `;
@@ -242,7 +259,7 @@ const ImagemPost = styled.img`
   width: 100%;
   max-height: 400px;
   object-fit: cover;
-  border-radius: 12px; 
+  border-radius: 12px;
   margin-bottom: 40px;
 `;
 
@@ -273,12 +290,12 @@ const AvatarCircle = styled.div<{ $bg?: string }>`
 `;
 
 const AuthorName = styled.span`
-  color: #32434D;
+  color: #32434d;
   font-size: 15px;
 `;
 
 const PostDates = styled.p`
-  color: #3A505D;
+  color: #3a505d;
   font-size: 15px;
   display: flex;
   flex-direction: row;
@@ -286,7 +303,7 @@ const PostDates = styled.p`
 `;
 
 const TextContent = styled.div`
-  color: #32434D;
+  color: #32434d;
   font-size: 16px;
   line-height: 1.6;
   position: relative;
@@ -300,7 +317,7 @@ const Paragraph = styled.p`
 
 const EmptyCommentsText = styled.p`
   text-align: center;
-  color: #7A8B94;
+  color: #7a8b94;
   font-size: 16px;
   font-style: italic;
   margin-top: 20px;
@@ -312,14 +329,14 @@ const QuestionsSection = styled.section`
 `;
 
 const QuestionsTitle = styled.h2`
-  color: #3A505D;
+  color: #3a505d;
   font-size: 24px;
   font-weight: bold;
   margin-bottom: 40px;
 `;
 
 const InputContainer = styled.div`
-  background-color: #FAF7EA;
+  background-color: #faf7ea;
   border-radius: 16px;
   padding: 20px;
   display: flex;
@@ -334,12 +351,12 @@ const StyledTextarea = styled.textarea`
   border: none;
   resize: none;
   font-size: 16px;
-  color: #603C24;
+  color: #603c24;
   outline: none;
   min-height: 60px;
-  
+
   &::placeholder {
-    color: #603C24;
+    color: #603c24;
     font-size: 16px;
     font-weight: bold;
   }
@@ -347,8 +364,8 @@ const StyledTextarea = styled.textarea`
 
 const SubmitButton = styled.button`
   align-self: flex-end;
-  background-color: #FCBBA3;
-  color: #603C;
+  background-color: #fcbba3;
+  color: #603c;
   border: none;
   padding: 8px 30px;
   border-radius: 20px;
@@ -356,8 +373,13 @@ const SubmitButton = styled.button`
   cursor: pointer;
   transition: opacity 0.2s;
 
-  &:hover { opacity: 0.8; }
-  &:disabled { opacity: 0.5; cursor: not-allowed; }
+  &:hover {
+    opacity: 0.8;
+  }
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
 `;
 
 const CommentsList = styled.div`
@@ -375,19 +397,19 @@ const CommentGroup = styled.div`
 const CommentItem = styled.div<{ $isReply?: boolean }>`
   display: flex;
   gap: 15px;
-  margin-left: ${props => props.$isReply ? '47px' : '0'};
+  margin-left: ${props => (props.$isReply ? '47px' : '0')};
   position: relative;
 
   &::before {
     content: '';
-    display: ${props => props.$isReply ? 'block' : 'none'};
+    display: ${props => (props.$isReply ? 'block' : 'none')};
     position: absolute;
     left: -24px;
     top: -30px;
     width: 14px;
     height: 45px;
-    border-left: 2px solid #E6EBEF;
-    border-bottom: 2px solid #E6EBEF;
+    border-left: 2px solid #e6ebef;
+    border-bottom: 2px solid #e6ebef;
     border-bottom-left-radius: 8px;
   }
 `;
@@ -406,14 +428,14 @@ const CommentHeader = styled.div`
 `;
 
 const CommentTime = styled.span`
-  color: #7892A1;
+  color: #7892a1;
   font-size: 11px;
   margin-top: 4px;
   display: block;
 `;
 
 const CommentText = styled.p`
-  color: #32434D;
+  color: #32434d;
   font-size: 14px;
   line-height: 1.4;
 `;
@@ -421,7 +443,7 @@ const CommentText = styled.p`
 const CommentActions = styled.div`
   display: flex;
   gap: 8px;
-  
+
   button {
     background: none;
     border: none;
@@ -431,17 +453,19 @@ const CommentActions = styled.div`
     align-items: center;
     transition: opacity 0.2s;
 
-    &:hover { opacity: 0.7; }
+    &:hover {
+      opacity: 0.7;
+    }
   }
 `;
 
 const EditIcon = styled.span`
-  color: #A15E6D;
+  color: #a15e6d;
   font-size: 20px;
 `;
 
 const DeleteIcon = styled.span`
-  color: #E64B63;
+  color: #e64b63;
   font-size: 20px;
 `;
 
@@ -457,7 +481,9 @@ const ReplyButton = styled.button`
   text-align: left;
   width: fit-content;
 
-  &:hover { text-decoration: underline; }
+  &:hover {
+    text-decoration: underline;
+  }
 `;
 
 const ReplyInputContainer = styled(InputContainer)`
@@ -465,8 +491,10 @@ const ReplyInputContainer = styled(InputContainer)`
   margin-bottom: 0;
   padding: 15px;
   box-shadow: 0px 2px 2px 0px rgba(0, 0, 0, 0.15);
-  
-  textarea { min-height: 40px; }
+
+  textarea {
+    min-height: 40px;
+  }
 `;
 
 const EditInputContainer = styled.div`
@@ -474,7 +502,7 @@ const EditInputContainer = styled.div`
   flex-direction: column;
   gap: 10px;
   width: 100%;
-  background-color: #FAF7EA;
+  background-color: #faf7ea;
   padding: 10px;
   border-radius: 8px;
   box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
@@ -486,8 +514,8 @@ const EditInputContainer = styled.div`
     font-size: 14px;
     font-family: inherit;
     outline: none;
-    color: #603C24;
-    background-color: #FAF7EA;
+    color: #603c24;
+    background-color: #faf7ea;
     min-height: 40px;
   }
 `;
@@ -503,7 +531,13 @@ const EditActions = styled.div`
   }
 `;
 
-const Doodle = styled.img<{ $top?: string, $right?: string, $left?: string, $bottom?: string, $width?: string }>`
+const Doodle = styled.img<{
+  $top?: string;
+  $right?: string;
+  $left?: string;
+  $bottom?: string;
+  $width?: string;
+}>`
   position: absolute;
   top: ${props => props.$top};
   right: ${props => props.$right};
@@ -511,7 +545,7 @@ const Doodle = styled.img<{ $top?: string, $right?: string, $left?: string, $bot
   bottom: ${props => props.$bottom};
   width: ${props => props.$width || '50px'};
   z-index: 1;
-  pointer-events: none; 
+  pointer-events: none;
 `;
 
 const Circle = styled.img<{ $role?: Role }>`
@@ -519,15 +553,19 @@ const Circle = styled.img<{ $role?: Role }>`
   height: 32px;
   border-radius: 50%;
   object-fit: cover;
-  background-color: ${({ $role }) => $role ? userCircleColors[$role]?.background : '#6FB2A7'};
-  border: ${({ $role }) => $role ? userCircleColors[$role]?.border : '2px solid #A4F3E5'};
+  background-color: ${({ $role }) => ($role ? userCircleColors[$role]?.background : '#6FB2A7')};
+  border: ${({ $role }) => ($role ? userCircleColors[$role]?.border : '2px solid #A4F3E5')};
 `;
+
+type DeletableComment = Comment | NonNullable<Comment['childComment']>;
 
 export default function PostPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { user } = useUser();
   const [post, setPost] = useState<Post | null>(null);
+  const [postAuthor, setPostAuthor] = useState<User>();
+  const [isOwner, setIsOwner] = useState<boolean>(false);
   const [comments, setComments] = useState<Comment[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [toast, setToast] = useState<{ message: string; status: boolean } | null>(null);
@@ -539,7 +577,7 @@ export default function PostPage() {
   const [editingCommentId, setEditingCommentId] = useState<string | null>(null);
   const [editContent, setEditContent] = useState('');
   const [isSubmittingEdit, setIsSubmittingEdit] = useState(false);
-  const [commentToDelete, setCommentToDelete] = useState<string | null>(null);
+  const [commentToDelete, setCommentToDelete] = useState<DeletableComment | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
   const carregarAulaEComentarios = async () => {
@@ -557,8 +595,14 @@ export default function PostPage() {
       img.onload = () => setIsLoading(false);
       img.onerror = () => setIsLoading(false);
       img.src = imgSrc;
+
+      setIsOwner(false);
+      const postCreator = await getUserById(postData.userId ?? '');
+      setPostAuthor(postCreator);
+      setIsOwner(user?.id === postData.userId);
+      
     } catch (err) {
-      console.error("Erro ao carregar post ou comentários:", err);
+      console.error('Erro ao carregar conteúdo da página:', err);
       setPost(null);
       setIsLoading(false);
     }
@@ -635,7 +679,7 @@ export default function PostPage() {
 
     setIsDeleting(true);
     try {
-      await deleteComment(commentToDelete);
+      await deleteComment(commentToDelete.id);
       setCommentToDelete(null);
       await carregarAulaEComentarios();
       setToast({ message: 'Comentário removido!', status: true });
@@ -679,10 +723,8 @@ export default function PostPage() {
     );
   }
 
-  const authorRole = post.criadoPor?.tipoUsuario || 'ADMIN';
-  const authorImage = post.criadoPor?.image ? `${BASE_URL}${post.criadoPor.image}` : userDefaultImage;
-  const isOwner = user?.nome === post.autor;
-  const isOverlayLoading = isSubmittingComment || isSubmittingReply || isSubmittingEdit || isDeleting;
+  const isOverlayLoading =
+    isSubmittingComment || isSubmittingReply || isSubmittingEdit || isDeleting;
 
   const canEditComment = (commentAuthor: string) => {
     return user?.nome === commentAuthor;
@@ -710,11 +752,17 @@ export default function PostPage() {
         <ModalOverlay>
           <ModalContent>
             <ModalIconWrapper>
-              <span className="material-symbols-outlined" style={{ fontSize: '32px' }}>error</span>
+              <span className="material-symbols-outlined" style={{ fontSize: '32px' }}>
+                error
+              </span>
             </ModalIconWrapper>
-            <ModalText>Você deseja remover este comentário?</ModalText>
+            <ModalText>Você deseja remover o comentário "{commentToDelete.conteudo}"?</ModalText>
             <ModalActions>
-              <ModalButton $variant="cancel" onClick={() => setCommentToDelete(null)} disabled={isDeleting}>
+              <ModalButton
+                $variant="cancel"
+                onClick={() => setCommentToDelete(null)}
+                disabled={isDeleting}
+              >
                 Cancelar
               </ModalButton>
               <ModalButton $variant="confirm" onClick={confirmDeleteComment} disabled={isDeleting}>
@@ -745,15 +793,25 @@ export default function PostPage() {
             <Doodle src={cloudIcon} $top="-45px" $right="-350px" $width="80px" />
           </HeaderSection>
 
-          <ImagemPost
-            src={post.image ? `${BASE_URL}${post.image}` : imagePost}
-            alt={post.titulo}
-          />
+          <ImagemPost src={post.image ? `${BASE_URL}${post.image}` : imagePost} alt={post.titulo} />
 
           <AuthorSection>
             <AuthorRow>
-              <Circle src={authorImage} $role={authorRole} alt={post.autor} />
-              <AuthorName>{post.autor}</AuthorName>
+              {postAuthor ? (
+                <>
+                  <Circle
+                    src={postAuthor?.image ? `${BASE_URL}${postAuthor?.image}` : userDefaultImage}
+                    $role={postAuthor?.role}
+                    alt={post.autor}
+                  />
+                  <AuthorName>{postAuthor?.nome}</AuthorName>
+                </>
+              ) : (
+                <>
+                  <Circle src={userDefaultImage} $role={'PROFESSOR'} alt={'Autor do post'} />
+                  <AuthorName>--</AuthorName>
+                </>
+              )}
             </AuthorRow>
             <PostDates>
               <span>Criado em {new Intl.DateTimeFormat('pt-BR').format(post.createdAt)}</span>
@@ -773,7 +831,7 @@ export default function PostPage() {
               <StyledTextarea
                 placeholder="Faça uma pergunta"
                 value={newComment}
-                onChange={(e) => setNewComment(e.target.value)}
+                onChange={e => setNewComment(e.target.value)}
                 disabled={isSubmittingComment}
               />
               <SubmitButton
@@ -786,13 +844,19 @@ export default function PostPage() {
 
             <CommentsList>
               {comments.length === 0 ? (
-                <EmptyCommentsText>Nenhuma pergunta nesta aula ainda. Seja o primeiro a interagir!</EmptyCommentsText>
+                <EmptyCommentsText>
+                  Nenhuma pergunta nesta aula ainda. Seja o primeiro a interagir!
+                </EmptyCommentsText>
               ) : (
-                comments.map((comment) => (
+                comments.map(comment => (
                   <CommentGroup key={comment.id}>
                     <CommentItem>
                       {comment.image ? (
-                        <Circle src={`${BASE_URL}${comment.image}`} alt={comment.user} style={{ width: '32px', height: '32px' }} />
+                        <Circle
+                          src={`${BASE_URL}${comment.image}`}
+                          alt={comment.user}
+                          style={{ width: '32px', height: '32px' }}
+                        />
                       ) : (
                         <AvatarCircle $bg={getAvatarColor(comment.user)}>
                           {comment.user.charAt(0).toUpperCase()}
@@ -808,13 +872,18 @@ export default function PostPage() {
                           {(canEditComment(comment.user) || canDeleteComment(comment.user)) && (
                             <CommentActions>
                               {canEditComment(comment.user) && (
-                                <button onClick={() => startEditing(comment.id, comment.conteudo)} title="Editar">
+                                <button
+                                  onClick={() => startEditing(comment.id, comment.conteudo)}
+                                  title="Editar"
+                                >
                                   <EditIcon className="material-symbols-outlined">edit</EditIcon>
                                 </button>
                               )}
                               {canDeleteComment(comment.user) && (
-                                <button onClick={() => setCommentToDelete(comment.id)} title="Excluir">
-                                  <DeleteIcon className="material-symbols-outlined">delete</DeleteIcon>
+                                <button onClick={() => setCommentToDelete(comment)} title="Excluir">
+                                  <DeleteIcon className="material-symbols-outlined">
+                                    delete
+                                  </DeleteIcon>
                                 </button>
                               )}
                             </CommentActions>
@@ -825,14 +894,18 @@ export default function PostPage() {
                           <EditInputContainer>
                             <textarea
                               value={editContent}
-                              onChange={(e) => setEditContent(e.target.value)}
+                              onChange={e => setEditContent(e.target.value)}
                               disabled={isSubmittingEdit}
                             />
                             <EditActions>
                               <SubmitButton
                                 onClick={() => setEditingCommentId(null)}
                                 disabled={isSubmittingEdit}
-                                style={{ background: 'transparent', color: '#e64b63', border: '1px solid #e64b63' }}
+                                style={{
+                                  background: 'transparent',
+                                  color: '#e64b63',
+                                  border: '1px solid #e64b63',
+                                }}
                               >
                                 Cancelar
                               </SubmitButton>
@@ -849,7 +922,11 @@ export default function PostPage() {
                         )}
 
                         {isOwner && !comment.childComment && editingCommentId !== comment.id && (
-                          <ReplyButton onClick={() => setReplyingTo(replyingTo === comment.id ? null : comment.id)}>
+                          <ReplyButton
+                            onClick={() =>
+                              setReplyingTo(replyingTo === comment.id ? null : comment.id)
+                            }
+                          >
                             {replyingTo === comment.id ? 'Cancelar resposta' : 'Responder'}
                           </ReplyButton>
                         )}
@@ -860,7 +937,7 @@ export default function PostPage() {
                         <StyledTextarea
                           placeholder="Escreva sua resposta..."
                           value={replyContent}
-                          onChange={(e) => setReplyContent(e.target.value)}
+                          onChange={e => setReplyContent(e.target.value)}
                           disabled={isSubmittingReply}
                         />
                         <SubmitButton
@@ -874,8 +951,14 @@ export default function PostPage() {
                     {comment.childComment && (
                       <CommentItem $isReply>
                         <Circle
-                          src={comment.childComment.image ? `${BASE_URL}${comment.childComment.image}` : authorImage}
-                          $role={authorRole}
+                          src={
+                            comment.childComment.image
+                              ? `${BASE_URL}${comment.childComment.image}`
+                              : postAuthor?.image
+                                ? `${BASE_URL}${postAuthor.image}`
+                                : userDefaultImage
+                          }
+                          $role={postAuthor?.role}
                           alt={post.autor}
                           style={{ width: '32px', height: '32px' }}
                         />
@@ -883,19 +966,34 @@ export default function PostPage() {
                           <CommentHeader>
                             <div>
                               <AuthorName>{post.autor}</AuthorName>
-                              <CommentTime>{calcularTempoAtras(comment.childComment.dataCriacao)}</CommentTime>
+                              <CommentTime>
+                                {calcularTempoAtras(comment.childComment.dataCriacao)}
+                              </CommentTime>
                             </div>
 
                             {(canEditComment(post.autor) || canDeleteComment(post.autor)) && (
                               <CommentActions>
                                 {canEditComment(post.autor) && (
-                                  <button onClick={() => startEditing(comment.childComment!.id, comment.childComment!.conteudo)} title="Editar">
+                                  <button
+                                    onClick={() =>
+                                      startEditing(
+                                        comment.childComment!.id,
+                                        comment.childComment!.conteudo
+                                      )
+                                    }
+                                    title="Editar"
+                                  >
                                     <EditIcon className="material-symbols-outlined">edit</EditIcon>
                                   </button>
                                 )}
                                 {canDeleteComment(post.autor) && (
-                                  <button onClick={() => setCommentToDelete(comment.childComment!.id)} title="Excluir">
-                                    <DeleteIcon className="material-symbols-outlined">delete</DeleteIcon>
+                                  <button
+                                    onClick={() => setCommentToDelete(comment.childComment)}
+                                    title="Excluir"
+                                  >
+                                    <DeleteIcon className="material-symbols-outlined">
+                                      delete
+                                    </DeleteIcon>
                                   </button>
                                 )}
                               </CommentActions>
@@ -906,14 +1004,18 @@ export default function PostPage() {
                             <EditInputContainer>
                               <textarea
                                 value={editContent}
-                                onChange={(e) => setEditContent(e.target.value)}
+                                onChange={e => setEditContent(e.target.value)}
                                 disabled={isSubmittingEdit}
                               />
                               <EditActions>
                                 <SubmitButton
                                   onClick={() => setEditingCommentId(null)}
                                   disabled={isSubmittingEdit}
-                                  style={{ background: 'transparent', color: '#e64b63', border: '1px solid #e64b63' }}
+                                  style={{
+                                    background: 'transparent',
+                                    color: '#e64b63',
+                                    border: '1px solid #e64b63',
+                                  }}
                                 >
                                   Cancelar
                                 </SubmitButton>
@@ -928,7 +1030,6 @@ export default function PostPage() {
                           ) : (
                             <CommentText>{comment.childComment.conteudo}</CommentText>
                           )}
-
                         </CommentContent>
                       </CommentItem>
                     )}
@@ -937,7 +1038,6 @@ export default function PostPage() {
               )}
             </CommentsList>
           </QuestionsSection>
-
         </ContentWrapper>
       </PageContainer>
       <Footer />
