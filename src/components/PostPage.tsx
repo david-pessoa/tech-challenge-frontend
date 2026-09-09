@@ -25,6 +25,7 @@ import {
 import { Toast } from './ToastComponents';
 import type { User } from '../types/User';
 import { getUserById } from '../services/user.service';
+import { capitalize, formatarData } from '../utils/functions';
 
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 
@@ -726,14 +727,15 @@ export default function PostPage() {
   const isOverlayLoading =
     isSubmittingComment || isSubmittingReply || isSubmittingEdit || isDeleting;
 
-  const canEditComment = (commentAuthor: string) => {
-    return user?.nome === commentAuthor;
+  const canEditComment = (commentAuthorId: string) => {
+    console.log(user?.id, commentAuthorId)
+    return user?.id === commentAuthorId;
   };
 
-  const canDeleteComment = (commentAuthor: string) => {
+  const canDeleteComment = (commentAuthorId: string) => {
     if (user?.role === 'ADMIN') return true;
     if (user?.role === 'PROFESSOR' && isOwner) return true;
-    if (user?.nome === commentAuthor) return true;
+    if (user?.id === commentAuthorId) return true;
     return false;
   };
 
@@ -782,7 +784,7 @@ export default function PostPage() {
           </BackButton>
 
           <HeaderSection>
-            <Categoria>{post.materia}</Categoria>
+            <Categoria>{post?.subject?.nome}</Categoria>
 
             <TitleWrapper>
               <Titulo>{post.titulo}</Titulo>
@@ -814,8 +816,8 @@ export default function PostPage() {
               )}
             </AuthorRow>
             <PostDates>
-              <span>Criado em {new Intl.DateTimeFormat('pt-BR').format(post.createdAt)}</span>
-              <span>Editado em {new Intl.DateTimeFormat('pt-BR').format(post.editedAt)}</span>
+              <span>Criado em {formatarData(post?.dataCriacao)}</span>
+              <span>Editado em {formatarData(post?.dataModificacao)}</span>
             </PostDates>
           </AuthorSection>
 
@@ -854,24 +856,24 @@ export default function PostPage() {
                       {comment.image ? (
                         <Circle
                           src={`${BASE_URL}${comment.image}`}
-                          alt={comment.user}
+                          alt={comment.user.id}
                           style={{ width: '32px', height: '32px' }}
                         />
                       ) : (
-                        <AvatarCircle $bg={getAvatarColor(comment.user)}>
-                          {comment.user.charAt(0).toUpperCase()}
+                        <AvatarCircle $bg={getAvatarColor(comment.user.nome)}>
+                          {capitalize(comment.user.nome)}
                         </AvatarCircle>
                       )}
                       <CommentContent>
                         <CommentHeader>
                           <div>
-                            <AuthorName>{comment.user}</AuthorName>
+                            <AuthorName>{comment.user.nome}</AuthorName>
                             <CommentTime>{calcularTempoAtras(comment.dataCriacao)}</CommentTime>
                           </div>
 
-                          {(canEditComment(comment.user) || canDeleteComment(comment.user)) && (
+                          {(canEditComment(comment.user.id) || canDeleteComment(comment.user.id)) && (
                             <CommentActions>
-                              {canEditComment(comment.user) && (
+                              {canEditComment(comment.user.id) && (
                                 <button
                                   onClick={() => startEditing(comment.id, comment.conteudo)}
                                   title="Editar"
@@ -879,7 +881,7 @@ export default function PostPage() {
                                   <EditIcon className="material-symbols-outlined">edit</EditIcon>
                                 </button>
                               )}
-                              {canDeleteComment(comment.user) && (
+                              {canDeleteComment(comment.user.id) && (
                                 <button onClick={() => setCommentToDelete(comment)} title="Excluir">
                                   <DeleteIcon className="material-symbols-outlined">
                                     delete
@@ -959,21 +961,21 @@ export default function PostPage() {
                                 : userDefaultImage
                           }
                           $role={postAuthor?.role}
-                          alt={post.autor}
+                          alt={postAuthor?.nome}
                           style={{ width: '32px', height: '32px' }}
                         />
                         <CommentContent>
                           <CommentHeader>
                             <div>
-                              <AuthorName>{post.autor}</AuthorName>
+                              <AuthorName>{postAuthor?.nome}</AuthorName>
                               <CommentTime>
                                 {calcularTempoAtras(comment.childComment.dataCriacao)}
                               </CommentTime>
                             </div>
-
-                            {(canEditComment(post.autor) || canDeleteComment(post.autor)) && (
+                            
+                            {postAuthor && (canEditComment(postAuthor?.id) || canDeleteComment(postAuthor?.id)) && (
                               <CommentActions>
-                                {canEditComment(post.autor) && (
+                                {canEditComment(postAuthor?.id) && (
                                   <button
                                     onClick={() =>
                                       startEditing(
@@ -986,7 +988,7 @@ export default function PostPage() {
                                     <EditIcon className="material-symbols-outlined">edit</EditIcon>
                                   </button>
                                 )}
-                                {canDeleteComment(post.autor) && (
+                                {canDeleteComment(postAuthor?.id) && (
                                   <button
                                     onClick={() => setCommentToDelete(comment.childComment)}
                                     title="Excluir"

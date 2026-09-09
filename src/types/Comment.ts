@@ -7,7 +7,10 @@ export type Comment = {
     dataModificacao: string;
     image?: string;
   } | null;
-  user: string;
+  user: {
+    id: string;
+    nome: string;
+  };
   conteudo: string;
   dataCriacao: string;
   dataModificacao: string;
