@@ -11,11 +11,12 @@ import type { User } from '../types/User';
 type RenderOptions = {
   route?: string;
   user?: User;
+  refreshUser?: () => Promise<void>;
 };
 
 export function renderWithProviders(
   ui: ReactElement,
-  { route = '/', user }: RenderOptions = {}
+  { route = '/', user, refreshUser = vi.fn() }: RenderOptions = {}
 ) {
   return render(
     <MemoryRouter initialEntries={[route]}>
@@ -24,7 +25,7 @@ export function renderWithProviders(
           value={{
             user,
             isLoading: false,
-            refreshUser: vi.fn(),
+            refreshUser,
           }}
         >
           {ui}
