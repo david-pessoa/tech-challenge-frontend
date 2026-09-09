@@ -31,13 +31,13 @@ export const materias: Record<string, MateriaConfig> = {
     icon: 'globe',
   },
   Geral: {
-    backgroundColor: '#A4CDC6',
-    color: '#287C6D',
-    icon: 'microbiology',
+    backgroundColor: '#D9D9D9',
+    color: '#666666',
+    icon: 'category',
   },
   'Ensino Religioso': {
-    backgroundColor: '#A4CDC6',
-    color: '#287C6D',
-    icon: 'microbiology',
+    backgroundColor: '#D8C4E8',
+    color: '#7A4E9B',
+    icon: 'church',
   },
 };
