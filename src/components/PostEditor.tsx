@@ -5,12 +5,12 @@ import styled from 'styled-components';
 
 import redDoodle from '../assets/red-doodle.png';
 import { createPost, getPostById, updatePost } from '../services/post.service';
+import { materias } from '../types/Materias';
+import { Toast } from './ToastComponents';
 
 type PostEditorProps = {
     isNew: boolean;
 };
-
-type ToastStatus = 'success' | 'error';
 
 type PostFormData = {
     titulo: string;
@@ -316,20 +316,6 @@ const Button = styled.button<{ $secondary?: boolean }>`
   }
 `;
 
-const Toast = styled.div<{ $status: ToastStatus }>`
-  position: fixed;
-  top: 1.5rem;
-  right: 1.5rem;
-  z-index: 1000;
-  width: min(22rem, calc(100% - 2rem));
-  border-left: 0.35rem solid ${({ $status, theme }) => ($status === 'success' ? '#6FB9A9' : theme.colors.primary)};
-  border-radius: 0.75rem;
-  background: ${({ theme }) => theme.colors.fieldBackground};
-  box-shadow: 0 0.5rem 1.5rem rgba(50, 67, 77, 0.16);
-  color: ${({ theme }) => theme.colors.text};
-  padding: 1rem 1.25rem;
-`;
-
 export default function PostEditor({ isNew }: PostEditorProps) {
     const { id } = useParams();
     const navigate = useNavigate();
@@ -337,7 +323,7 @@ export default function PostEditor({ isNew }: PostEditorProps) {
 
     const [formData, setFormData] = useState<PostFormData>(initialFormData);
     const [imagePreview, setImagePreview] = useState('');
-    const [toast, setToast] = useState<{ message: string; status: ToastStatus } | null>(null);
+    const [toast, setToast] = useState<{ message: string; status: boolean } | null>(null);
     
     const [isFetching, setIsFetching] = useState(!isNew); 
     const [isProcessing, setIsProcessing] = useState(false); 
@@ -359,7 +345,7 @@ export default function PostEditor({ isNew }: PostEditorProps) {
                     titulo: post.titulo,
                     descricao: post.descricao,
                     conteudo: post.conteudo || '',
-                    subjectName: post.materia,
+                    subjectName: post.subject.nome,
                     image: null,
                 });
 
@@ -368,7 +354,7 @@ export default function PostEditor({ isNew }: PostEditorProps) {
                     setImagePreview(imgUrl);
                 }
             } catch (error: unknown) {
-                setToast({ message: 'Erro ao carregar a aula.', status: 'error' });
+                setToast({ message: 'Erro ao carregar a aula.', status: false });
             } finally {
                 setIsFetching(false);
             }
@@ -400,15 +386,15 @@ export default function PostEditor({ isNew }: PostEditorProps) {
         try {
             if (isNew) {
                 await createPost(postDataForm);
-                navigate('/', { state: { toastMessage: 'Aula criada com sucesso!', toastStatus: 'success' } });
+                navigate('/', { state: { toastMessage: 'Aula criada com sucesso!', toastStatus: true } });
             } else {
                 if (typeof id !== 'string') throw new Error('ID inválido');
                 await updatePost(id, postDataForm);
-                navigate('/', { state: { toastMessage: 'Aula atualizada com sucesso!', toastStatus: 'success' } });
+                navigate('/', { state: { toastMessage: 'Aula atualizada com sucesso!', toastStatus: true } });
             }
         } catch (error: unknown) {
             setIsProcessing(false); 
-            setToast({ message: isNew ? 'Erro ao criar a aula.' : 'Erro ao editar a aula.', status: 'error' });
+            setToast({ message: isNew ? 'Erro ao criar a aula.' : 'Erro ao editar a aula.', status: false });
         }
     }
 
@@ -428,7 +414,7 @@ export default function PostEditor({ isNew }: PostEditorProps) {
                 </Overlay>
             )}
 
-            {toast && <Toast $status={toast.status}>{toast.message}</Toast>}
+            {toast && <Toast $isSucess={toast.status}>{toast.message}</Toast>}
 
             <Main>
                 <BackLink type="button" onClick={() => navigate('/')}>
@@ -498,13 +484,9 @@ export default function PostEditor({ isNew }: PostEditorProps) {
                                     value={formData.subjectName}
                                     onChange={e => setFormData({ ...formData, subjectName: e.target.value })}
                                 >
-                                    <option value="Geral">Geral</option>
-                                    <option value="Português">Português</option>
-                                    <option value="Matemática">Matemática</option>
-                                    <option value="Geografia">Geografia</option>
-                                    <option value="História">História</option>
-                                    <option value="Ciências">Ciências</option>
-                                    <option value="Ensino Religioso">Ensino Religioso</option>
+                                  {Object.keys(materias).map((materia, i) => (
+                                    <option key={i} value={materia}>{materia}</option>
+                                  ))}
                                 </Select>
                             </Field>
 

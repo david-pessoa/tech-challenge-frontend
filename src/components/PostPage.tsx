@@ -17,6 +17,7 @@ import sunIcon from '../assets/sunIcon.png';
 import flowerIcon from '../assets/flowerIcon.png';
 import userDefaultImage from '../assets/user-default-image.png';
 import { createComment, deleteComment, getCommentsByPostId, updateComment } from '../services/comment.service';
+import { Toast } from './ToastComponents';
 
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 
@@ -45,22 +46,6 @@ function getAvatarColor(name: string) {
   const colors = ['#D2B4DE', '#F1948A', '#A3E4D7', '#F5CBA7', '#AED6F1'];
   return colors[name.length % colors.length];
 }
-
-type ToastStatus = 'success' | 'error';
-
-const Toast = styled.div<{ $status: ToastStatus }>`
-  position: fixed;
-  top: 1.5rem;
-  right: 1.5rem;
-  z-index: 1000;
-  width: min(22rem, calc(100% - 2rem));
-  border-left: 0.35rem solid ${({ $status, theme }) => ($status === 'success' ? '#6FB9A9' : theme.colors.primary)};
-  border-radius: 0.75rem;
-  background: ${({ theme }) => theme.colors.fieldBackground || '#FAF7EA'};
-  box-shadow: 0 0.5rem 1.5rem rgba(50, 67, 77, 0.16);
-  color: ${({ theme }) => theme.colors.text || '#32434D'};
-  padding: 1rem 1.25rem;
-`;
 
 const Overlay = styled.div`
   position: fixed;
@@ -539,15 +524,13 @@ const Circle = styled.img<{ $role?: Role }>`
 `;
 
 export default function PostPage() {
-  document.title = 'Edify | Post';
-
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { user } = useUser();
   const [post, setPost] = useState<Post | null>(null);
   const [comments, setComments] = useState<Comment[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [toast, setToast] = useState<{ message: string; status: ToastStatus } | null>(null);
+  const [toast, setToast] = useState<{ message: string; status: boolean } | null>(null);
   const [newComment, setNewComment] = useState('');
   const [isSubmittingComment, setIsSubmittingComment] = useState(false);
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
@@ -564,6 +547,7 @@ export default function PostPage() {
     try {
       const postData = await getPostById(id);
       setPost(postData);
+      document.title = `Edify | ${postData.titulo}`;
       const commentsData = await getCommentsByPostId(id);
       setComments(commentsData);
 
@@ -599,9 +583,9 @@ export default function PostPage() {
       await createComment(id, newComment);
       setNewComment('');
       await carregarAulaEComentarios();
-      setToast({ message: 'Pergunta enviada com sucesso!', status: 'success' });
+      setToast({ message: 'Pergunta enviada com sucesso!', status: true });
     } catch (error) {
-      setToast({ message: 'Ocorreu um erro ao enviar sua pergunta.', status: 'error' });
+      setToast({ message: 'Ocorreu um erro ao enviar sua pergunta.', status: false });
     } finally {
       setIsSubmittingComment(false);
     }
@@ -616,9 +600,9 @@ export default function PostPage() {
       setReplyContent('');
       setReplyingTo(null);
       await carregarAulaEComentarios();
-      setToast({ message: 'Resposta enviada com sucesso!', status: 'success' });
+      setToast({ message: 'Resposta enviada com sucesso!', status: true });
     } catch (error) {
-      setToast({ message: 'Ocorreu um erro ao enviar a resposta.', status: 'error' });
+      setToast({ message: 'Ocorreu um erro ao enviar a resposta.', status: false });
     } finally {
       setIsSubmittingReply(false);
     }
@@ -638,9 +622,9 @@ export default function PostPage() {
       setEditingCommentId(null);
       setEditContent('');
       await carregarAulaEComentarios();
-      setToast({ message: 'Comentário atualizado!', status: 'success' });
+      setToast({ message: 'Comentário atualizado!', status: true });
     } catch (error) {
-      setToast({ message: 'Erro ao atualizar o comentário.', status: 'error' });
+      setToast({ message: 'Erro ao atualizar o comentário.', status: false });
     } finally {
       setIsSubmittingEdit(false);
     }
@@ -654,9 +638,9 @@ export default function PostPage() {
       await deleteComment(commentToDelete);
       setCommentToDelete(null);
       await carregarAulaEComentarios();
-      setToast({ message: 'Comentário removido!', status: 'success' });
+      setToast({ message: 'Comentário removido!', status: true });
     } catch (error) {
-      setToast({ message: 'Erro ao remover o comentário.', status: 'error' });
+      setToast({ message: 'Erro ao remover o comentário.', status: false });
     } finally {
       setIsDeleting(false);
     }
@@ -740,7 +724,7 @@ export default function PostPage() {
           </ModalContent>
         </ModalOverlay>
       )}
-      {toast && <Toast $status={toast.status}>{toast.message}</Toast>}
+      {toast && <Toast $isSucess={toast.status}>{toast.message}</Toast>}
       <Header />
       <PageContainer>
         <ContentWrapper>

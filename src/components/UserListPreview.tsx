@@ -157,7 +157,9 @@ export default function UserListPreview({ role }: UserListPreviewProps) {
   const [toastMessage, setToastMessage] = useState(
     (location.state as { toastMessage?: string } | null)?.toastMessage ?? ''
   );
-  const [toastSucess, setToastSucess] = useState<boolean>(false);
+  const [toastSucess, setToastSucess] = useState<boolean>(
+    (location.state as { toastStatus?: boolean })?.toastStatus ?? false
+  );
 
   useEffect(() => {
     async function getAllUsersList() {
