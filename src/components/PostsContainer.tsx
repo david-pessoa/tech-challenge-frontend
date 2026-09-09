@@ -13,16 +13,31 @@ import { getAllPosts } from '../services/post.service';
 import { useNavigate } from 'react-router-dom';
 
 const Container = styled.div`
-  width: 64.4135vw;
+  width: 100%;
   margin-bottom: 3.625rem;
+
+  @media (max-width: 900px) {
+    margin-bottom: 2.188rem
+  }
 `;
 
 const Title = styled.h2`
   margin-bottom: 10px;
+
+  @media (max-width: 900px) {
+    margin-bottom: 2px;
+  }
 `;
 
 const Paragraph = styled.p`
   margin-bottom: 1.813rem;
+
+  @media (max-width: 900px) {
+    margin-bottom: 1.563rem;
+  }
+  @media (max-width: 900px) {
+    margin-bottom: 1.563rem;
+  }
 `;
 
 const AddClassContainer = styled.div`
@@ -30,6 +45,10 @@ const AddClassContainer = styled.div`
   justify-content: space-between;
   height: 30px;
   margin-bottom: 1.813rem;
+
+  @media (max-width: 900px) {
+    margin-bottom: 1rem;
+  }
 `;
 
 const AddClassButton = styled.a`
@@ -45,12 +64,19 @@ const AddClassButton = styled.a`
 
   &:hover {
     opacity: 0.7;
+
+  @media (max-width: 600px) {
+    width: 4.75rem;
   }
 `;
 
 const AddIcon = styled.span`
   color: #ee798a;
   font-size: 32px;
+
+  @media (max-width: 600px) {
+    font-size: 24px;
+  }
 `;
 
 export default function PostsContainer() {

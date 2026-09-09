@@ -4,12 +4,14 @@ export const GlobalStyles = createGlobalStyle`
   * {
     margin: 0;
     padding: 0;
+    box-sizing: border-box;
   }
 
   body {
     font-family: ${({ theme }) => theme.typography.fontFamily};
     color: ${({ theme }) => theme.colors.text};
     background: ${({ theme }) => theme.colors.background};
+    overflow-x: hidden;
   }
 
   h1,h2,h3,h4,h5,h6 {
@@ -53,13 +55,13 @@ export const GlobalStyles = createGlobalStyle`
 
   tbody {
     background-color: #FFFBEB;
-    box-sizing: border-box;
   }
 
   td {
     padding-left: 10px;
     padding-top: 10px;
     text-align: center;
+    max-width: 118px;
   }
   
   td.bold {
@@ -76,6 +78,68 @@ export const GlobalStyles = createGlobalStyle`
   a {
     color: inherit;
     text-decoration: none;
+  }
+
+  @media (max-width: 1000px) {
+    h1 {
+      font-size: 1.5rem
+    }
+
+    h2 {
+      font-size: 1.25rem
+    }
+
+    h3 {
+      font-size: 0.75rem
+    }
+
+    p, td, th {
+      font-size: 14px
+    }
+
+    thead {
+      height: 62px;
+    }
+
+    th {
+      padding: 5px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    td {
+      padding: 5px 0 0 5px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    td.bold {
+    a {
+      display: -webkit-box;
+  -webkit-line-clamp: 4; /* Defina aqui o número máximo de linhas */
+  -webkit-box-orient: vertical;  
+  overflow: hidden;
+    }
+  }
+
+  @media (max-width: 600px) {
+    td.bold, td.descp {
+      max-width: 1rem
+    }
+
+    h1, h2 {
+    font-size: 15px;
+  }
+  
+  h3 {
+    font-size: 1rem;
+  }
+
+  p {
+    font-size: 10px;
+  }
+  }
+
   }
 
 `;
