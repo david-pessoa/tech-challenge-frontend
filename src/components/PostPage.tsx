@@ -26,6 +26,7 @@ import { Toast } from './ToastComponents';
 import type { User } from '../types/User';
 import { getUserById } from '../services/user.service';
 import { capitalize, formatarData } from '../utils/functions';
+import { materias } from '../types/Materias';
 
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 
@@ -231,8 +232,8 @@ const HeaderSection = styled.div`
   align-self: center;
 `;
 
-const Categoria = styled.p`
-  color: #287c6d;
+const Categoria = styled.p<{ $color: string}>`
+  color: ${props => props.$color || '#287c6d'};;
   font-size: 18px;
   font-weight: 500;
   margin-bottom: 8px;
@@ -784,7 +785,7 @@ export default function PostPage() {
           </BackButton>
 
           <HeaderSection>
-            <Categoria>{post?.subject?.nome}</Categoria>
+            <Categoria $color={materias[post?.subject?.nome ?? 'Geral'].color}>{post?.subject?.nome}</Categoria>
 
             <TitleWrapper>
               <Titulo>{post.titulo}</Titulo>
