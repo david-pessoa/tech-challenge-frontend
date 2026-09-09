@@ -1,7 +1,6 @@
 import styled from 'styled-components';
 
 import Carousel from './Carousel';
-import CarouselCard from './CarouselCard';
 import ViewedPostsTable from './ViewedPostsTable';
 import ManagementPostsTable from './ManagementPostsTable';
 
@@ -13,16 +12,31 @@ import { useEffect, useState } from 'react';
 import { getAllPosts } from '../services/post.service';
 
 const Container = styled.div`
-  width: 64.4135vw;
+  width: 100%;
   margin-bottom: 3.625rem;
+
+  @media (max-width: 900px) {
+    margin-bottom: 2.188rem
+  }
 `;
 
 const Title = styled.h2`
   margin-bottom: 10px;
+
+  @media (max-width: 900px) {
+    margin-bottom: 2px;
+  }
 `;
 
 const Paragraph = styled.p`
   margin-bottom: 1.813rem;
+
+  @media (max-width: 900px) {
+    margin-bottom: 1.563rem;
+  }
+  @media (max-width: 900px) {
+    margin-bottom: 1.563rem;
+  }
 `;
 
 const AddClassContainer = styled.div`
@@ -30,6 +44,10 @@ const AddClassContainer = styled.div`
   justify-content: space-between;
   height: 30px;
   margin-bottom: 1.813rem;
+
+  @media (max-width: 900px) {
+    margin-bottom: 1rem;
+  }
 `;
 
 const AddClassButton = styled.a`
@@ -40,11 +58,19 @@ const AddClassButton = styled.a`
   display: flex;
   align-items: center;
   justify-content: space-between;
+
+  @media (max-width: 600px) {
+    width: 4.75rem;
+  }
 `;
 
 const AddIcon = styled.span`
   color: #ee798a;
   font-size: 32px;
+
+  @media (max-width: 600px) {
+    font-size: 24px;
+  }
 `;
 
 export default function PostsContainer() {
@@ -87,10 +113,10 @@ export default function PostsContainer() {
   }
   function TeacherContainer() {
     // Os posts do próprio professor
-    const myPosts = posts.filter(p => p.criadoPor.userId === user?.id)
+    const myPosts = posts.filter(p => p.criadoPor?.userId === user?.id)
 
     // Obtém os posts de outros professores
-    const otherPosts = posts.filter(p => p.criadoPor.userId !== user?.id)
+    const otherPosts = posts.filter(p => p.criadoPor?.userId !== user?.id)
 
     return (
       <>

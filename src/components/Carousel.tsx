@@ -2,6 +2,7 @@ import styled from 'styled-components';
 
 import { Autoplay, Navigation, Pagination, Scrollbar, A11y } from 'swiper/modules';
 import { Swiper, SwiperSlide } from 'swiper/react';
+import { useScreenWidth } from '../hooks/screenWidth';
 
 import CarouselCard from './CarouselCard';
 
@@ -19,6 +20,8 @@ type CarouselProps = {
 };
 
 export default function Carousel({ newPosts, isAdmin }: CarouselProps) {
+  const screenWidth = useScreenWidth();
+
   return (
     <Swiper
       modules={[Autoplay, Navigation, Pagination, Scrollbar, A11y]}
@@ -27,11 +30,15 @@ export default function Carousel({ newPosts, isAdmin }: CarouselProps) {
       loop={true}
       pagination={{ clickable: true }}
       navigation
-      onSwiper={swiper => console.log(swiper)}
       className={isAdmin ? 'isAdmin' : ''}
     >
       {newPosts.map((dado: Post, i) => (
-        <SwiperSlide key={i} style={{ width: '12.5rem' }}>
+        <SwiperSlide
+          key={i}
+          style={{
+            width: screenWidth > 900 ? '12.5rem' : screenWidth < 600 ? '7.938rem' : '9.875rem',
+          }}
+        >
           <Link href={`/post/${dado.postId}`}>
             <CarouselCard dado={dado} />
           </Link>

@@ -21,6 +21,16 @@ const MessageContainer = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
+
+  @media (max-width: 900px) {
+    width: 400px;
+    margin: 0 auto;
+  }
+
+  @media (max-width: 600px) {
+    width: 70vw;
+    
+  }
 `;
 
 const Message = styled.p`
@@ -32,25 +42,42 @@ const Message = styled.p`
   text-align: center;
   color: #021c41;
   width: 250px;
+
+  @media (max-width: 900px) {
+    font-size: 1rem;
+  }
 `;
 
 const GalaxyImage = styled.img`
   width: 164.43px;
   margin-right: auto;
+
+  @media (max-width: 900px) {
+    width: 110px
+  }
 `;
 
 const BubblesImage = styled.img`
   width: 102.12px;
   margin-left: auto;
+
+   @media (max-width: 900px) {
+    width: 83px
+  }
 `;
 
 const UserListContainer = styled.div`
   padding: 1.813rem 1.188rem;
-  box-sizing: border-box;
   width: 100%;
   border: 1px solid #f0d2c7;
   border-radius: 7px;
   box-shadow: 0px 1px 4.9px 0px #0000005c;
+
+  @media (max-width: 900px) {
+    padding: 1rem 6px;
+    width: 90%;
+    margin: 0 auto 3.625rem auto;
+  }
 `;
 
 const UserList = styled.ul`

@@ -22,8 +22,12 @@ const Background = styled.header<{ $role: Role }>`
   height: 5.125rem;
   margin-bottom: 4.438rem;
 
+  @media (max-width: 900px) {
+    margin-bottom: 1.75rem;
+  }
   @media (max-width: 500px) {
     height: 2.75rem;
+    margin-bottom: 1rem;
   }
 `;
 
@@ -100,7 +104,6 @@ const Title = styled.h4`
 const UserName = styled.span`
   color: ${({ theme }) => theme.colors.text};
   font-weight: 400;
-
 
   @media (max-width: 500px) {
     font-size: 12px;

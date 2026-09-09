@@ -7,6 +7,7 @@ export type Post = {
   titulo: string;
   descricao: string;
   conteudo?: string;
+  foiVisto?: boolean;
   autor: string;
   image?: string | null;
   subject?: {
