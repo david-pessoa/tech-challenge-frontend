@@ -28,6 +28,7 @@ const Modal = styled.div`
   box-shadow: 0 0.75rem 2rem rgba(50, 67, 77, 0.24);
   color: ${({ theme }) => theme.colors.text};
   padding: 1.5rem;
+  box-sizing: border-box;
 `;
 
 const ModalHeader = styled.div`
@@ -36,6 +37,7 @@ const ModalHeader = styled.div`
   align-items: center;
   gap: 0.75rem;
   margin-bottom: 1.25rem;
+  width: 100%;
 `;
 
 const AlertIcon = styled.span`
@@ -58,12 +60,17 @@ const ModalTitle = styled.h2`
   font-size: 1.25rem;
   font-weight: 600;
   margin: 0;
+  text-align: center;
+  width: 100%;
+  word-break: break-word; 
+  overflow-wrap: break-word;
 `;
 
 const ModalActions = styled.div`
   display: flex;
-  justify-content: flex-end;
+  justify-content: center;
   gap: 1rem;
+  width: 100%;
 `;
 
 const ModalButton = styled.button<{ $secondary?: boolean }>`
@@ -77,6 +84,11 @@ const ModalButton = styled.button<{ $secondary?: boolean }>`
   min-height: 2.25rem;
   min-width: 7rem;
   padding: 0 1.25rem;
+  transition: opacity 0.2s;
+
+  &:hover {
+    opacity: 0.8;
+  }
 `;
 
 export default function DeletePostModal({

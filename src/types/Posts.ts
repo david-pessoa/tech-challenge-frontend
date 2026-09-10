@@ -18,6 +18,7 @@ export type Post = {
     userId: string;
     nome: string;
     tipoUsuario: Role;
+    image: string | null;
   };
   createdAt: Date;
   editedAt: Date;

@@ -1,0 +1,1101 @@
+import styled from 'styled-components';
+import type { Role } from '../types/Roles';
+import { useParams, useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { getPostById } from '../services/post.service';
+import type { Post } from '../types/Posts';
+import type { Comment } from '../types/Comment';
+
+import { useUser } from '../context/AuthContext';
+import Header from '../components/Header';
+import Footer from '../components/Footer';
+
+import featureIcon from '../assets/featureIcon.png';
+import cloudIcon from '../assets/cloudIcon.png';
+import sunIcon from '../assets/sunIcon.png';
+import flowerIcon from '../assets/flowerIcon.png';
+import userDefaultImage from '../assets/user-default-image.png';
+import {
+  createComment,
+  deleteComment,
+  getCommentsByPostId,
+  updateComment,
+} from '../services/comment.service';
+import { Toast } from './ToastComponents';
+import type { User } from '../types/User';
+import { getUserById } from '../services/user.service';
+import { capitalize, formatarData } from '../utils/functions';
+import { materias } from '../types/Materias';
+
+const BASE_URL = import.meta.env.VITE_BASE_URL;
+
+const userCircleColors = {
+  ADMIN: { background: '#6FB2A7', border: '2px solid #A4F3E5' },
+  PROFESSOR: { background: '#FBB3BE', border: '2px solid #F7CED2' },
+  ALUNO: { background: '#FDE9A0', border: '2px solid #FEF1CE' },
+};
+
+function calcularTempoAtras(dataString: string) {
+  const data = new Date(dataString);
+  const agora = new Date();
+  const diferencaSegundos = Math.floor((agora.getTime() - data.getTime()) / 1000);
+
+  if (diferencaSegundos < 60) return 'Agora mesmo';
+  const diferencaMinutos = Math.floor(diferencaSegundos / 60);
+  if (diferencaMinutos < 60)
+    return `${diferencaMinutos} minuto${diferencaMinutos !== 1 ? 's' : ''} atrás`;
+  const diferencaHoras = Math.floor(diferencaMinutos / 60);
+  if (diferencaHoras < 24) return `${diferencaHoras} hora${diferencaHoras !== 1 ? 's' : ''} atrás`;
+  const diferencaDias = Math.floor(diferencaHoras / 24);
+  if (diferencaDias < 30) return `${diferencaDias} dia${diferencaDias !== 1 ? 's' : ''} atrás`;
+  return new Intl.DateTimeFormat('pt-BR').format(data);
+}
+
+function getAvatarColor(name: string) {
+  const colors = ['#D2B4DE', '#F1948A', '#A3E4D7', '#F5CBA7', '#AED6F1'];
+  return colors[name.length % colors.length];
+}
+
+const Overlay = styled.div`
+  position: fixed;
+  inset: 0;
+  background: rgba(255, 252, 247, 0.7);
+  backdrop-filter: blur(4px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+`;
+
+const LoadingWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  width: 100%;
+`;
+
+const Spinner = styled.div`
+  width: 60px;
+  height: 60px;
+  border: 6px solid #f6d4d9;
+  border-top-color: ${({ theme }) => theme.colors.primary};
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+`;
+
+const LoadingText = styled.p`
+  margin-top: 16px;
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: ${({ theme }) => theme.colors.primary};
+  font-family: ${({ theme }) => theme.typography.fontFamily};
+`;
+
+const ModalOverlay = styled.div`
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(2px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+`;
+
+const ModalContent = styled.div`
+  background: #fffcf7;
+  padding: 2.5rem 3rem;
+  border-radius: 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+  box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.2);
+  max-width: 450px;
+  text-align: center;
+  box-sizing: border-box;
+`;
+
+const ModalIconWrapper = styled.div`
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background-color: #f6d4d9;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #e64b63;
+`;
+
+const ModalText = styled.p`
+  font-size: 1.1rem;
+  color: #32434d;
+  font-weight: 600;
+  margin: 0;
+  word-break: break-word;
+`;
+
+const ModalActions = styled.div`
+  display: flex;
+  gap: 1rem;
+  width: 100%;
+  justify-content: center;
+  margin-top: 0.5rem;
+`;
+
+const ModalButton = styled.button<{ $variant: 'cancel' | 'confirm' }>`
+  padding: 0.5rem 1.5rem;
+  border-radius: 20px;
+  font-family: inherit;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: opacity 0.2s;
+
+  ${({ $variant }) =>
+    $variant === 'cancel'
+      ? `
+        background: transparent;
+        border: 1px solid #e64b63;
+        color: #e64b63;
+      `
+      : `
+        background: #e64b63;
+        border: none;
+        color: #ffffff;
+      `}
+
+  &:hover {
+    opacity: 0.8;
+  }
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+`;
+
+const PageContainer = styled.main`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: #fffcf7;
+  min-height: 100vh;
+  position: relative;
+  overflow-x: hidden;
+  width: 100%;
+  box-sizing: border-box;
+`;
+
+const ContentWrapper = styled.div`
+  width: 100%;
+  max-width: 900px;
+  padding: 40px 20px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+`;
+
+const BackButton = styled.button`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: none;
+  border: none;
+  color: #3a505d;
+  font-size: 15px;
+  cursor: pointer;
+  position: absolute;
+  top: 10px;
+  left: -10px;
+  transition: transform 0.2s ease-in-out;
+
+  &:hover {
+    transform: translateY(-3px);
+  }
+`;
+
+const BackIcon = styled.span`
+  color: #fddf00;
+  font-size: 24px;
+`;
+
+const HeaderSection = styled.div`
+  text-align: center;
+  margin-bottom: 30px;
+  position: relative;
+  align-self: center;
+  width: 100%;
+`;
+
+const Categoria = styled.p<{ $color?: string }>`
+  color: ${props => props.$color || '#287c6d'};
+  font-size: 18px;
+  font-weight: 500;
+  margin-bottom: 8px;
+`;
+
+const TitleWrapper = styled.div`
+  position: relative;
+  display: inline-block;
+  max-width: 100%;
+`;
+
+const Titulo = styled.h1`
+  color: #32434d;
+  font-size: 36px;
+  font-weight: bold;
+  margin-bottom: 12px;
+  word-break: break-word;
+  overflow-wrap: break-word;
+`;
+
+const Subtitulo = styled.p`
+  color: #7a8b94;
+  font-size: 16px;
+  font-weight: 400;
+  word-break: break-word;
+  overflow-wrap: break-word;
+`;
+
+const ImagemPost = styled.img`
+  width: 100%;
+  max-height: 400px;
+  object-fit: cover;
+  border-radius: 12px;
+  margin-bottom: 40px;
+`;
+
+const AuthorSection = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 40px;
+`;
+
+const AuthorRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 10px;
+`;
+
+const AvatarCircle = styled.div<{ $bg?: string }>`
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-color: ${props => props.$bg || '#D2B4DE'};
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: bold;
+  flex-shrink: 0;
+`;
+
+const AuthorName = styled.span`
+  color: #32434d;
+  font-size: 15px;
+`;
+
+const PostDates = styled.p`
+  color: #3a505d;
+  font-size: 15px;
+  display: flex;
+  flex-direction: row;
+  gap: 12px;
+  flex-wrap: wrap; 
+`;
+
+const TextContent = styled.div`
+  color: #32434d;
+  font-size: 16px;
+  line-height: 1.6;
+  position: relative;
+  width: 100%;
+`;
+
+const Paragraph = styled.p`
+  margin-bottom: 20px;
+  color: #000000;
+  font-size: 16px;
+  word-break: break-word;
+  overflow-wrap: break-word;
+`;
+
+const EmptyCommentsText = styled.p`
+  text-align: center;
+  color: #7a8b94;
+  font-size: 16px;
+  font-style: italic;
+  margin-top: 20px;
+`;
+
+const QuestionsSection = styled.section`
+  margin-top: 60px;
+  width: 100%;
+`;
+
+const QuestionsTitle = styled.h2`
+  color: #3a505d;
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 40px;
+`;
+
+const InputContainer = styled.div`
+  background-color: #faf7ea;
+  border-radius: 16px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-bottom: 60px;
+  box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
+  box-sizing: border-box;
+  width: 100%;
+`;
+
+const StyledTextarea = styled.textarea`
+  background: transparent;
+  border: none;
+  resize: vertical;
+  font-size: 16px;
+  color: #603c24;
+  outline: none;
+  min-height: 60px;
+  width: 100%;
+  box-sizing: border-box;
+
+  &::placeholder {
+    color: #603c24;
+    font-size: 16px;
+    font-weight: bold;
+  }
+`;
+
+const SubmitButton = styled.button`
+  align-self: flex-end;
+  background-color: #fcbba3;
+  color: #603c;
+  border: none;
+  padding: 8px 30px;
+  border-radius: 20px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s;
+
+  &:hover {
+    opacity: 0.8;
+  }
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+`;
+
+const CommentsList = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+  width: 100%;
+`;
+
+const CommentGroup = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 100%;
+`;
+
+const CommentItem = styled.div<{ $isReply?: boolean }>`
+  display: flex;
+  gap: 15px;
+  margin-left: ${props => (props.$isReply ? '47px' : '0')};
+  position: relative;
+  width: ${props => (props.$isReply ? 'calc(100% - 47px)' : '100%')};
+  box-sizing: border-box;
+
+  &::before {
+    content: '';
+    display: ${props => (props.$isReply ? 'block' : 'none')};
+    position: absolute;
+    left: -24px;
+    top: -30px;
+    width: 14px;
+    height: 45px;
+    border-left: 2px solid #e6ebef;
+    border-bottom: 2px solid #e6ebef;
+    border-bottom-left-radius: 8px;
+  }
+`;
+
+const CommentContent = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+  overflow: hidden;
+`;
+
+const CommentHeader = styled.div`
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+`;
+
+const CommentTime = styled.span`
+  color: #7892a1;
+  font-size: 11px;
+  margin-top: 4px;
+  display: block;
+`;
+
+const CommentText = styled.p`
+  color: #32434d;
+  font-size: 14px;
+  line-height: 1.4;
+  word-break: break-word;
+  overflow-wrap: break-word;
+`;
+
+const CommentActions = styled.div`
+  display: flex;
+  gap: 8px;
+
+  button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    transition: opacity 0.2s;
+
+    &:hover {
+      opacity: 0.7;
+    }
+  }
+`;
+
+const EditIcon = styled.span`
+  color: #a15e6d;
+  font-size: 20px;
+`;
+
+const DeleteIcon = styled.span`
+  color: #e64b63;
+  font-size: 20px;
+`;
+
+const ReplyButton = styled.button`
+  background: none;
+  border: none;
+  color: ${({ theme }) => theme.colors.primary};
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+  margin-top: 5px;
+  text-align: left;
+  width: fit-content;
+
+  &:hover {
+    text-decoration: underline;
+  }
+`;
+
+const ReplyInputContainer = styled(InputContainer)`
+  margin-left: 47px;
+  margin-bottom: 0;
+  padding: 15px;
+  box-shadow: 0px 2px 2px 0px rgba(0, 0, 0, 0.15);
+  width: calc(100% - 47px);
+
+  textarea {
+    min-height: 40px;
+  }
+`;
+
+const EditInputContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  background-color: #faf7ea;
+  padding: 10px;
+  border-radius: 8px;
+  box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
+  box-sizing: border-box;
+
+  textarea {
+    width: 100%;
+    border: none;
+    resize: vertical;
+    font-size: 14px;
+    font-family: inherit;
+    outline: none;
+    color: #603c24;
+    background-color: #faf7ea;
+    min-height: 40px;
+    box-sizing: border-box;
+  }
+`;
+
+const EditActions = styled.div`
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+
+  button {
+    padding: 4px 12px;
+    font-size: 12px;
+  }
+`;
+
+const Doodle = styled.img<{
+  $top?: string;
+  $right?: string;
+  $left?: string;
+  $bottom?: string;
+  $width?: string;
+}>`
+  position: absolute;
+  top: ${props => props.$top};
+  right: ${props => props.$right};
+  left: ${props => props.$left};
+  bottom: ${props => props.$bottom};
+  width: ${props => props.$width || '50px'};
+  z-index: 1;
+  pointer-events: none;
+`;
+
+const Circle = styled.img<{ $role?: Role }>`
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+  background-color: ${({ $role }) => ($role ? userCircleColors[$role]?.background : '#6FB2A7')};
+  border: ${({ $role }) => ($role ? userCircleColors[$role]?.border : '2px solid #A4F3E5')};
+`;
+
+type DeletableComment = Comment | NonNullable<Comment['childComment']>;
+
+export default function PostPage() {
+  const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
+  const { user } = useUser();
+  const [post, setPost] = useState<Post | null>(null);
+  const [postAuthor, setPostAuthor] = useState<User>();
+  const [isOwner, setIsOwner] = useState<boolean>(false);
+  const [comments, setComments] = useState<Comment[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [toast, setToast] = useState<{ message: string; status: boolean } | null>(null);
+  const [newComment, setNewComment] = useState('');
+  const [isSubmittingComment, setIsSubmittingComment] = useState(false);
+  const [replyingTo, setReplyingTo] = useState<string | null>(null);
+  const [replyContent, setReplyContent] = useState('');
+  const [isSubmittingReply, setIsSubmittingReply] = useState(false);
+  const [editingCommentId, setEditingCommentId] = useState<string | null>(null);
+  const [editContent, setEditContent] = useState('');
+  const [isSubmittingEdit, setIsSubmittingEdit] = useState(false);
+  const [commentToDelete, setCommentToDelete] = useState<DeletableComment | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [imageError, setImageError] = useState(false);
+
+  const carregarAulaEComentarios = async () => {
+    if (!id) return;
+    setImageError(false); 
+    
+    try {
+      const postData = await getPostById(id);
+      setPost(postData);
+      document.title = `Edify | ${postData.titulo}`;
+      const commentsData = await getCommentsByPostId(id);
+      setComments(commentsData);
+
+      setIsOwner(false);
+      const postCreator = await getUserById(postData.userId ?? '');
+      setPostAuthor(postCreator);
+      setIsOwner(user?.id === postData.userId);
+      if (postData.image && postData.image !== 'null') {
+        const imgSrc = `${BASE_URL}${postData.image}`;
+        const img = new Image();
+
+        img.onload = () => setIsLoading(false);
+        img.onerror = () => {
+          setImageError(true); 
+          setIsLoading(false);
+        };
+        img.src = imgSrc;
+      } else {
+        setImageError(true); 
+        setIsLoading(false);
+      }
+      
+    } catch (err) {
+      console.error('Erro ao carregar conteúdo da página:', err);
+      setPost(null);
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    setIsLoading(true);
+    carregarAulaEComentarios();
+  }, [id]);
+
+  useEffect(() => {
+    if (!toast) return;
+    const timeout = window.setTimeout(() => setToast(null), 4000);
+    return () => window.clearTimeout(timeout);
+  }, [toast]);
+
+  const handleCommentSubmit = async () => {
+    if (!newComment.trim() || !id) return;
+
+    setIsSubmittingComment(true);
+    try {
+      await createComment(id, newComment);
+      setNewComment('');
+      await carregarAulaEComentarios();
+      setToast({ message: 'Pergunta enviada com sucesso!', status: true });
+    } catch (error) {
+      setToast({ message: 'Ocorreu um erro ao enviar sua pergunta.', status: false });
+    } finally {
+      setIsSubmittingComment(false);
+    }
+  };
+
+  const handleReplySubmit = async (parentId: string) => {
+    if (!replyContent.trim() || !id) return;
+
+    setIsSubmittingReply(true);
+    try {
+      await createComment(id, replyContent, parentId);
+      setReplyContent('');
+      setReplyingTo(null);
+      await carregarAulaEComentarios();
+      setToast({ message: 'Resposta enviada com sucesso!', status: true });
+    } catch (error) {
+      setToast({ message: 'Ocorreu um erro ao enviar a resposta.', status: false });
+    } finally {
+      setIsSubmittingReply(false);
+    }
+  };
+
+  const startEditing = (commentId: string, currentContent: string) => {
+    setEditingCommentId(commentId);
+    setEditContent(currentContent);
+  };
+
+  const handleEditSubmit = async (commentId: string) => {
+    if (!editContent.trim()) return;
+
+    setIsSubmittingEdit(true);
+    try {
+      await updateComment(commentId, editContent);
+      setEditingCommentId(null);
+      setEditContent('');
+      await carregarAulaEComentarios();
+      setToast({ message: 'Comentário atualizado!', status: true });
+    } catch (error) {
+      setToast({ message: 'Erro ao atualizar o comentário.', status: false });
+    } finally {
+      setIsSubmittingEdit(false);
+    }
+  };
+
+  const confirmDeleteComment = async () => {
+    if (!commentToDelete) return;
+
+    setIsDeleting(true);
+    try {
+      await deleteComment(commentToDelete.id);
+      setCommentToDelete(null);
+      await carregarAulaEComentarios();
+      setToast({ message: 'Comentário removido!', status: true });
+    } catch (error) {
+      setToast({ message: 'Erro ao remover o comentário.', status: false });
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <>
+        <Header />
+        <PageContainer>
+          <LoadingWrapper>
+            <Spinner />
+            <LoadingText>Carregando aula...</LoadingText>
+          </LoadingWrapper>
+        </PageContainer>
+        <Footer />
+      </>
+    );
+  }
+
+  if (!post) {
+    return (
+      <>
+        <Header />
+        <PageContainer>
+          <ContentWrapper style={{ alignItems: 'center', marginTop: '50px' }}>
+            <Titulo>Aula não encontrada!</Titulo>
+            <BackButton style={{ position: 'relative', left: '0' }} onClick={() => navigate('/')}>
+              <BackIcon className="material-symbols-outlined">arrow_back</BackIcon>
+              Voltar a tela de início
+            </BackButton>
+          </ContentWrapper>
+        </PageContainer>
+        <Footer />
+      </>
+    );
+  }
+
+  const isOverlayLoading =
+    isSubmittingComment || isSubmittingReply || isSubmittingEdit || isDeleting;
+
+  const canEditComment = (commentAuthorId: string) => {
+    return user?.id === commentAuthorId;
+  };
+
+  const canDeleteComment = (commentAuthorId: string, commentAuthorRole?: string) => {
+    if (user?.role === 'ADMIN') return true;
+    if (user?.id === commentAuthorId) return true;
+    
+    if (user?.role === 'PROFESSOR' && isOwner) {
+      if (commentAuthorRole) {
+        return commentAuthorRole === 'ALUNO';
+      }
+      return true;
+    }
+    
+    return false;
+  };
+
+  return (
+    <>
+      {isOverlayLoading && (
+        <Overlay>
+          <Spinner />
+          <LoadingText>
+            {isDeleting ? 'Removendo...' : isSubmittingEdit ? 'Atualizando...' : 'Enviando...'}
+          </LoadingText>
+        </Overlay>
+      )}
+
+      {commentToDelete && (
+        <ModalOverlay>
+          <ModalContent>
+            <ModalIconWrapper>
+              <span className="material-symbols-outlined" style={{ fontSize: '32px' }}>
+                error
+              </span>
+            </ModalIconWrapper>
+            <ModalText>Você deseja remover o comentário "{commentToDelete.conteudo}"?</ModalText>
+            <ModalActions>
+              <ModalButton
+                $variant="cancel"
+                onClick={() => setCommentToDelete(null)}
+                disabled={isDeleting}
+              >
+                Cancelar
+              </ModalButton>
+              <ModalButton $variant="confirm" onClick={confirmDeleteComment} disabled={isDeleting}>
+                {isDeleting ? 'Removendo...' : 'Remover'}
+              </ModalButton>
+            </ModalActions>
+          </ModalContent>
+        </ModalOverlay>
+      )}
+      {toast && <Toast $isSucess={toast.status}>{toast.message}</Toast>}
+      <Header />
+      <PageContainer>
+        <ContentWrapper>
+          <BackButton onClick={() => navigate('/')}>
+            <BackIcon className="material-symbols-outlined">arrow_back</BackIcon>
+            Voltar a tela de início
+          </BackButton>
+
+          <HeaderSection>
+            <Categoria $color={materias[post?.subject?.nome ?? 'Geral']?.color}>
+              {post?.subject?.nome}
+            </Categoria>
+
+            <TitleWrapper>
+              <Titulo>{post.titulo}</Titulo>
+              <Doodle src={featureIcon} $top="-50px" $right="-60px" $width="108.77px" />
+            </TitleWrapper>
+
+            <Subtitulo>{post.descricao}</Subtitulo>
+            <Doodle src={cloudIcon} $top="-45px" $right="-235px" $width="80px" />
+          </HeaderSection>
+
+          {post.image && !imageError && (
+            <ImagemPost 
+              src={`${BASE_URL}${post.image}`} 
+              alt={post.titulo} 
+              onError={() => setImageError(true)} 
+            />
+          )}
+
+          <AuthorSection>
+            <AuthorRow>
+              {postAuthor ? (
+                <>
+                  <Circle
+                    src={postAuthor?.image ? `${BASE_URL}${postAuthor?.image}` : userDefaultImage}
+                    $role={postAuthor?.role}
+                    alt={post.autor}
+                  />
+                  <AuthorName>{postAuthor?.nome}</AuthorName>
+                </>
+              ) : (
+                <>
+                  <Circle src={userDefaultImage} $role={'PROFESSOR'} alt={'Autor do post'} />
+                  <AuthorName>--</AuthorName>
+                </>
+              )}
+            </AuthorRow>
+            <PostDates>
+              <span>Criado em {formatarData(post?.dataCriacao)}</span>
+              <span>Editado em {formatarData(post?.dataModificacao)}</span>
+            </PostDates>
+          </AuthorSection>
+
+          <TextContent>
+            <Doodle src={sunIcon} $top="30px" $left="-90px" $width="68px" />
+            <Doodle src={flowerIcon} $top="220px" $right="-80px" $width="65px" />
+            <Paragraph>{post.conteudo}</Paragraph>
+          </TextContent>
+
+          <QuestionsSection>
+            <QuestionsTitle>Perguntas</QuestionsTitle>
+            <InputContainer>
+              <StyledTextarea
+                placeholder="Faça uma pergunta"
+                value={newComment}
+                onChange={e => setNewComment(e.target.value)}
+                disabled={isSubmittingComment}
+              />
+              <SubmitButton
+                onClick={handleCommentSubmit}
+                disabled={isSubmittingComment || !newComment.trim()}
+              >
+                {isSubmittingComment ? 'Enviando...' : 'Enviar'}
+              </SubmitButton>
+            </InputContainer>
+
+            <CommentsList>
+              {comments.length === 0 ? (
+                <EmptyCommentsText>
+                  Nenhuma pergunta nesta aula ainda. Seja o primeiro a interagir!
+                </EmptyCommentsText>
+              ) : (
+                comments.map(comment => (
+                  <CommentGroup key={comment.id}>
+                    <CommentItem>
+                      {comment.image ? (
+                        <Circle
+                          src={`${BASE_URL}${comment.image}`}
+                          alt={comment.user.id}
+                          style={{ width: '32px', height: '32px' }}
+                        />
+                      ) : (
+                        <AvatarCircle $bg={getAvatarColor(comment.user.nome)}>
+                          {capitalize(comment.user.nome)}
+                        </AvatarCircle>
+                      )}
+                      <CommentContent>
+                        <CommentHeader>
+                          <div>
+                            <AuthorName>{comment.user.nome}</AuthorName>
+                            <CommentTime>{calcularTempoAtras(comment.dataCriacao)}</CommentTime>
+                          </div>
+
+                          {(canEditComment(comment.user.id) || canDeleteComment(comment.user.id, (comment.user as any)?.tipoUsuario || (comment.user as any)?.role)) && (
+                            <CommentActions>
+                              {canEditComment(comment.user.id) && (
+                                <button
+                                  onClick={() => startEditing(comment.id, comment.conteudo)}
+                                  title="Editar"
+                                >
+                                  <EditIcon className="material-symbols-outlined">edit</EditIcon>
+                                </button>
+                              )}
+                              {canDeleteComment(comment.user.id, (comment.user as any)?.tipoUsuario || (comment.user as any)?.role) && (
+                                <button onClick={() => setCommentToDelete(comment)} title="Excluir">
+                                  <DeleteIcon className="material-symbols-outlined">
+                                    delete
+                                  </DeleteIcon>
+                                </button>
+                              )}
+                            </CommentActions>
+                          )}
+                        </CommentHeader>
+
+                        {editingCommentId === comment.id ? (
+                          <EditInputContainer>
+                            <textarea
+                              value={editContent}
+                              onChange={e => setEditContent(e.target.value)}
+                              disabled={isSubmittingEdit}
+                            />
+                            <EditActions>
+                              <SubmitButton
+                                onClick={() => setEditingCommentId(null)}
+                                disabled={isSubmittingEdit}
+                                style={{
+                                  background: 'transparent',
+                                  color: '#e64b63',
+                                  border: '1px solid #e64b63',
+                                }}
+                              >
+                                Cancelar
+                              </SubmitButton>
+                              <SubmitButton
+                                onClick={() => handleEditSubmit(comment.id)}
+                                disabled={isSubmittingEdit || !editContent.trim()}
+                              >
+                                Salvar
+                              </SubmitButton>
+                            </EditActions>
+                          </EditInputContainer>
+                        ) : (
+                          <CommentText>{comment.conteudo}</CommentText>
+                        )}
+
+                        {isOwner && !comment.childComment && editingCommentId !== comment.id && (
+                          <ReplyButton
+                            onClick={() =>
+                              setReplyingTo(replyingTo === comment.id ? null : comment.id)
+                            }
+                          >
+                            {replyingTo === comment.id ? 'Cancelar resposta' : 'Responder'}
+                          </ReplyButton>
+                        )}
+                      </CommentContent>
+                    </CommentItem>
+                    {replyingTo === comment.id && (
+                      <ReplyInputContainer>
+                        <StyledTextarea
+                          placeholder="Escreva sua resposta..."
+                          value={replyContent}
+                          onChange={e => setReplyContent(e.target.value)}
+                          disabled={isSubmittingReply}
+                        />
+                        <SubmitButton
+                          onClick={() => handleReplySubmit(comment.id)}
+                          disabled={isSubmittingReply || !replyContent.trim()}
+                        >
+                          {isSubmittingReply ? 'Enviando...' : 'Responder'}
+                        </SubmitButton>
+                      </ReplyInputContainer>
+                    )}
+                    {comment.childComment && (
+                      <CommentItem $isReply>
+                        <Circle
+                          src={
+                            comment.childComment.image
+                              ? `${BASE_URL}${comment.childComment.image}`
+                              : postAuthor?.image
+                                ? `${BASE_URL}${postAuthor.image}`
+                                : userDefaultImage
+                          }
+                          $role={postAuthor?.role}
+                          alt={postAuthor?.nome}
+                          style={{ width: '32px', height: '32px' }}
+                        />
+                        <CommentContent>
+                          <CommentHeader>
+                            <div>
+                              <AuthorName>{postAuthor?.nome}</AuthorName>
+                              <CommentTime>
+                                {calcularTempoAtras(comment.childComment.dataCriacao)}
+                              </CommentTime>
+                            </div>
+
+                            {postAuthor && (canEditComment(postAuthor?.id) || canDeleteComment(postAuthor?.id, postAuthor.role)) && (
+                              <CommentActions>
+                                {canEditComment(postAuthor?.id) && (
+                                  <button
+                                    onClick={() =>
+                                      startEditing(
+                                        comment.childComment!.id,
+                                        comment.childComment!.conteudo
+                                      )
+                                    }
+                                    title="Editar"
+                                  >
+                                    <EditIcon className="material-symbols-outlined">edit</EditIcon>
+                                  </button>
+                                )}
+                                {canDeleteComment(postAuthor?.id, postAuthor.role) && (
+                                  <button
+                                    onClick={() => setCommentToDelete(comment.childComment)}
+                                    title="Excluir"
+                                  >
+                                    <DeleteIcon className="material-symbols-outlined">
+                                      delete
+                                    </DeleteIcon>
+                                  </button>
+                                )}
+                              </CommentActions>
+                            )}
+                          </CommentHeader>
+
+                          {editingCommentId === comment.childComment.id ? (
+                            <EditInputContainer>
+                              <textarea
+                                value={editContent}
+                                onChange={e => setEditContent(e.target.value)}
+                                disabled={isSubmittingEdit}
+                              />
+                              <EditActions>
+                                <SubmitButton
+                                  onClick={() => setEditingCommentId(null)}
+                                  disabled={isSubmittingEdit}
+                                  style={{
+                                    background: 'transparent',
+                                    color: '#e64b63',
+                                    border: '1px solid #e64b63',
+                                  }}
+                                >
+                                  Cancelar
+                                </SubmitButton>
+                                <SubmitButton
+                                  onClick={() => handleEditSubmit(comment.childComment!.id)}
+                                  disabled={isSubmittingEdit || !editContent.trim()}
+                                >
+                                  Salvar
+                                </SubmitButton>
+                              </EditActions>
+                            </EditInputContainer>
+                          ) : (
+                            <CommentText>{comment.childComment.conteudo}</CommentText>
+                          )}
+                        </CommentContent>
+                      </CommentItem>
+                    )}
+                  </CommentGroup>
+                ))
+              )}
+            </CommentsList>
+          </QuestionsSection>
+        </ContentWrapper>
+      </PageContainer>
+      <Footer />
+    </>
+  );
+}

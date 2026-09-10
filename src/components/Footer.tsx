@@ -11,6 +11,7 @@ const FooterContainer = styled.footer`
   display: flex;
   justify-content: center;
   align-items: center;
+  margin-top: 60px;
 
   @media (max-width: 700px) {
     height: 19rem;

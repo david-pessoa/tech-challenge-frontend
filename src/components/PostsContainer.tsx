@@ -58,7 +58,13 @@ const AddClassButton = styled.a`
   display: flex;
   align-items: center;
   justify-content: space-between;
+  cursor: pointer;
+  transition: opacity 0.2s;
 
+  &:hover {
+    opacity: 0.7;
+  }
+    
   @media (max-width: 600px) {
     width: 4.75rem;
   }
@@ -76,6 +82,7 @@ const AddIcon = styled.span`
 export default function PostsContainer() {
   const { user } = useUser();
   const [posts, setPosts] = useState<Post[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     async function returnAllPosts() {
@@ -85,15 +92,14 @@ export default function PostsContainer() {
       } catch (error) {
         setPosts([]);
       }
+      setIsLoading(false);
     }
     returnAllPosts();
   }, []);
 
+
   function AlunoContainer() {
-    
-    // Os posts já visualizados são exibidos na tabela
     const viewedPosts = posts.filter(p => p.foiVisto != false)
-    // Obtém os posts não vistos e exibe no carrossel
     const newPosts = posts.filter(p => p.foiVisto != true)
 
     return (
@@ -101,21 +107,20 @@ export default function PostsContainer() {
         <Container>
           <Title>Novas Aulas</Title>
           <Paragraph>Últimas postagens de aulas feitas pelos seus professores</Paragraph>
-          <Carousel newPosts={newPosts} isAdmin={false}/>
+          {isLoading ? (<Paragraph>Carregando aulas...</Paragraph>): <Carousel newPosts={newPosts} isAdmin={false}/>}
+          
         </Container>
         <Container>
           <Title>Aulas Finalizadas</Title>
           <Paragraph>Você já finalizou estas atividades</Paragraph>
-          <ViewedPostsTable dados={viewedPosts} />
+          <ViewedPostsTable dados={isLoading ? [] : viewedPosts} />
         </Container>
       </>
     );
   }
+  
   function TeacherContainer() {
-    // Os posts do próprio professor
     const myPosts = posts.filter(p => p.criadoPor?.userId === user?.id)
-
-    // Obtém os posts de outros professores
     const otherPosts = posts.filter(p => p.criadoPor?.userId !== user?.id)
 
     return (
@@ -129,18 +134,26 @@ export default function PostsContainer() {
               <p>Nova aula</p>
             </AddClassButton>
           </AddClassContainer>
-          <ManagementPostsTable dados={myPosts} />
+          {isLoading ? (
+            <Paragraph>Carregando aulas...</Paragraph>
+          ) : (
+            <ManagementPostsTable dados={myPosts} />
+          )}
         </Container>
         <Container>
           <Title>Outras aulas</Title>
           <Paragraph>Aulas criadas por outros professores</Paragraph>
-          <ViewedPostsTable dados={otherPosts} />
+          {isLoading ? (
+            <Paragraph>Carregando aulas...</Paragraph>
+          ) : (
+            <ViewedPostsTable dados={otherPosts} />
+          )}
         </Container>
       </>
     );
   }
+
   function AdminContainer() {
-     // Obtém os posts não vistos e exibe no carrossel
     const newPosts = posts.filter(p => p.foiVisto != true)
 
     return (
@@ -154,12 +167,12 @@ export default function PostsContainer() {
               <p>Nova aula</p>
             </AddClassButton>
           </AddClassContainer>
-          <Carousel newPosts={newPosts} isAdmin={true}/>
+          {isLoading ? (<Paragraph>Carregando aulas...</Paragraph>): <Carousel newPosts={newPosts} isAdmin={true}/>}
         </Container>
         <Container>
           <Title>Acervo da Escola</Title>
           <Paragraph>Todas as aulas postadas</Paragraph>
-          <ManagementPostsTable dados={posts} />
+          <ManagementPostsTable dados={isLoading ? [] : posts} />
         </Container>
       </>
     );

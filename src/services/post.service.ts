@@ -13,12 +13,13 @@ export async function getAllPosts() {
   }
 }
 
-export async function createPost(post: any) {
+
+export async function createPost(postData: FormData): Promise<void> {
   try {
-    const response = await api.post('/posts', post);
+    const response = await api.post('/posts', postData);
     return response.data;
   } catch (error) {
-    console.error('Erro na criação de posts:', error);
+    console.error('Erro ao criar post:', error);
     throw new Error(getBackendErrorMessage(error));
   }
 }
@@ -33,7 +34,7 @@ export async function getPostById(id: string) {
   }
 }
 
-export async function updatePost(id: string, post: any) {
+export async function updatePost(id: string, post: FormData): Promise<void> {
   try {
     const response = await api.put(`/posts/${id}`, post);
     return response.data;
@@ -43,7 +44,7 @@ export async function updatePost(id: string, post: any) {
   }
 }
 
-export async function deletePost(id: string) {
+export async function deletePost(id: string): Promise<void> {
   try {
     const response = await api.delete(`/posts/${id}`);
     return response.data;
@@ -53,7 +54,7 @@ export async function deletePost(id: string) {
   }
 }
 
-export async function searchPost(text: string) {
+export async function searchPost(text: string): Promise<Post[]> {
   try {
     const response = await api.get('/posts/search', {
       params: {
