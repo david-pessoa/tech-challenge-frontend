@@ -249,7 +249,7 @@ export default function ManagementPostsTable({ dados }: ManagementPostsTableProp
                       <EditButton href={`/post/edit/${post.postId}`}>
                         <EditIcon className="material-symbols-outlined">edit</EditIcon>
                       </EditButton>
-                      {user?.role === 'ADMIN' && (
+                      {user?.role === 'ADMIN' || user?.id === post.criadoPor?.userId && (
                         <DeleteButton onClick={() => openDeleteModal(post)}>
                           <DeleteIcon className="material-symbols-outlined">delete</DeleteIcon>
                         </DeleteButton>
