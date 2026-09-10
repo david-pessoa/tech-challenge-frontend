@@ -64,7 +64,7 @@ export default function ErrorPage({ code, title, description }: ErrorPageProps) 
         <Code>{code}</Code>
         <Title>{title}</Title>
         <Description>{description}</Description>
-        <HomeLink to="/">Voltar para a página</HomeLink>
+        <HomeLink to="/">Voltar para a página inicial</HomeLink>
       </Content>
     </Wrapper>
   );
