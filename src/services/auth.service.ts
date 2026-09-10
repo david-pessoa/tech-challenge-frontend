@@ -21,7 +21,7 @@ export function getBackendErrorMessage(error: unknown): string {
   return 'Não foi possível concluir a operação.';
 }
 
-export async function login(matricula: string, password: string) {
+export async function login(matricula: string, password: string): Promise<void> {
   try {
     const response = await api.post('/auth/login', {
       matricula,

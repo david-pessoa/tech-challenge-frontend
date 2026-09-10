@@ -183,12 +183,7 @@ As chamadas são montadas com o sufixo `/api`; por exemplo, o login usa
 
 ## Melhorias futuras
 
-- Substituir a navegação imperativa usada no bloqueio de rotas por um fluxo mais previsível e
-  acessível.
-- Centralizar a configuração do cliente Axios e seus interceptors de autenticação/expiração de
-  token.
+- Substituir a navegação imperativa usada no bloqueio de rotas por um fluxo mais previsível e acessível.
+- Centralizar a configuração do cliente Axios e seus interceptors de autenticação/expiração de token.
 - Adicionar estados de carregamento, vazio e erro mais consistentes para todas as consultas.
-- Melhorar a tipagem dos payloads de posts, evitando o uso de `any` nos serviços.
-- Configurar pipeline de CI para lint, type-check, build e testes.
 - Documentar o contrato da API e disponibilizar ambientes de desenvolvimento e produção.
-- Manter a configuração de CORS, CSRF e expiração/rotação dos cookies alinhada com o back-end.
