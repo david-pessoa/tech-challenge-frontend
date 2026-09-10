@@ -9,23 +9,23 @@ import { materias } from '../types/Materias';
 import { Toast } from './ToastComponents';
 
 type PostEditorProps = {
-    isNew: boolean;
+  isNew: boolean;
 };
 
 type PostFormData = {
-    titulo: string;
-    descricao: string;
-    conteudo: string;
-    subjectName: string;
-    image: File | null;
+  titulo: string;
+  descricao: string;
+  conteudo: string;
+  subjectName: string;
+  image: File | null;
 };
 
 const initialFormData: PostFormData = {
-    titulo: '',
-    descricao: '',
-    conteudo: '',
-    subjectName: 'Geral',
-    image: null,
+  titulo: '',
+  descricao: '',
+  conteudo: '',
+  subjectName: 'Geral',
+  image: null,
 };
 
 const Overlay = styled.div`
@@ -45,7 +45,7 @@ const LoadingWrapper = styled.div`
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-height: 40vh; /* Mantém o spinner centralizado no meio da tela */
+  min-height: 40vh; 
 `;
 
 const Spinner = styled.div`
@@ -189,6 +189,13 @@ const UploadText = styled.span`
   line-height: 1.4;
 `;
 
+const OptionalText = styled.span`
+  font-size: 0.85rem;
+  font-weight: normal;
+  color: ${({ theme }) => theme.colors.text};
+  opacity: 0.6;
+`;
+
 const RemoveImageButton = styled.button`
   position: absolute;
   top: 20px;
@@ -231,6 +238,20 @@ const Field = styled.label<{ $full?: boolean }>`
   color: ${({ theme }) => theme.colors.text};
   font-size: ${({ theme }) => theme.typography.field.fontSize};
   font-weight: ${({ theme }) => theme.typography.field.fontWeight};
+`;
+
+const LabelHeader = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+`;
+
+const CharCount = styled.span<{ $isNearLimit: boolean }>`
+  font-size: 0.8rem;
+  color: ${({ $isNearLimit, theme }) => $isNearLimit ? '#e64b63' : theme.colors.text};
+  opacity: ${({ $isNearLimit }) => $isNearLimit ? 1 : 0.6};
+  font-weight: ${({ $isNearLimit }) => $isNearLimit ? 'bold' : 'normal'};
 `;
 
 const RequiredMark = styled.span`
@@ -327,8 +348,12 @@ export default function PostEditor({ isNew }: PostEditorProps) {
     
     const [isFetching, setIsFetching] = useState(!isNew); 
     const [isProcessing, setIsProcessing] = useState(false); 
+    const [imageRemoved, setImageRemoved] = useState(false); 
 
-    const isFormValid = Boolean(formData.titulo.trim()) && Boolean(formData.descricao.trim()) && Boolean(formData.conteudo.trim());
+    const isFormValid = 
+        formData.titulo.trim().length > 0 && formData.titulo.length <= 100 &&
+        formData.descricao.trim().length > 0 && formData.descricao.length <= 100 &&
+        formData.conteudo.trim().length > 0;
 
     useEffect(() => {
         if (isNew || !id) {
@@ -349,7 +374,7 @@ export default function PostEditor({ isNew }: PostEditorProps) {
                     image: null,
                 });
 
-                if (post.image) {
+                if (post.image && post.image !== 'null') {
                     const imgUrl = `${import.meta.env.VITE_BASE_URL}${post.image}`;
                     setImagePreview(imgUrl);
                 }
@@ -370,6 +395,7 @@ export default function PostEditor({ isNew }: PostEditorProps) {
 
     async function handleSubmit(event: FormEvent<HTMLFormElement>) {
         event.preventDefault();
+        if (!isFormValid) return;
 
         setIsProcessing(true);
 
@@ -381,6 +407,9 @@ export default function PostEditor({ isNew }: PostEditorProps) {
 
         if (formData.image) {
             postDataForm.append('image', formData.image);
+        } else if (!isNew && imageRemoved) {
+            const emptyFile = new File([''], 'empty.jpg', { type: 'image/jpeg' });
+            postDataForm.append('image', emptyFile);
         }
 
         try {
@@ -402,6 +431,7 @@ export default function PostEditor({ isNew }: PostEditorProps) {
         if (imagePreview.startsWith('blob:')) URL.revokeObjectURL(imagePreview);
         setFormData({ ...formData, image: null });
         setImagePreview('');
+        setImageRemoved(true); 
         if (imageInputRef.current) imageInputRef.current.value = '';
     }
 
@@ -443,6 +473,8 @@ export default function PostEditor({ isNew }: PostEditorProps) {
                                         <UploadIcon className="material-symbols-outlined">download</UploadIcon>
                                         <UploadText>
                                             Clique para carregar ou <br /> arraste e solte.
+                                            <br />
+                                            <OptionalText>(Opcional)</OptionalText>
                                         </UploadText>
                                     </UploadContent>
                                 )}
@@ -456,6 +488,7 @@ export default function PostEditor({ isNew }: PostEditorProps) {
                                         const file = event.target.files?.[0] ?? null;
                                         setFormData({ ...formData, image: file });
                                         setImagePreview(file ? URL.createObjectURL(file) : '');
+                                        if (file) setImageRemoved(false);
                                     }}
                                 />
                             </PhotoUpload>
@@ -468,9 +501,15 @@ export default function PostEditor({ isNew }: PostEditorProps) {
 
                         <Fields>
                             <Field htmlFor="titulo">
-                                <span>Título da Aula <RequiredMark>*</RequiredMark></span>
+                                <LabelHeader>
+                                    <span>Título<RequiredMark>*</RequiredMark></span>
+                                    <CharCount $isNearLimit={formData.titulo.length >= 90}>
+                                        {formData.titulo.length}/100
+                                    </CharCount>
+                                </LabelHeader>
                                 <Input
                                     id="titulo"
+                                    maxLength={100}
                                     value={formData.titulo}
                                     placeholder="Ex: Introdução à Mitose..."
                                     onChange={e => setFormData({ ...formData, titulo: e.target.value })}
@@ -478,7 +517,9 @@ export default function PostEditor({ isNew }: PostEditorProps) {
                             </Field>
 
                             <Field htmlFor="subjectName">
-                                <span>Matéria<RequiredMark>*</RequiredMark></span>
+                                <LabelHeader>
+                                    <span>Matéria<RequiredMark>*</RequiredMark></span>
+                                </LabelHeader>
                                 <Select
                                     id="subjectName"
                                     value={formData.subjectName}
@@ -491,9 +532,15 @@ export default function PostEditor({ isNew }: PostEditorProps) {
                             </Field>
 
                             <Field htmlFor="descricao" $full>
-                                <span>Descrição<RequiredMark>*</RequiredMark></span>
+                                <LabelHeader>
+                                    <span>Descrição<RequiredMark>*</RequiredMark></span>
+                                    <CharCount $isNearLimit={formData.descricao.length >= 90}>
+                                        {formData.descricao.length}/100
+                                    </CharCount>
+                                </LabelHeader>
                                 <Input
                                     id="descricao"
+                                    maxLength={100}
                                     value={formData.descricao}
                                     placeholder="Ex: Nesta aula vamos aprender sobre..."
                                     onChange={e => setFormData({ ...formData, descricao: e.target.value })}

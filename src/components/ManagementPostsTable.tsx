@@ -16,6 +16,7 @@ const TableContainer = styled.div`
   width: 100%;
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
+  border-radius: 0.5rem;
 `;
 
 const Table = styled.table`
@@ -26,7 +27,7 @@ const Tr = styled.tr`
   cursor: pointer;
 
   &:hover {
-    background-color: #e49e35a4;
+    background-color: #fce7c9a4;
   }
 `;
 

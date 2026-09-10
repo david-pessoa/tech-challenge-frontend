@@ -13,6 +13,8 @@ const TableContainer = styled.div`
   width: 100%;
   overflow-x: visible;
   -webkit-overflow-scrolling: touch;
+  border-radius: 0.5rem;
+  background-color: transparent; 
 
   @media (max-width: 600px) {
     overflow-x: auto;
@@ -21,13 +23,17 @@ const TableContainer = styled.div`
 
 const Table = styled.table`
   width: 100%;
+  border-collapse: collapse; 
+  border-radius: 0.5rem;
+  overflow: hidden; 
 `;
 
 const Tr = styled.tr`
   cursor: pointer;
+  transition: background-color 0.2s; 
 
   &:hover {
-    background-color: #e49e35a4;
+    background-color: #fce7c9a4;
   }
 `;
 
@@ -36,6 +42,7 @@ const Td = styled.td`
   text-align: center;
   overflow: hidden;
   text-overflow: ellipsis;
+  padding: 10px;
 
   @media (max-width: 600px) {
     font-size: 10px;

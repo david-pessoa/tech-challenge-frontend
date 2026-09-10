@@ -10,7 +10,6 @@ import { useUser } from '../context/AuthContext';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 
-import imagePost from '../assets/imagePost.png';
 import featureIcon from '../assets/featureIcon.png';
 import cloudIcon from '../assets/cloudIcon.png';
 import sunIcon from '../assets/sunIcon.png';
@@ -123,6 +122,7 @@ const ModalContent = styled.div`
   box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.2);
   max-width: 450px;
   text-align: center;
+  box-sizing: border-box;
 `;
 
 const ModalIconWrapper = styled.div`
@@ -141,6 +141,7 @@ const ModalText = styled.p`
   color: #32434d;
   font-weight: 600;
   margin: 0;
+  word-break: break-word;
 `;
 
 const ModalActions = styled.div`
@@ -190,6 +191,8 @@ const PageContainer = styled.main`
   min-height: 100vh;
   position: relative;
   overflow-x: hidden;
+  width: 100%;
+  box-sizing: border-box;
 `;
 
 const ContentWrapper = styled.div`
@@ -199,6 +202,7 @@ const ContentWrapper = styled.div`
   position: relative;
   display: flex;
   flex-direction: column;
+  box-sizing: border-box;
 `;
 
 const BackButton = styled.button`
@@ -230,10 +234,11 @@ const HeaderSection = styled.div`
   margin-bottom: 30px;
   position: relative;
   align-self: center;
+  width: 100%;
 `;
 
-const Categoria = styled.p<{ $color: string}>`
-  color: ${props => props.$color || '#287c6d'};;
+const Categoria = styled.p<{ $color?: string }>`
+  color: ${props => props.$color || '#287c6d'};
   font-size: 18px;
   font-weight: 500;
   margin-bottom: 8px;
@@ -242,6 +247,7 @@ const Categoria = styled.p<{ $color: string}>`
 const TitleWrapper = styled.div`
   position: relative;
   display: inline-block;
+  max-width: 100%;
 `;
 
 const Titulo = styled.h1`
@@ -249,12 +255,16 @@ const Titulo = styled.h1`
   font-size: 36px;
   font-weight: bold;
   margin-bottom: 12px;
+  word-break: break-word;
+  overflow-wrap: break-word;
 `;
 
 const Subtitulo = styled.p`
   color: #7a8b94;
   font-size: 16px;
   font-weight: 400;
+  word-break: break-word;
+  overflow-wrap: break-word;
 `;
 
 const ImagemPost = styled.img`
@@ -302,6 +312,7 @@ const PostDates = styled.p`
   display: flex;
   flex-direction: row;
   gap: 12px;
+  flex-wrap: wrap; 
 `;
 
 const TextContent = styled.div`
@@ -309,12 +320,15 @@ const TextContent = styled.div`
   font-size: 16px;
   line-height: 1.6;
   position: relative;
+  width: 100%;
 `;
 
 const Paragraph = styled.p`
   margin-bottom: 20px;
   color: #000000;
   font-size: 16px;
+  word-break: break-word;
+  overflow-wrap: break-word;
 `;
 
 const EmptyCommentsText = styled.p`
@@ -346,16 +360,20 @@ const InputContainer = styled.div`
   gap: 15px;
   margin-bottom: 60px;
   box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
+  box-sizing: border-box;
+  width: 100%;
 `;
 
 const StyledTextarea = styled.textarea`
   background: transparent;
   border: none;
-  resize: none;
+  resize: vertical;
   font-size: 16px;
   color: #603c24;
   outline: none;
   min-height: 60px;
+  width: 100%;
+  box-sizing: border-box;
 
   &::placeholder {
     color: #603c24;
@@ -388,12 +406,14 @@ const CommentsList = styled.div`
   display: flex;
   flex-direction: column;
   gap: 25px;
+  width: 100%;
 `;
 
 const CommentGroup = styled.div`
   display: flex;
   flex-direction: column;
   gap: 20px;
+  width: 100%;
 `;
 
 const CommentItem = styled.div<{ $isReply?: boolean }>`
@@ -401,6 +421,8 @@ const CommentItem = styled.div<{ $isReply?: boolean }>`
   gap: 15px;
   margin-left: ${props => (props.$isReply ? '47px' : '0')};
   position: relative;
+  width: ${props => (props.$isReply ? 'calc(100% - 47px)' : '100%')};
+  box-sizing: border-box;
 
   &::before {
     content: '';
@@ -421,6 +443,7 @@ const CommentContent = styled.div`
   flex-direction: column;
   gap: 6px;
   width: 100%;
+  overflow: hidden;
 `;
 
 const CommentHeader = styled.div`
@@ -440,6 +463,8 @@ const CommentText = styled.p`
   color: #32434d;
   font-size: 14px;
   line-height: 1.4;
+  word-break: break-word;
+  overflow-wrap: break-word;
 `;
 
 const CommentActions = styled.div`
@@ -493,6 +518,7 @@ const ReplyInputContainer = styled(InputContainer)`
   margin-bottom: 0;
   padding: 15px;
   box-shadow: 0px 2px 2px 0px rgba(0, 0, 0, 0.15);
+  width: calc(100% - 47px);
 
   textarea {
     min-height: 40px;
@@ -508,6 +534,7 @@ const EditInputContainer = styled.div`
   padding: 10px;
   border-radius: 8px;
   box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
+  box-sizing: border-box;
 
   textarea {
     width: 100%;
@@ -519,6 +546,7 @@ const EditInputContainer = styled.div`
     color: #603c24;
     background-color: #faf7ea;
     min-height: 40px;
+    box-sizing: border-box;
   }
 `;
 
@@ -581,9 +609,12 @@ export default function PostPage() {
   const [isSubmittingEdit, setIsSubmittingEdit] = useState(false);
   const [commentToDelete, setCommentToDelete] = useState<DeletableComment | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [imageError, setImageError] = useState(false);
 
   const carregarAulaEComentarios = async () => {
     if (!id) return;
+    setImageError(false); 
+    
     try {
       const postData = await getPostById(id);
       setPost(postData);
@@ -591,17 +622,24 @@ export default function PostPage() {
       const commentsData = await getCommentsByPostId(id);
       setComments(commentsData);
 
-      const imgSrc = postData.image ? `${BASE_URL}${postData.image}` : imagePost;
-      const img = new Image();
-
-      img.onload = () => setIsLoading(false);
-      img.onerror = () => setIsLoading(false);
-      img.src = imgSrc;
-
       setIsOwner(false);
       const postCreator = await getUserById(postData.userId ?? '');
       setPostAuthor(postCreator);
       setIsOwner(user?.id === postData.userId);
+      if (postData.image && postData.image !== 'null') {
+        const imgSrc = `${BASE_URL}${postData.image}`;
+        const img = new Image();
+
+        img.onload = () => setIsLoading(false);
+        img.onerror = () => {
+          setImageError(true); 
+          setIsLoading(false);
+        };
+        img.src = imgSrc;
+      } else {
+        setImageError(true); 
+        setIsLoading(false);
+      }
       
     } catch (err) {
       console.error('Erro ao carregar conteúdo da página:', err);
@@ -729,14 +767,20 @@ export default function PostPage() {
     isSubmittingComment || isSubmittingReply || isSubmittingEdit || isDeleting;
 
   const canEditComment = (commentAuthorId: string) => {
-    console.log(user?.id, commentAuthorId)
     return user?.id === commentAuthorId;
   };
 
-  const canDeleteComment = (commentAuthorId: string) => {
+  const canDeleteComment = (commentAuthorId: string, commentAuthorRole?: string) => {
     if (user?.role === 'ADMIN') return true;
-    if (user?.role === 'PROFESSOR' && isOwner) return true;
     if (user?.id === commentAuthorId) return true;
+    
+    if (user?.role === 'PROFESSOR' && isOwner) {
+      if (commentAuthorRole) {
+        return commentAuthorRole === 'ALUNO';
+      }
+      return true;
+    }
+    
     return false;
   };
 
@@ -785,18 +829,26 @@ export default function PostPage() {
           </BackButton>
 
           <HeaderSection>
-            <Categoria $color={materias[post?.subject?.nome ?? 'Geral'].color}>{post?.subject?.nome}</Categoria>
+            <Categoria $color={materias[post?.subject?.nome ?? 'Geral']?.color}>
+              {post?.subject?.nome}
+            </Categoria>
 
             <TitleWrapper>
               <Titulo>{post.titulo}</Titulo>
-              <Doodle src={featureIcon} $top="-35px" $right="-50px" $width="108.77px" />
+              <Doodle src={featureIcon} $top="-50px" $right="-60px" $width="108.77px" />
             </TitleWrapper>
 
             <Subtitulo>{post.descricao}</Subtitulo>
-            <Doodle src={cloudIcon} $top="-45px" $right="-350px" $width="80px" />
+            <Doodle src={cloudIcon} $top="-45px" $right="-235px" $width="80px" />
           </HeaderSection>
 
-          <ImagemPost src={post.image ? `${BASE_URL}${post.image}` : imagePost} alt={post.titulo} />
+          {post.image && !imageError && (
+            <ImagemPost 
+              src={`${BASE_URL}${post.image}`} 
+              alt={post.titulo} 
+              onError={() => setImageError(true)} 
+            />
+          )}
 
           <AuthorSection>
             <AuthorRow>
@@ -872,7 +924,7 @@ export default function PostPage() {
                             <CommentTime>{calcularTempoAtras(comment.dataCriacao)}</CommentTime>
                           </div>
 
-                          {(canEditComment(comment.user.id) || canDeleteComment(comment.user.id)) && (
+                          {(canEditComment(comment.user.id) || canDeleteComment(comment.user.id, (comment.user as any)?.tipoUsuario || (comment.user as any)?.role)) && (
                             <CommentActions>
                               {canEditComment(comment.user.id) && (
                                 <button
@@ -882,7 +934,7 @@ export default function PostPage() {
                                   <EditIcon className="material-symbols-outlined">edit</EditIcon>
                                 </button>
                               )}
-                              {canDeleteComment(comment.user.id) && (
+                              {canDeleteComment(comment.user.id, (comment.user as any)?.tipoUsuario || (comment.user as any)?.role) && (
                                 <button onClick={() => setCommentToDelete(comment)} title="Excluir">
                                   <DeleteIcon className="material-symbols-outlined">
                                     delete
@@ -973,8 +1025,8 @@ export default function PostPage() {
                                 {calcularTempoAtras(comment.childComment.dataCriacao)}
                               </CommentTime>
                             </div>
-                            
-                            {postAuthor && (canEditComment(postAuthor?.id) || canDeleteComment(postAuthor?.id)) && (
+
+                            {postAuthor && (canEditComment(postAuthor?.id) || canDeleteComment(postAuthor?.id, postAuthor.role)) && (
                               <CommentActions>
                                 {canEditComment(postAuthor?.id) && (
                                   <button
@@ -989,7 +1041,7 @@ export default function PostPage() {
                                     <EditIcon className="material-symbols-outlined">edit</EditIcon>
                                   </button>
                                 )}
-                                {canDeleteComment(postAuthor?.id) && (
+                                {canDeleteComment(postAuthor?.id, postAuthor.role) && (
                                   <button
                                     onClick={() => setCommentToDelete(comment.childComment)}
                                     title="Excluir"

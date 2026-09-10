@@ -10,7 +10,6 @@ import type { Post } from '../types/Posts';
 import { useUser } from '../context/AuthContext';
 import { useEffect, useState } from 'react';
 import { getAllPosts } from '../services/post.service';
-import { useNavigate } from 'react-router-dom';
 
 const Container = styled.div`
   width: 100%;
@@ -64,6 +63,7 @@ const AddClassButton = styled.a`
 
   &:hover {
     opacity: 0.7;
+  } 
 
   @media (max-width: 600px) {
     width: 4.75rem;
@@ -99,9 +99,7 @@ export default function PostsContainer() {
 
 
   function AlunoContainer() {
-    // Os posts já visualizados são exibidos na tabela
     const viewedPosts = posts.filter(p => p.foiVisto != false)
-    // Obtém os posts não vistos e exibe no carrossel
     const newPosts = posts.filter(p => p.foiVisto != true)
 
     return (
@@ -122,10 +120,7 @@ export default function PostsContainer() {
   }
   
   function TeacherContainer() {
-    // Os posts do próprio professor
     const myPosts = posts.filter(p => p.criadoPor?.userId === user?.id)
-
-    // Obtém os posts de outros professores
     const otherPosts = posts.filter(p => p.criadoPor?.userId !== user?.id)
 
     return (
@@ -159,7 +154,6 @@ export default function PostsContainer() {
   }
 
   function AdminContainer() {
-     // Obtém os posts não vistos e exibe no carrossel
     const newPosts = posts.filter(p => p.foiVisto != true)
 
     return (

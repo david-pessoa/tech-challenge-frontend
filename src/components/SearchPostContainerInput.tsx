@@ -69,15 +69,16 @@ const ListItemLink = styled.a`
   align-items: center;
   color: inherit;
   text-decoration: none;
-  height: 2rem;
-  border-radius: 15px;
+  height: 2.5rem;
+  border-radius: 10px;
+  padding: 2px;
 
   &:hover {
-    background-color: #fbbba3;
+    background-color: #ccc0986b;
   }
 
   &:active {
-    background-color: #e0a7e3;
+    background-color: #6f674c6b;
   }
 
   @media (max-width: 600px) {
