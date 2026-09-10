@@ -6,6 +6,7 @@ import { formatarData } from '../utils/functions';
 import { useState } from 'react';
 import { useUser } from '../context/AuthContext';
 import { Toast, ToastCloseButton } from './ToastComponents';
+import { Link } from 'react-router-dom';
 import DeletePostModal from './DeletePostModal';
 
 type ManagementPostsTableProps = {
@@ -53,7 +54,7 @@ const MateriaContainer = styled.div`
   }
 `;
 
-const Link = styled.a`
+const PostLink = styled(Link)`
   display: block;
   color: inherit;
   text-decoration: none;
@@ -130,7 +131,8 @@ const DeleteButton = styled.button`
   background: transparent;
   cursor: pointer;
 `;
-const EditButton = styled.a`
+
+const EditButton = styled(Link)`
   border: none;
   background: transparent;
 `;
@@ -237,7 +239,7 @@ export default function ManagementPostsTable({ dados }: ManagementPostsTableProp
                     </MateriaContainer>
                   </Td>
                   <Td className="bold">
-                    <Link href={`/post/${post.postId}`}>{post.titulo}</Link>
+                    <PostLink to={`/post/${post.postId}`}>{post.titulo}</PostLink>
                   </Td>
                   <Td className="descp">{post.descricao}</Td>
                   <Td>{formatarData(post?.dataCriacao)}</Td>
@@ -247,10 +249,10 @@ export default function ManagementPostsTable({ dados }: ManagementPostsTableProp
                   )}
                   <Td>
                     <ActionContainer>
-                      <EditButton href={`/post/edit/${post.postId}`}>
+                      <EditButton to={`/post/edit/${post.postId}`}>
                         <EditIcon className="material-symbols-outlined">edit</EditIcon>
                       </EditButton>
-                      {user?.role === 'ADMIN' || user?.id === post.criadoPor?.userId && (
+                      {(user?.role === 'ADMIN' || user?.id === post.criadoPor?.userId) && (
                         <DeleteButton onClick={() => openDeleteModal(post)}>
                           <DeleteIcon className="material-symbols-outlined">delete</DeleteIcon>
                         </DeleteButton>

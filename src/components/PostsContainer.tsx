@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import Carousel from './Carousel';
 import ViewedPostsTable from './ViewedPostsTable';
 import ManagementPostsTable from './ManagementPostsTable';
+import { Link } from 'react-router-dom';
 
 import 'swiper/css';
 import '../styles/swiper-style.css';
@@ -50,7 +51,7 @@ const AddClassContainer = styled.div`
   }
 `;
 
-const AddClassButton = styled.a`
+const AddClassButton = styled(Link)`
   height: 100%;
   width: 6.938rem;
   border: none;
@@ -129,7 +130,7 @@ export default function PostsContainer() {
           <Title>Suas aulas</Title>
           <AddClassContainer>
             <Paragraph>Veja as aulas que você postou</Paragraph>
-            <AddClassButton href='/post/new'>
+            <AddClassButton to="/post/new">
               <AddIcon className="material-symbols-outlined">add</AddIcon>
               <p>Nova aula</p>
             </AddClassButton>
@@ -162,7 +163,7 @@ export default function PostsContainer() {
           <Title>Novas aulas</Title>
           <AddClassContainer>
             <Paragraph>Últimas postagens de aulas feitas pelos professores</Paragraph>
-            <AddClassButton href='/post/new'>
+            <AddClassButton to="/post/new">
               <AddIcon className="material-symbols-outlined">add</AddIcon>
               <p>Nova aula</p>
             </AddClassButton>
