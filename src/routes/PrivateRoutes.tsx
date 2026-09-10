@@ -1,6 +1,6 @@
-import { useEffect, type ReactNode } from 'react';
+import { type ReactNode } from 'react';
 import { useUser } from '../context/AuthContext';
-import { Navigate, useNavigate } from 'react-router-dom';
+import { Navigate } from 'react-router-dom';
 import styled from 'styled-components';
 import type { Role } from '../types/Roles';
 
@@ -9,9 +9,9 @@ const LoadingWrapper = styled.div`
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-height: 100vh; /* Ocupa a tela inteira */
+  min-height: 100vh; 
   width: 100%;
-  background-color: #FFFCF7; /* Mesma cor de fundo do seu sistema */
+  background-color: #FFFCF7;
 `;
 
 const Spinner = styled.div`
@@ -42,14 +42,7 @@ type PrivateRoutesProps = {
 
 export default function PrivateRoute({ children, acceptedRoles }: PrivateRoutesProps) {
   const { user, isLoading } = useUser();
-  const navigate = useNavigate();
   
-  useEffect(() => {
-    if (!isLoading && user && !acceptedRoles.includes(user.role)) {
-      navigate(-1);
-    }
-  }, [isLoading, user, acceptedRoles, navigate]);
-
   if (isLoading) {
     return (
       <LoadingWrapper>
@@ -58,14 +51,11 @@ export default function PrivateRoute({ children, acceptedRoles }: PrivateRoutesP
       </LoadingWrapper>
     );
   }
-
   if (!user) {
     return <Navigate to="/login" replace />;
   }
-
   if (!acceptedRoles.includes(user.role)) {
-    return null;
+    return <Navigate to="/access-denied" replace />; 
   }
-
   return <>{children}</>;
 }

@@ -6,12 +6,17 @@ import PostForm from '../pages/PostForm';
 import UserRegister from '../pages/UserRegister';
 import UserList from '../pages/UserList';
 import PrivateRoute from './PrivateRoutes';
+import NotFound from '../pages/NotFound';
+import ServiceUnavailable from '../pages/ServiceUnavailable';
+import AccessDenied from '../pages/AccessDenied';
 
 export default function AppRoutes() {
   return (
     <Router>
       <Routes>
         <Route path="/login" element={<Login />} />
+        <Route path="/503" element={<ServiceUnavailable />} />
+        <Route path="/access-denied" element={<AccessDenied />} />
         <Route
           path="/"
           element={
@@ -71,6 +76,7 @@ export default function AppRoutes() {
             </PrivateRoute>
           }
         />
+        <Route path="*" element={<NotFound />} />
       </Routes>
     </Router>
   );
