@@ -4,7 +4,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import UserRegister from '../UserRegister';
 import { renderWithProviders } from '../../tests/test-utils';
-import { createUser } from '../../services/user.service';
+import { createUser, getAllUsers, getUserById, updateUser } from '../../services/user.service';
 import type { User } from '../../types/User';
 
 const adminUser: User = {
@@ -23,7 +23,10 @@ const professorUser: User = {
   image: '',
 };
 
-const navigateMock = vi.fn();
+const { navigateMock, useParamsMock } = vi.hoisted(() => ({
+  navigateMock: vi.fn(),
+  useParamsMock: vi.fn(),
+}));
 
 vi.mock('../../services/user.service', () => ({
   createUser: vi.fn(),
@@ -38,11 +41,16 @@ vi.mock('react-router-dom', async () => {
   return {
     ...actual,
     useNavigate: () => navigateMock,
+    useParams: () => useParamsMock(),
   };
 });
 
 function renderUserRegister(user = adminUser) {
   return renderWithProviders(<UserRegister isNew={true} />, { user });
+}
+
+function renderUserEdit(user = adminUser) {
+  return renderWithProviders(<UserRegister isNew={false} />, { user });
 }
 
 async function fillRequiredFields() {
@@ -59,6 +67,7 @@ async function fillRequiredFields() {
 describe('UserRegister', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    useParamsMock.mockReturnValue({});
   });
 
   it('deve apresentar os campos do formulário de cadastro de usuário', () => {
@@ -132,5 +141,101 @@ describe('UserRegister', () => {
     await user.click(screen.getByRole('button', { name: 'Salvar' }));
 
     expect(await screen.findByText('Matrícula já cadastrada')).toBeInTheDocument();
+  });
+
+  it('deve chamar edição de usuário ao atualizar cadastro válido', async () => {
+    useParamsMock.mockReturnValue({ id: 'student-id' });
+    vi.mocked(getUserById).mockResolvedValueOnce({
+      id: 'student-id',
+      nome: 'Maria Souza',
+      matricula: '123456',
+      role: 'ALUNO',
+      image: '',
+    });
+    vi.mocked(getAllUsers).mockResolvedValueOnce([]);
+    vi.mocked(updateUser).mockResolvedValueOnce({});
+
+    renderUserEdit();
+
+    const nameInput = await screen.findByDisplayValue('Maria Souza');
+    const user = userEvent.setup();
+
+    await user.clear(nameInput);
+    await user.type(nameInput, 'Maria Silva');
+    await user.clear(screen.getByLabelText(/matrícula/i));
+    await user.type(screen.getByLabelText(/matrícula/i), '654321');
+    await user.click(screen.getByRole('button', { name: 'Atualizar' }));
+
+    await waitFor(() => expect(updateUser).toHaveBeenCalledTimes(1));
+
+    const userData = vi.mocked(updateUser).mock.calls[0][1] as FormData;
+
+    expect(updateUser).toHaveBeenCalledWith('student-id', expect.any(FormData));
+    expect(userData.get('nome')).toBe('Maria Silva');
+    expect(userData.get('matricula')).toBe('654321');
+    expect(navigateMock).toHaveBeenCalledWith('/user/list', {
+      state: { toastMessage: 'Usuário editado com sucesso.' },
+    });
+  });
+
+  it('deve apresentar toast ao tentar editar usuário com matrícula já cadastrada', async () => {
+    useParamsMock.mockReturnValue({ id: 'student-id' });
+    vi.mocked(getUserById).mockResolvedValueOnce({
+      id: 'student-id',
+      nome: 'Maria Souza',
+      matricula: '123456',
+      role: 'ALUNO',
+      image: '',
+    });
+    vi.mocked(getAllUsers).mockResolvedValueOnce([
+      {
+        id: 'other-user-id',
+        nome: 'João Silva',
+        matricula: '654321',
+        role: 'ALUNO',
+        image: '',
+      },
+    ]);
+
+    renderUserEdit();
+
+    const user = userEvent.setup();
+    const registrationInput = await screen.findByDisplayValue('123456');
+
+    await user.clear(registrationInput);
+    await user.type(registrationInput, '654321');
+    await user.click(screen.getByRole('button', { name: 'Atualizar' }));
+
+    expect(
+      await screen.findByText('Já existe um usuário cadastrado com essa matrícula.')
+    ).toBeInTheDocument();
+    expect(updateUser).not.toHaveBeenCalled();
+  });
+
+  it('deve desabilitar atualização ao apagar campos obrigatórios na edição', async () => {
+    useParamsMock.mockReturnValue({ id: 'student-id' });
+    vi.mocked(getUserById).mockResolvedValueOnce({
+      id: 'student-id',
+      nome: 'Maria Souza',
+      matricula: '123456',
+      role: 'ALUNO',
+      image: '',
+    });
+
+    renderUserEdit();
+
+    const user = userEvent.setup();
+    const nameInput = await screen.findByDisplayValue('Maria Souza');
+
+    expect(screen.getByRole('button', { name: 'Atualizar' })).toBeEnabled();
+
+    await user.clear(nameInput);
+
+    expect(screen.getByRole('button', { name: 'Atualizar' })).toBeDisabled();
+
+    await user.type(nameInput, 'Maria Souza');
+    await user.clear(screen.getByLabelText(/matrícula/i));
+
+    expect(screen.getByRole('button', { name: 'Atualizar' })).toBeDisabled();
   });
 });
