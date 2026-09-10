@@ -64,7 +64,7 @@ const AddClassButton = styled.a`
 
   &:hover {
     opacity: 0.7;
-
+  }
   @media (max-width: 600px) {
     width: 4.75rem;
   }
