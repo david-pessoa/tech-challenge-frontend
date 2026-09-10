@@ -20,16 +20,31 @@ export async function getAllPosts() {
   }
 }
 
-export async function createPost(post: any) {
+
+export async function createPost(postData: FormData): Promise<void> {
   try {
-    const response = await axios.post(`${BASE_URL}/posts`, post, {
+    await axios.post(`${BASE_URL}/posts`, postData, {
       headers: {
         Authorization: `Bearer ${getLocalStorageToken()}`,
+        'Content-Type': 'multipart/form-data', 
       },
     });
-    return response.data;
   } catch (error) {
-    console.error('Erro na criação de posts:', error);
+    console.error('Erro ao criar post:', error);
+    throw new Error(getBackendErrorMessage(error));
+  }
+}
+
+export async function updatePost(id: string, postData: FormData): Promise<void> {
+  try {
+    await axios.put(`${BASE_URL}/posts/${id}`, postData, {
+      headers: {
+        Authorization: `Bearer ${getLocalStorageToken()}`,
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+  } catch (error) {
+    console.error(`Erro ao atualizar post ${id}:`, error);
     throw new Error(getBackendErrorMessage(error));
   }
 }
@@ -48,19 +63,6 @@ export async function getPostById(id: string) {
   }
 }
 
-export async function updatePost(id: string, post: any) {
-  try {
-    const response = await axios.put(`${BASE_URL}/posts/${id}`, post, {
-      headers: {
-        Authorization: `Bearer ${getLocalStorageToken()}`,
-      },
-    });
-    return response.data;
-  } catch (error) {
-    console.error('Erro na atualização de post:', error);
-    throw new Error(getBackendErrorMessage(error));
-  }
-}
 
 export async function deletePost(id: string) {
   try {

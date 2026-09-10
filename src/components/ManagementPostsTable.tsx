@@ -16,6 +16,7 @@ const TableContainer = styled.div`
   width: 100%;
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
+  border-radius: 0.5rem;
 `;
 
 const Table = styled.table`
@@ -26,7 +27,7 @@ const Tr = styled.tr`
   cursor: pointer;
 
   &:hover {
-    background-color: #e49e35a4;
+    background-color: #fce7c9a4;
   }
 `;
 
@@ -249,7 +250,7 @@ export default function ManagementPostsTable({ dados }: ManagementPostsTableProp
                       <EditButton href={`/post/edit/${post.postId}`}>
                         <EditIcon className="material-symbols-outlined">edit</EditIcon>
                       </EditButton>
-                      {user?.role === 'ADMIN' && (
+                      {user?.role === 'ADMIN' || user?.id === post.criadoPor?.userId && (
                         <DeleteButton onClick={() => openDeleteModal(post)}>
                           <DeleteIcon className="material-symbols-outlined">delete</DeleteIcon>
                         </DeleteButton>
