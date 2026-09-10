@@ -117,5 +117,20 @@ describe('UserRegister', () => {
     expect(userData.get('matricula')).toBe('123456');
     expect(userData.get('role')).toBe('ALUNO');
     expect(userData.get('senha')).toBe('Maria123');
+    expect(navigateMock).toHaveBeenCalledWith('/user/list', {
+      state: { toastMessage: 'Usuário cadastrado com sucesso.' },
+    });
+  });
+
+  it('deve apresentar toast ao tentar cadastrar usuário com matrícula já cadastrada', async () => {
+    vi.mocked(createUser).mockRejectedValueOnce(new Error('Matrícula já cadastrada'));
+
+    renderUserRegister();
+
+    const user = await fillRequiredFields();
+
+    await user.click(screen.getByRole('button', { name: 'Salvar' }));
+
+    expect(await screen.findByText('Matrícula já cadastrada')).toBeInTheDocument();
   });
 });
