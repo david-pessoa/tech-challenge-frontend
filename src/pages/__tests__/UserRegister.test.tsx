@@ -238,4 +238,70 @@ describe('UserRegister', () => {
 
     expect(screen.getByRole('button', { name: 'Atualizar' })).toBeDisabled();
   });
+
+  it('deve permitir professor editar apenas usuário aluno', async () => {
+    useParamsMock.mockReturnValue({ id: 'student-id' });
+    vi.mocked(getUserById).mockResolvedValueOnce({
+      id: 'student-id',
+      nome: 'Maria Souza',
+      matricula: '123456',
+      role: 'ALUNO',
+      image: '',
+    });
+    vi.mocked(getAllUsers).mockResolvedValueOnce([]);
+    vi.mocked(updateUser).mockResolvedValueOnce({});
+
+    renderUserEdit(professorUser);
+
+    const user = userEvent.setup();
+    const roleSelect = await screen.findByLabelText(/tipo de acesso/i);
+    const nameInput = await screen.findByDisplayValue('Maria Souza');
+
+    expect(roleSelect).toBeDisabled();
+    expect(roleSelect).toHaveValue('ALUNO');
+
+    await user.clear(nameInput);
+    await user.type(nameInput, 'Maria Silva');
+    await user.click(screen.getByRole('button', { name: 'Atualizar' }));
+
+    await waitFor(() => expect(updateUser).toHaveBeenCalledTimes(1));
+
+    const userData = vi.mocked(updateUser).mock.calls[0][1] as FormData;
+
+    expect(userData.get('role')).toBe('ALUNO');
+  });
+
+  it('deve apresentar toast quando professor editar aluno com matrícula já cadastrada', async () => {
+    useParamsMock.mockReturnValue({ id: 'student-id' });
+    vi.mocked(getUserById).mockResolvedValueOnce({
+      id: 'student-id',
+      nome: 'Maria Souza',
+      matricula: '123456',
+      role: 'ALUNO',
+      image: '',
+    });
+    vi.mocked(getAllUsers).mockResolvedValueOnce([
+      {
+        id: 'other-student-id',
+        nome: 'João Silva',
+        matricula: '654321',
+        role: 'ALUNO',
+        image: '',
+      },
+    ]);
+
+    renderUserEdit(professorUser);
+
+    const user = userEvent.setup();
+    const registrationInput = await screen.findByDisplayValue('123456');
+
+    await user.clear(registrationInput);
+    await user.type(registrationInput, '654321');
+    await user.click(screen.getByRole('button', { name: 'Atualizar' }));
+
+    expect(
+      await screen.findByText('Já existe um usuário cadastrado com essa matrícula.')
+    ).toBeInTheDocument();
+    expect(updateUser).not.toHaveBeenCalled();
+  });
 });
