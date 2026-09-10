@@ -6,7 +6,7 @@ import { formatarData } from '../utils/functions';
 import { useState } from 'react';
 import { useUser } from '../context/AuthContext';
 import { Toast, ToastCloseButton } from './ToastComponents';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import DeletePostModal from './DeletePostModal';
 
 type ManagementPostsTableProps = {
@@ -54,10 +54,15 @@ const MateriaContainer = styled.div`
   }
 `;
 
-const PostLink = styled(Link)`
+const PostTitle = styled.span`
   display: block;
   color: inherit;
-  text-decoration: none;
+  font-weight: bold;
+  cursor: pointer;
+  
+  &:hover {
+    text-decoration: underline;
+  }
 `;
 
 type ColorProps = {
@@ -132,9 +137,10 @@ const DeleteButton = styled.button`
   cursor: pointer;
 `;
 
-const EditButton = styled(Link)`
+const EditButton = styled.button`
   border: none;
   background: transparent;
+  cursor: pointer;
 `;
 
 const EditIcon = styled.span`
@@ -160,6 +166,7 @@ export default function ManagementPostsTable({ dados }: ManagementPostsTableProp
   const [postList, setPostList] = useState<Post[]>(dados);
   const [selectedPost, setSelectedPost] = useState<Post | null>(null);
   const { user } = useUser();
+  const navigate = useNavigate();
 
   async function openDeleteModal(post: Post) {
     setSelectedPost(post);
@@ -238,8 +245,10 @@ export default function ManagementPostsTable({ dados }: ManagementPostsTableProp
                       </MateriaTitle>
                     </MateriaContainer>
                   </Td>
-                  <Td className="bold">
-                    <PostLink to={`/post/${post.postId}`}>{post.titulo}</PostLink>
+                  <Td>
+                    <PostTitle onClick={() => navigate(`/post/${post.postId}`)}>
+                      {post.titulo}
+                    </PostTitle>
                   </Td>
                   <Td className="descp">{post.descricao}</Td>
                   <Td>{formatarData(post?.dataCriacao)}</Td>
@@ -249,7 +258,7 @@ export default function ManagementPostsTable({ dados }: ManagementPostsTableProp
                   )}
                   <Td>
                     <ActionContainer>
-                      <EditButton to={`/post/edit/${post.postId}`}>
+                      <EditButton onClick={() => navigate(`/post/edit/${post.postId}`)}>
                         <EditIcon className="material-symbols-outlined">edit</EditIcon>
                       </EditButton>
                       {(user?.role === 'ADMIN' || user?.id === post.criadoPor?.userId) && (

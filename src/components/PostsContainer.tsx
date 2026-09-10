@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import Carousel from './Carousel';
 import ViewedPostsTable from './ViewedPostsTable';
 import ManagementPostsTable from './ManagementPostsTable';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 import 'swiper/css';
 import '../styles/swiper-style.css';
@@ -51,7 +51,7 @@ const AddClassContainer = styled.div`
   }
 `;
 
-const AddClassButton = styled(Link)`
+const AddClassButton = styled.button`
   height: 100%;
   width: 6.938rem;
   border: none;
@@ -61,6 +61,7 @@ const AddClassButton = styled(Link)`
   justify-content: space-between;
   cursor: pointer;
   transition: opacity 0.2s;
+  padding: 0;
 
   &:hover {
     opacity: 0.7;
@@ -84,6 +85,7 @@ export default function PostsContainer() {
   const { user } = useUser();
   const [posts, setPosts] = useState<Post[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     async function returnAllPosts() {
@@ -98,7 +100,6 @@ export default function PostsContainer() {
     returnAllPosts();
   }, []);
 
-
   function AlunoContainer() {
     const viewedPosts = posts.filter(p => p.foiVisto != false)
     const newPosts = posts.filter(p => p.foiVisto != true)
@@ -109,7 +110,6 @@ export default function PostsContainer() {
           <Title>Novas Aulas</Title>
           <Paragraph>Últimas postagens de aulas feitas pelos seus professores</Paragraph>
           {isLoading ? (<Paragraph>Carregando aulas...</Paragraph>): <Carousel newPosts={newPosts} isAdmin={false}/>}
-          
         </Container>
         <Container>
           <Title>Aulas Finalizadas</Title>
@@ -130,7 +130,7 @@ export default function PostsContainer() {
           <Title>Suas aulas</Title>
           <AddClassContainer>
             <Paragraph>Veja as aulas que você postou</Paragraph>
-            <AddClassButton to="/post/new">
+            <AddClassButton onClick={() => navigate('/post/new')}>
               <AddIcon className="material-symbols-outlined">add</AddIcon>
               <p>Nova aula</p>
             </AddClassButton>
@@ -163,7 +163,7 @@ export default function PostsContainer() {
           <Title>Novas aulas</Title>
           <AddClassContainer>
             <Paragraph>Últimas postagens de aulas feitas pelos professores</Paragraph>
-            <AddClassButton to="/post/new">
+            <AddClassButton onClick={() => navigate('/post/new')}>
               <AddIcon className="material-symbols-outlined">add</AddIcon>
               <p>Nova aula</p>
             </AddClassButton>
