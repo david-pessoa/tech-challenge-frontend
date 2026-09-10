@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import styled, { keyframes } from 'styled-components';
+import styled from 'styled-components';
 
 import inicialImage from '../../public/inicialImage.png';
 import { login } from '../services/auth.service';
