@@ -34,7 +34,7 @@ são:
  - Desenvolvimento da tela de criação/edição de usuários
  - Desenvolvimento de modais de confirmação de exclusão de usuário, mensagens de erro e feedbacks de operação.
  - Criação de testes unitários
- - Criação de testes end-to-end
+ - Desenvolvimento das páginas de erro 404, 503 e acesso não permitido
  - Documentação
 
 ### Beatriz
@@ -47,7 +47,6 @@ são:
 ### Victor
 - Desenvolvimento da tela de login
 - Implementação da lógica de autenticação
-- Telas de erro 404 e 503
 
 ## Funcionalidades
 
