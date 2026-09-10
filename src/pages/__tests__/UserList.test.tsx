@@ -113,4 +113,58 @@ describe('UserList', () => {
     expect(screen.queryByText('Maria Aluna')).not.toBeInTheDocument();
     expect(screen.getByText('O usuário foi deletado com sucesso')).toBeInTheDocument();
   });
+
+  it('deve permitir admin excluir professor com posts vinculados', async () => {
+    const user = userEvent.setup();
+
+    vi.mocked(getAllPosts).mockResolvedValueOnce([
+      {
+        postId: 'post-id-1',
+        materia: 'Geral',
+        titulo: 'Introdução à Programação',
+        descricao: 'Conceitos básicos de programação.',
+        autor: 'Pedro Professor',
+        criadoPor: {
+          userId: 'professor-id',
+          nome: 'Pedro Professor',
+          tipoUsuario: 'PROFESSOR',
+        },
+        createdAt: new Date(),
+        editedAt: new Date(),
+      },
+      {
+        postId: 'post-id-2',
+        materia: 'Geral',
+        titulo: 'História do Brasil',
+        descricao: 'Aula sobre história.',
+        autor: 'Pedro Professor',
+        criadoPor: {
+          userId: 'professor-id',
+          nome: 'Pedro Professor',
+          tipoUsuario: 'PROFESSOR',
+        },
+        createdAt: new Date(),
+        editedAt: new Date(),
+      },
+    ]);
+    vi.mocked(deleteUser).mockResolvedValueOnce({});
+
+    renderUserList(adminUser);
+
+    await user.click(await screen.findByRole('button', { name: 'Deletar Pedro Professor' }));
+
+    const modal = screen.getByRole('dialog', {
+      name: 'Você deseja remover o usuário "Pedro Professor"?',
+    });
+
+    expect(within(modal).getByText('Os seguintes posts serão removidos:')).toBeInTheDocument();
+    expect(within(modal).getByText('Introdução à Programação')).toBeInTheDocument();
+    expect(within(modal).getByText('História do Brasil')).toBeInTheDocument();
+
+    await user.click(within(modal).getByRole('button', { name: 'Remover' }));
+
+    await waitFor(() => expect(deleteUser).toHaveBeenCalledWith('professor-id'));
+    expect(screen.queryByText('Pedro Professor')).not.toBeInTheDocument();
+    expect(screen.getByText('O usuário foi deletado com sucesso')).toBeInTheDocument();
+  });
 });
