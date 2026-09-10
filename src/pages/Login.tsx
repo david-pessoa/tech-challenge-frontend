@@ -3,7 +3,6 @@ import styled from 'styled-components';
 
 import inicialImage from '../../public/inicialImage.png';
 import { login } from '../services/auth.service';
-import { setLocalStorageToken } from '../utils/functions';
 import { Navigate, useNavigate } from 'react-router-dom';
 import { useUser } from '../context/AuthContext';
 
@@ -239,13 +238,9 @@ export default function Login() {
     setCarregando(true);
 
     try {
-      const resposta = await login(matricula, senha);
-      setLocalStorageToken(resposta.token);
-      // Login deu certo: manda a pessoa pra tela inicial. Usamos um
-      // reload de verdade (em vez do navigate do react-router) porque
-      // o UserProvider só busca os dados do usuário logado uma vez,
-      // quando a aplicação carrega — o reload garante que ele rode de
-      // novo já com o token salvo.
+      await login(matricula, senha);
+      // O backend grava a sessão em cookie HttpOnly no login.
+      // Nenhum token é exposto ao JavaScript ou persistido no browser.
       await refreshUser()
       navigate('/')
     } catch (error) {

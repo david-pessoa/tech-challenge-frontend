@@ -5,7 +5,6 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import Login from '../Login';
 import { renderWithProviders } from '../../tests/test-utils';
 import { login } from '../../services/auth.service';
-import { setLocalStorageToken } from '../../utils/functions';
 
 const navigateMock = vi.fn();
 
@@ -22,17 +21,6 @@ vi.mock('react-router-dom', async () => {
   };
 });
 
-vi.mock('../../utils/functions', async () => {
-  const actual = await vi.importActual<typeof import('../../utils/functions')>(
-    '../../utils/functions'
-  );
-
-  return {
-    ...actual,
-    setLocalStorageToken: vi.fn(),
-  };
-});
-
 function renderLogin() {
   return renderWithProviders(<Login />);
 }
@@ -40,7 +28,6 @@ function renderLogin() {
 function mockLoginSuccess() {
   vi.mocked(login).mockResolvedValueOnce({
     message: 'Login realizado com sucesso!',
-    token: 'token-fake',
     usuario: {
       id: 'user-id',
       nome: 'Pedro',
@@ -127,7 +114,7 @@ describe('Login', () => {
     expect(loginMock).not.toHaveBeenCalled();
   });
 
-  it('deve salvar o token e redirecionar ao realizar login com sucesso', async () => {
+  it('deve realizar login e redirecionar com sucesso', async () => {
     const refreshUserMock = vi.fn().mockResolvedValue(undefined);
 
     mockLoginSuccess();
@@ -136,7 +123,6 @@ describe('Login', () => {
     await submitLoginForm('450622', 'Pedro123');
 
     expect(login).toHaveBeenCalledWith('450622', 'Pedro123');
-    expect(setLocalStorageToken).toHaveBeenCalledWith('token-fake');
     expect(refreshUserMock).toHaveBeenCalled();
     expect(navigateMock).toHaveBeenCalledWith('/');
   });
