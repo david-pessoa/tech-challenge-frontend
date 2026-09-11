@@ -3,7 +3,6 @@ import styled from 'styled-components';
 import Carousel from './Carousel';
 import ViewedPostsTable from './ViewedPostsTable';
 import ManagementPostsTable from './ManagementPostsTable';
-import { useNavigate } from 'react-router-dom';
 
 import 'swiper/css';
 import '../styles/swiper-style.css';
@@ -89,7 +88,6 @@ export default function PostsContainer() {
   const { user } = useUser();
   const [posts, setPosts] = useState<Post[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const navigate = useNavigate();
 
   useEffect(() => {
     async function returnAllPosts() {
