@@ -2,6 +2,7 @@ import { useState } from 'react';
 import styled from 'styled-components';
 
 import inicialImage from '../../public/inicialImage.png';
+import logoImage from '../assets/logoEdify.png'; 
 import { login } from '../services/auth.service';
 import { setLocalStorageToken } from '../utils/functions';
 import { Navigate, useNavigate } from 'react-router-dom';
@@ -56,21 +57,11 @@ const CardInner = styled.div`
   }
 `;
 
-const LogoBadge = styled.div`
+const LogoBadge = styled.img`
   width: 52px;
   height: 52px;
   border-radius: ${({ theme }) => theme.borderRadius.medium};
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: linear-gradient(
-    135deg,
-    ${({ theme }) => theme.colors.secondary},
-    ${({ theme }) => theme.colors.primary}
-  );
-  color: #fffcf2;
-  font-weight: 600;
-  font-size: 1.125rem;
+  object-fit: contain;
 `;
 
 const Greeting = styled.p`
@@ -286,7 +277,7 @@ export default function Login() {
       <Wrapper>
         <FormBlock>
           <CardInner>
-            <LogoBadge>Fy</LogoBadge>
+            <LogoBadge src={logoImage} alt="Logo Edify" />
             <div>
               <Greeting>Bem vindo(a) ao</Greeting>
               <br />

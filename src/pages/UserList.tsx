@@ -93,6 +93,10 @@ const Th = styled.th`
   text-align: left;
 `;
 
+const CenteredTh = styled(Th)`
+  text-align: center;
+`;
+
 const Td = styled.td`
   background: #fffbeb;
   border-bottom: 1px solid #eee;
@@ -128,6 +132,7 @@ const UserName = styled.strong`
 const Actions = styled.div`
   display: flex;
   gap: 10px;
+  justify-content: center; 
 `;
 
 const ActionLink = styled(Link)`
@@ -161,6 +166,35 @@ const Message = styled.p`
   color: ${({ theme }) => theme.colors.primary};
 `;
 
+const LoadingWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 40vh; 
+`;
+
+const Spinner = styled.div`
+  width: 60px;
+  height: 60px;
+  border: 6px solid #F6D4D9;
+  border-top-color: ${({ theme }) => theme.colors.primary};
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+`;
+
+const LoadingText = styled.p`
+  margin-top: 16px;
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: ${({ theme }) => theme.colors.primary};
+  font-family: ${({ theme }) => theme.typography.fontFamily};
+`;
+
 function formatBirthDate(birthDate?: Date | string | null) {
   if (!birthDate) {
     return '-';
@@ -174,6 +208,7 @@ export default function UserList() {
   const location = useLocation();
   const [users, setUsers] = useState<User[]>([]);
   const [message, setMessage] = useState('');
+  const [isLoading, setIsLoading] = useState(true); 
   const [toastMessage, setToastMessage] = useState(
     (location.state as { toastMessage?: string } | null)?.toastMessage ?? ''
   );
@@ -184,12 +219,15 @@ export default function UserList() {
     document.title = 'Edify | Lista de Usuários';
 
     async function loadUsers() {
+      setIsLoading(true);
       try {
         const usersList = await getAllUsers();
         setUsers(usersList);
       } catch (error: unknown) {
         const message = error instanceof Error ? error.message : 'Erro ao carregar usuários.';
         setMessage(message);
+      } finally {
+        setIsLoading(false);
       }
     }
 
@@ -262,7 +300,12 @@ export default function UserList() {
 
         {message && <Message>{message}</Message>}
 
-        {loggedUser?.role === 'ADMIN' ? (
+        {isLoading ? (
+          <LoadingWrapper>
+            <Spinner />
+            <LoadingText>Carregando usuários...</LoadingText>
+          </LoadingWrapper>
+        ) : loggedUser?.role === 'ADMIN' ? (
           USER_GROUPS.map(group => (
             <Section key={group.role}>
               <SectionTitle>{group.title}</SectionTitle>
@@ -273,9 +316,9 @@ export default function UserList() {
                     <tr>
                       <Th>Foto</Th>
                       <Th>Nome completo</Th>
-                      <Th>Data de nascimento</Th>
-                      <Th>Matrícula</Th>
-                      <Th>Ações</Th>
+                      <CenteredTh>Data de nascimento</CenteredTh>
+                      <CenteredTh>Matrícula</CenteredTh>
+                      <CenteredTh>Ações</CenteredTh>
                     </tr>
                   </thead>
                   <tbody>
@@ -296,7 +339,7 @@ export default function UserList() {
                             <UserName>{user.nome}</UserName>
                           </Td>
                           <CenteredTd>{formatBirthDate(user.birthDate)}</CenteredTd>
-                          <Td>{user.matricula}</Td>
+                          <CenteredTd>{user.matricula}</CenteredTd>
                           <CenteredTd>
                             <Actions>
                               <ActionLink
@@ -336,9 +379,9 @@ export default function UserList() {
                   <tr>
                     <Th>Foto</Th>
                     <Th>Nome completo</Th>
-                    <Th>Data de nascimento</Th>
-                    <Th>Matrícula</Th>
-                    <Th>Ações</Th>
+                    <CenteredTh>Data de nascimento</CenteredTh>
+                    <CenteredTh>Matrícula</CenteredTh>
+                    <CenteredTh>Ações</CenteredTh>
                   </tr>
                 </thead>
                 <tbody>
@@ -359,7 +402,7 @@ export default function UserList() {
                           <UserName>{user.nome}</UserName>
                         </Td>
                         <CenteredTd>{formatBirthDate(user.birthDate)}</CenteredTd>
-                        <Td>{user.matricula}</Td>
+                        <CenteredTd>{user.matricula}</CenteredTd>
                         <CenteredTd>
                           <Actions>
                             <ActionLink
