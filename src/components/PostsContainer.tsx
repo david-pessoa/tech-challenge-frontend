@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import Carousel from './Carousel';
 import ViewedPostsTable from './ViewedPostsTable';
 import ManagementPostsTable from './ManagementPostsTable';
+import { useNavigate } from 'react-router-dom';
 
 import 'swiper/css';
 import '../styles/swiper-style.css';
@@ -64,6 +65,7 @@ const AddClassButton = styled.a`
   justify-content: space-between;
   cursor: pointer;
   transition: opacity 0.2s;
+  padding: 0;
 
   &:hover {
     opacity: 0.7;
@@ -87,6 +89,7 @@ export default function PostsContainer() {
   const { user } = useUser();
   const [posts, setPosts] = useState<Post[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     async function returnAllPosts() {

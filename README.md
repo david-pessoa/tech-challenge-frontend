@@ -43,6 +43,8 @@ são:
 - Integração do front-end aos endpoints de comentários de post
 - Implementação da funcionalidade de comentários em posts
 - Criação de tela de carregamento
+- Documentação
+- Subida para produção
 
 ### Victor
 - Desenvolvimento da tela de login

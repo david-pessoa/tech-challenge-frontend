@@ -182,6 +182,7 @@ export default function UserList() {
   const [toastMessage, setToastMessage] = useState(
     (location.state as { toastMessage?: string } | null)?.toastMessage ?? ''
   );
+  const imageCacheKey = (location.state as { imageCacheKey?: number } | null)?.imageCacheKey;
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [toastSucess, setToastSucess] = useState<boolean>(false);
 
@@ -293,7 +294,7 @@ export default function UserList() {
                         <tr key={user.id}>
                           <PhotoCell>
                             <UserPhoto
-                              src={user.image ? buildApiImageUrl(user.image) : userImage}
+                              src={user.image ? buildApiImageUrl(user.image, imageCacheKey) : userImage}
                               alt={`Foto de ${user.nome}`}
                               onError={event => {
                                 event.currentTarget.src = userImage;
@@ -356,7 +357,7 @@ export default function UserList() {
                       <tr key={user.id}>
                         <PhotoCell>
                           <UserPhoto
-                            src={user.image ? buildApiImageUrl(user.image) : userImage}
+                            src={user.image ? buildApiImageUrl(user.image, imageCacheKey) : userImage}
                             alt={`Foto de ${user.nome}`}
                             onError={event => {
                               event.currentTarget.src = userImage;
