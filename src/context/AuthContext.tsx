@@ -5,10 +5,16 @@ import type { User } from '../types/User';
 type UserContextType = {
   user: User | undefined;
   isLoading: boolean;
-  refreshUser: () => Promise<void>;
+  userImageCacheKey: number;
+  refreshUser: (options?: { refreshImage?: boolean }) => Promise<void>;
 };
 
-export const UserContext = createContext<UserContextType>({ user: undefined, isLoading: true, refreshUser: async () => {} });
+export const UserContext = createContext<UserContextType>({
+  user: undefined,
+  isLoading: true,
+  userImageCacheKey: 0,
+  refreshUser: async () => {},
+});
 
 export function useUser() {
   return useContext(UserContext);
@@ -21,12 +27,16 @@ type UserProviderProps = {
 export function UserProvider({ children }: UserProviderProps) {
   const [user, setUser] = useState<User>();
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [userImageCacheKey, setUserImageCacheKey] = useState(0);
 
-  async function refreshUser() {
+  async function refreshUser(options?: { refreshImage?: boolean }) {
     setIsLoading(true);
     try {
       const userData = await getMe();
       setUser(userData);
+      if (options?.refreshImage) {
+        setUserImageCacheKey(Date.now());
+      }
     } catch (error) {
       console.error(error);
       setUser(undefined)
@@ -39,5 +49,9 @@ export function UserProvider({ children }: UserProviderProps) {
     refreshUser();
   }, []);
 
-  return <UserContext.Provider value={{ user, isLoading, refreshUser }}>{children}</UserContext.Provider>;
+  return (
+    <UserContext.Provider value={{ user, isLoading, userImageCacheKey, refreshUser }}>
+      {children}
+    </UserContext.Provider>
+  );
 }
