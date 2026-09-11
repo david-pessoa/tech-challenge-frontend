@@ -30,7 +30,6 @@ const Title = styled.h2`
 
 const Paragraph = styled.p`
   margin-bottom: 1.813rem;
-  text-align: center;
 
   @media (max-width: 900px) {
     margin-bottom: 1.563rem;
@@ -38,6 +37,10 @@ const Paragraph = styled.p`
   @media (max-width: 900px) {
     margin-bottom: 1.563rem;
   }
+`;
+
+const CenteredParagraph = styled(Paragraph)`
+  text-align: center;
 `;
 
 const AddClassContainer = styled.div`
@@ -110,7 +113,7 @@ export default function PostsContainer() {
           {isLoading ? (
             <Paragraph>Carregando aulas...</Paragraph>
           ) : newPosts.length == 0 ? (
-            <Paragraph>Você já visualizou todas as aulas!</Paragraph>
+            <CenteredParagraph>Você já visualizou todas as aulas!</CenteredParagraph>
           ) : (
             <Carousel newPosts={newPosts} isAdmin={false} />
           )}
@@ -175,7 +178,7 @@ export default function PostsContainer() {
           {isLoading ? (
             <Paragraph>Carregando aulas...</Paragraph>
           ) : newPosts.length == 0 ? (
-            <Paragraph>Você já visualizou todas as aulas!</Paragraph>
+            <CenteredParagraph>Você já visualizou todas as aulas!</CenteredParagraph>
           ) : (
             <Carousel newPosts={newPosts} isAdmin={false} />
           )}
