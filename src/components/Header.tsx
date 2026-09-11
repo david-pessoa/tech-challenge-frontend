@@ -141,7 +141,7 @@ const LogoutIcon = styled.span`
 
 export default function Header() {
   const navigate = useNavigate();
-  const { user, refreshUser } = useUser();
+  const { user, userImageCacheKey, refreshUser } = useUser();
 
   const roleName = {
     ADMIN: 'Administradores',
@@ -164,7 +164,10 @@ export default function Header() {
             <Title>Edify {roleName[user.role]}</Title>
           </LogoButton>
           <LogoutContainer>
-            <Circle src={user.image ? buildApiImageUrl(user.image) : userImage} $role={user.role} />
+            <Circle
+              src={user.image ? buildApiImageUrl(user.image, userImageCacheKey) : userImage}
+              $role={user.role}
+            />
             <UserName>{user.nome}</UserName>
             <LogoutButton onClick={handleLogout}>
               <LogoutIcon className="material-symbols-outlined">logout</LogoutIcon>
