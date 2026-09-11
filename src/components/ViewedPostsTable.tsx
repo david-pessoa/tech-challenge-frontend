@@ -14,7 +14,7 @@ const TableContainer = styled.div`
   overflow-x: visible;
   -webkit-overflow-scrolling: touch;
   border-radius: 0.5rem;
-  background-color: transparent; 
+  background-color: transparent;
 
   @media (max-width: 600px) {
     overflow-x: auto;
@@ -23,14 +23,14 @@ const TableContainer = styled.div`
 
 const Table = styled.table`
   width: 100%;
-  border-collapse: collapse; 
+  border-collapse: collapse;
   border-radius: 0.5rem;
-  overflow: hidden; 
+  overflow: hidden;
 `;
 
 const Tr = styled.tr`
   cursor: pointer;
-  transition: background-color 0.2s; 
+  transition: background-color 0.2s;
 
   &:hover {
     background-color: #fce7c9a4;
@@ -167,7 +167,9 @@ export default function ViewedPostsTable({ dados }: ViewedPostsTableProps) {
                   </MateriaContainer>
                 </Td>
                 <Td className="bold">{post.titulo}</Td>
-                <Td>{post.descricao}</Td>
+                <Td className="descp">
+                  <p>{post.descricao}</p>
+                </Td>
                 <Td>{formatarData(post.dataCriacao)}</Td>
                 <Td>{formatarData(post.dataModificacao)}</Td>
                 <Td>{post.criadoPor?.nome}</Td>

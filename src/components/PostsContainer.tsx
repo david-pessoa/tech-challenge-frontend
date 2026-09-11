@@ -16,7 +16,7 @@ const Container = styled.div`
   margin-bottom: 3.625rem;
 
   @media (max-width: 900px) {
-    margin-bottom: 2.188rem
+    margin-bottom: 2.188rem;
   }
 `;
 
@@ -30,6 +30,7 @@ const Title = styled.h2`
 
 const Paragraph = styled.p`
   margin-bottom: 1.813rem;
+  text-align: center;
 
   @media (max-width: 900px) {
     margin-bottom: 1.563rem;
@@ -64,7 +65,7 @@ const AddClassButton = styled.a`
   &:hover {
     opacity: 0.7;
   }
-    
+
   @media (max-width: 600px) {
     width: 4.75rem;
   }
@@ -97,18 +98,22 @@ export default function PostsContainer() {
     returnAllPosts();
   }, []);
 
-
   function AlunoContainer() {
-    const viewedPosts = posts.filter(p => p.foiVisto != false)
-    const newPosts = posts.filter(p => p.foiVisto != true)
+    const viewedPosts = posts.filter(p => p.foiVisto != false);
+    const newPosts = posts.filter(p => p.foiVisto != true);
 
     return (
       <>
         <Container>
           <Title>Novas Aulas</Title>
           <Paragraph>Últimas postagens de aulas feitas pelos seus professores</Paragraph>
-          {isLoading ? (<Paragraph>Carregando aulas...</Paragraph>): <Carousel newPosts={newPosts} isAdmin={false}/>}
-          
+          {isLoading ? (
+            <Paragraph>Carregando aulas...</Paragraph>
+          ) : newPosts.length == 0 ? (
+            <Paragraph>Você já visualizou todas as aulas!</Paragraph>
+          ) : (
+            <Carousel newPosts={newPosts} isAdmin={false} />
+          )}
         </Container>
         <Container>
           <Title>Aulas Finalizadas</Title>
@@ -118,10 +123,10 @@ export default function PostsContainer() {
       </>
     );
   }
-  
+
   function TeacherContainer() {
-    const myPosts = posts.filter(p => p.criadoPor?.userId === user?.id)
-    const otherPosts = posts.filter(p => p.criadoPor?.userId !== user?.id)
+    const myPosts = posts.filter(p => p.criadoPor?.userId === user?.id);
+    const otherPosts = posts.filter(p => p.criadoPor?.userId !== user?.id);
 
     return (
       <>
@@ -129,7 +134,7 @@ export default function PostsContainer() {
           <Title>Suas aulas</Title>
           <AddClassContainer>
             <Paragraph>Veja as aulas que você postou</Paragraph>
-            <AddClassButton href='/post/new'>
+            <AddClassButton href="/post/new">
               <AddIcon className="material-symbols-outlined">add</AddIcon>
               <p>Nova aula</p>
             </AddClassButton>
@@ -154,7 +159,7 @@ export default function PostsContainer() {
   }
 
   function AdminContainer() {
-    const newPosts = posts.filter(p => p.foiVisto != true)
+    const newPosts = posts.filter(p => p.foiVisto != true);
 
     return (
       <>
@@ -162,12 +167,18 @@ export default function PostsContainer() {
           <Title>Novas aulas</Title>
           <AddClassContainer>
             <Paragraph>Últimas postagens de aulas feitas pelos professores</Paragraph>
-            <AddClassButton href='/post/new'>
+            <AddClassButton href="/post/new">
               <AddIcon className="material-symbols-outlined">add</AddIcon>
               <p>Nova aula</p>
             </AddClassButton>
           </AddClassContainer>
-          {isLoading ? (<Paragraph>Carregando aulas...</Paragraph>): <Carousel newPosts={newPosts} isAdmin={true}/>}
+          {isLoading ? (
+            <Paragraph>Carregando aulas...</Paragraph>
+          ) : newPosts.length == 0 ? (
+            <Paragraph>Você já visualizou todas as aulas!</Paragraph>
+          ) : (
+            <Carousel newPosts={newPosts} isAdmin={false} />
+          )}
         </Container>
         <Container>
           <Title>Acervo da Escola</Title>
