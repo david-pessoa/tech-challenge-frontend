@@ -250,7 +250,9 @@ export default function ManagementPostsTable({ dados }: ManagementPostsTableProp
                       {post.titulo}
                     </PostTitle>
                   </Td>
-                  <Td className="descp">{post.descricao}</Td>
+                  <Td className="descp">
+                    <p>{post.descricao}</p>
+                  </Td>
                   <Td>{formatarData(post?.dataCriacao)}</Td>
                   <Td>{formatarData(post?.dataModificacao)}</Td>
                   {user?.role === 'ADMIN' && (

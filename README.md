@@ -53,7 +53,7 @@ são:
 ## Funcionalidades
 
 - Login por matrícula e senha.
-- Persistência do token de autenticação no `localStorage`.
+- Sessão de autenticação mantida por cookie `HttpOnly` emitido pelo back-end.
 - Recuperação do usuário autenticado por meio do endpoint `/user/me`.
 - Proteção de rotas e autorização por perfil: `ADMIN`, `PROFESSOR` e `ALUNO`.
 - Página inicial com perfil, aulas, calendário e lista resumida de usuários.
@@ -93,7 +93,7 @@ O fluxo principal é:
 Usuário
   -> Login
   -> POST /api/auth/login
-  -> token no localStorage
+  -> cookie HttpOnly (gerenciado pelo navegador)
   -> UserProvider
   -> GET /api/user/me
   -> PrivateRoutes (autenticação + perfil)
@@ -172,9 +172,8 @@ As chamadas são montadas com o sufixo `/api`; por exemplo, o login usa
 - Vite oferece um ciclo de desenvolvimento simples e uma build adequada para uma SPA.
 - `styled-components` concentra estilos junto dos componentes e permite compartilhar o tema
   visual por `ThemeProvider`.
-- O token é mantido no `localStorage` para restaurar a sessão após recarregar a página. Como
-  trade-off, essa estratégia exige cuidados adicionais de segurança em produção, especialmente
-  contra XSS.
+- A sessão é mantida por cookie `HttpOnly`, `Secure` e `SameSite` emitido pelo back-end. O
+  front-end não lê nem persiste tokens no JavaScript, reduzindo o risco de roubo por XSS.
 - A autorização é aplicada no front-end para melhorar a experiência de navegação, mas o
   back-end também deve validar autenticação e permissões em todos os endpoints.
 - A busca usa debounce de 300 ms para evitar uma requisição a cada tecla, equilibrando
@@ -186,13 +185,7 @@ As chamadas são montadas com o sufixo `/api`; por exemplo, o login usa
 
 ## Melhorias futuras
 
-- Substituir a navegação imperativa usada no bloqueio de rotas por um fluxo mais previsível e
-  acessível.
-- Centralizar a configuração do cliente Axios e seus interceptors de autenticação/expiração de
-  token.
+- Substituir a navegação imperativa usada no bloqueio de rotas por um fluxo mais previsível e acessível.
+- Centralizar a configuração do cliente Axios e seus interceptors de autenticação/expiração de token.
 - Adicionar estados de carregamento, vazio e erro mais consistentes para todas as consultas.
-- Melhorar a tipagem dos payloads de posts, evitando o uso de `any` nos serviços.
-- Configurar pipeline de CI para lint, type-check, build e testes.
 - Documentar o contrato da API e disponibilizar ambientes de desenvolvimento e produção.
-- Avaliar uma estratégia de sessão mais segura, como cookie `HttpOnly`, conforme a arquitetura
-  do back-end.
