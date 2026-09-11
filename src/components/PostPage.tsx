@@ -312,7 +312,7 @@ const PostDates = styled.p`
   display: flex;
   flex-direction: row;
   gap: 12px;
-  flex-wrap: wrap; 
+  flex-wrap: wrap;
 `;
 
 const TextContent = styled.div`
@@ -613,8 +613,8 @@ export default function PostPage() {
 
   const carregarAulaEComentarios = async () => {
     if (!id) return;
-    setImageError(false); 
-    
+    setImageError(false);
+
     try {
       const postData = await getPostById(id);
       setPost(postData);
@@ -632,15 +632,14 @@ export default function PostPage() {
 
         img.onload = () => setIsLoading(false);
         img.onerror = () => {
-          setImageError(true); 
+          setImageError(true);
           setIsLoading(false);
         };
         img.src = imgSrc;
       } else {
-        setImageError(true); 
+        setImageError(true);
         setIsLoading(false);
       }
-      
     } catch (err) {
       console.error('Erro ao carregar conteúdo da página:', err);
       setPost(null);
@@ -773,14 +772,14 @@ export default function PostPage() {
   const canDeleteComment = (commentAuthorId: string, commentAuthorRole?: string) => {
     if (user?.role === 'ADMIN') return true;
     if (user?.id === commentAuthorId) return true;
-    
+
     if (user?.role === 'PROFESSOR' && isOwner) {
       if (commentAuthorRole) {
         return commentAuthorRole === 'ALUNO';
       }
       return true;
     }
-    
+
     return false;
   };
 
@@ -843,10 +842,10 @@ export default function PostPage() {
           </HeaderSection>
 
           {post.image && !imageError && (
-            <ImagemPost 
-              src={`${BASE_URL}${post.image}`} 
-              alt={post.titulo} 
-              onError={() => setImageError(true)} 
+            <ImagemPost
+              src={`${BASE_URL}${post.image}`}
+              alt={post.titulo}
+              onError={() => setImageError(true)}
             />
           )}
 
@@ -877,7 +876,9 @@ export default function PostPage() {
           <TextContent>
             <Doodle src={sunIcon} $top="30px" $left="-90px" $width="68px" />
             <Doodle src={flowerIcon} $top="220px" $right="-80px" $width="65px" />
-            <Paragraph>{post.conteudo}</Paragraph>
+            {post.conteudo?.split('\n').map((paragraph, i) => (
+              <Paragraph key={i}>{paragraph}</Paragraph>
+            ))}
           </TextContent>
 
           <QuestionsSection>
@@ -924,7 +925,11 @@ export default function PostPage() {
                             <CommentTime>{calcularTempoAtras(comment.dataCriacao)}</CommentTime>
                           </div>
 
-                          {(canEditComment(comment.user.id) || canDeleteComment(comment.user.id, (comment.user as any)?.tipoUsuario || (comment.user as any)?.role)) && (
+                          {(canEditComment(comment.user.id) ||
+                            canDeleteComment(
+                              comment.user.id,
+                              (comment.user as any)?.tipoUsuario || (comment.user as any)?.role
+                            )) && (
                             <CommentActions>
                               {canEditComment(comment.user.id) && (
                                 <button
@@ -934,7 +939,10 @@ export default function PostPage() {
                                   <EditIcon className="material-symbols-outlined">edit</EditIcon>
                                 </button>
                               )}
-                              {canDeleteComment(comment.user.id, (comment.user as any)?.tipoUsuario || (comment.user as any)?.role) && (
+                              {canDeleteComment(
+                                comment.user.id,
+                                (comment.user as any)?.tipoUsuario || (comment.user as any)?.role
+                              ) && (
                                 <button onClick={() => setCommentToDelete(comment)} title="Excluir">
                                   <DeleteIcon className="material-symbols-outlined">
                                     delete
@@ -1026,33 +1034,37 @@ export default function PostPage() {
                               </CommentTime>
                             </div>
 
-                            {postAuthor && (canEditComment(postAuthor?.id) || canDeleteComment(postAuthor?.id, postAuthor.role)) && (
-                              <CommentActions>
-                                {canEditComment(postAuthor?.id) && (
-                                  <button
-                                    onClick={() =>
-                                      startEditing(
-                                        comment.childComment!.id,
-                                        comment.childComment!.conteudo
-                                      )
-                                    }
-                                    title="Editar"
-                                  >
-                                    <EditIcon className="material-symbols-outlined">edit</EditIcon>
-                                  </button>
-                                )}
-                                {canDeleteComment(postAuthor?.id, postAuthor.role) && (
-                                  <button
-                                    onClick={() => setCommentToDelete(comment.childComment)}
-                                    title="Excluir"
-                                  >
-                                    <DeleteIcon className="material-symbols-outlined">
-                                      delete
-                                    </DeleteIcon>
-                                  </button>
-                                )}
-                              </CommentActions>
-                            )}
+                            {postAuthor &&
+                              (canEditComment(postAuthor?.id) ||
+                                canDeleteComment(postAuthor?.id, postAuthor.role)) && (
+                                <CommentActions>
+                                  {canEditComment(postAuthor?.id) && (
+                                    <button
+                                      onClick={() =>
+                                        startEditing(
+                                          comment.childComment!.id,
+                                          comment.childComment!.conteudo
+                                        )
+                                      }
+                                      title="Editar"
+                                    >
+                                      <EditIcon className="material-symbols-outlined">
+                                        edit
+                                      </EditIcon>
+                                    </button>
+                                  )}
+                                  {canDeleteComment(postAuthor?.id, postAuthor.role) && (
+                                    <button
+                                      onClick={() => setCommentToDelete(comment.childComment)}
+                                      title="Excluir"
+                                    >
+                                      <DeleteIcon className="material-symbols-outlined">
+                                        delete
+                                      </DeleteIcon>
+                                    </button>
+                                  )}
+                                </CommentActions>
+                              )}
                           </CommentHeader>
 
                           {editingCommentId === comment.childComment.id ? (
