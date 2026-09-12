@@ -54,6 +54,7 @@ const MateriaContainer = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
+  margin: 0 auto; 
 
   @media (max-width: 900px) {
     max-width: 50px;

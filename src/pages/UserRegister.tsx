@@ -38,6 +38,47 @@ const initialFormData: UserFormData = {
   image: null,
 };
 
+const Overlay = styled.div`
+  position: fixed;
+  inset: 0;
+  background: rgba(255, 252, 247, 0.7);
+  backdrop-filter: blur(4px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+`;
+
+const LoadingWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 40vh; 
+`;
+
+const Spinner = styled.div`
+  width: 60px;
+  height: 60px;
+  border: 6px solid #F6D4D9;
+  border-top-color: ${({ theme }) => theme.colors.primary};
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+`;
+
+const LoadingText = styled.p`
+  margin-top: 16px;
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: ${({ theme }) => theme.colors.primary};
+  font-family: ${({ theme }) => theme.typography.fontFamily};
+`;
+
 const Main = styled.main`
   width: 100%;
   margin: 0 auto 5rem;
@@ -418,6 +459,8 @@ export default function UserRegister({ isNew }: UserRegisterProps) {
   const [toast, setToast] = useState<{ message: string; status: ToastStatus } | null>(null);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [isFetching, setIsFetching] = useState(!isNew); 
+  const [isProcessing, setIsProcessing] = useState(false);
 
   const hasPasswordMismatch =
     Boolean(formData.senha) &&
@@ -448,10 +491,12 @@ export default function UserRegister({ isNew }: UserRegisterProps) {
 
   useEffect(() => {
     if (isNew || !id) {
+      setIsFetching(false);
       return;
     }
 
     async function loadUser() {
+      setIsFetching(true);
       try {
         if (typeof id !== 'string') throw new Error('ID de usuário inválido');
         const user = (await getUserById(id)) as User;
@@ -470,13 +515,14 @@ export default function UserRegister({ isNew }: UserRegisterProps) {
         setImagePreview(userImageUrl);
       } catch (error: unknown) {
         const message = error instanceof Error ? error.message : 'Erro ao carregar usuário.';
-
         setToast({ message, status: 'error' });
+      } finally {
+        setIsFetching(false);
       }
     }
 
     loadUser();
-  }, [id]);
+  }, [id, isNew]);
 
   useEffect(() => {
     if (!toast) {
@@ -496,6 +542,8 @@ export default function UserRegister({ isNew }: UserRegisterProps) {
       return;
     }
 
+    setIsProcessing(true); 
+
     try {
       if (!isNew) {
         const users = (await getAllUsers()) as User[];
@@ -505,6 +553,7 @@ export default function UserRegister({ isNew }: UserRegisterProps) {
 
         if (hasDuplicatedRegistration) {
           setToast({ message: 'Já existe um usuário cadastrado com essa matrícula.', status: 'error' });
+          setIsProcessing(false);
           return;
         }
       }
@@ -556,6 +605,7 @@ export default function UserRegister({ isNew }: UserRegisterProps) {
       const message = error instanceof Error ? error.message : defaultMessage;
 
       setToast({ message, status: 'error' });
+      setIsProcessing(false); 
     }
   }
 
@@ -587,6 +637,13 @@ export default function UserRegister({ isNew }: UserRegisterProps) {
 
   return (
     <>
+      {isProcessing && (
+        <Overlay>
+          <Spinner />
+          <LoadingText>{isNew ? 'Cadastrando usuário...' : 'Salvando alterações...'}</LoadingText>
+        </Overlay>
+      )}
+
       {toast && (
         <Toast $status={toast.status}>
           <span>{toast.message}</span>
@@ -613,181 +670,188 @@ export default function UserRegister({ isNew }: UserRegisterProps) {
           <TitleIcon src={redDoodle} alt="" />
         </TitleContainer>
 
-        <Form onSubmit={handleSubmit}>
-          <PhotoField>
-            <PhotoUpload $hasImage={Boolean(imagePreview)} htmlFor="image">
-              {imagePreview ? (
-                <PhotoPreview src={imagePreview} alt="Prévia da foto do usuário" />
-              ) : (
-                <UploadContent>
-                  <UploadIcon className="material-symbols-outlined">download</UploadIcon>
-                  <span>Clique para carregar ou arraste e solte.</span>
-                </UploadContent>
-              )}
-              <input
-                ref={imageInputRef}
-                id="image"
-                name="image"
-                type="file"
-                accept="image/png, image/jpeg"
-                onChange={event => {
-                  const file = event.target.files?.[0] ?? null;
+        {isFetching ? (
+          <LoadingWrapper>
+            <Spinner />
+            <LoadingText>Carregando informações do usuário...</LoadingText>
+          </LoadingWrapper>
+        ) : (
+          <Form onSubmit={handleSubmit}>
+            <PhotoField>
+              <PhotoUpload $hasImage={Boolean(imagePreview)} htmlFor="image">
+                {imagePreview ? (
+                  <PhotoPreview src={imagePreview} alt="Prévia da foto do usuário" />
+                ) : (
+                  <UploadContent>
+                    <UploadIcon className="material-symbols-outlined">download</UploadIcon>
+                    <span>Clique para carregar ou arraste e solte.</span>
+                  </UploadContent>
+                )}
+                <input
+                  ref={imageInputRef}
+                  id="image"
+                  name="image"
+                  type="file"
+                  accept="image/png, image/jpeg"
+                  onChange={event => {
+                    const file = event.target.files?.[0] ?? null;
 
-                  setFormData({
-                    ...formData,
-                    image: file,
-                  });
-                  setImageRemoved(false);
-                  setImagePreview(file ? URL.createObjectURL(file) : '');
-                }}
-              />
-            </PhotoUpload>
-            {imagePreview && (
-              <RemoveImageButton
-                type="button"
-                aria-label="Remover imagem selecionada"
-                onClick={handleRemoveSelectedImage}
-              >
-                x
-              </RemoveImageButton>
-            )}
-          </PhotoField>
-
-          <Fields>
-            <NameDateRow>
-              <Field htmlFor="nome">
-                <span>
-                  Nome Completo <RequiredMark>*</RequiredMark>
-                </span>
-                <Input
-                  id="nome"
-                  name="nome"
-                  value={formData.nome}
-                  placeholder="Digite o nome completo..."
-                  onChange={event => setFormData({ ...formData, nome: event.target.value })}
-                />
-              </Field>
-
-              <Field htmlFor="birthDate">
-                Data de nascimento
-                <Input
-                  id="birthDate"
-                  name="birthDate"
-                  type="date"
-                  value={
-                    formData.birthDate
-                      ? formData.birthDate.toISOString().split('T')[0]
-                      : ''
-                  }
-                  onChange={event =>
                     setFormData({
                       ...formData,
-                      birthDate: event.target.value
-                        ? new Date(`${event.target.value}T00:00:00`)
-                        : null,
-                    })
-                  }
+                      image: file,
+                    });
+                    setImageRemoved(false);
+                    setImagePreview(file ? URL.createObjectURL(file) : '');
+                  }}
+                />
+              </PhotoUpload>
+              {imagePreview && (
+                <RemoveImageButton
+                  type="button"
+                  aria-label="Remover imagem selecionada"
+                  onClick={handleRemoveSelectedImage}
+                >
+                  x
+                </RemoveImageButton>
+              )}
+            </PhotoField>
+
+            <Fields>
+              <NameDateRow>
+                <Field htmlFor="nome">
+                  <span>
+                    Nome Completo <RequiredMark>*</RequiredMark>
+                  </span>
+                  <Input
+                    id="nome"
+                    name="nome"
+                    value={formData.nome}
+                    placeholder="Digite o nome completo..."
+                    onChange={event => setFormData({ ...formData, nome: event.target.value })}
+                  />
+                </Field>
+
+                <Field htmlFor="birthDate">
+                  Data de nascimento
+                  <Input
+                    id="birthDate"
+                    name="birthDate"
+                    type="date"
+                    value={
+                      formData.birthDate
+                        ? formData.birthDate.toISOString().split('T')[0]
+                        : ''
+                    }
+                    onChange={event =>
+                      setFormData({
+                        ...formData,
+                        birthDate: event.target.value
+                          ? new Date(`${event.target.value}T00:00:00`)
+                          : null,
+                      })
+                    }
+                  />
+                </Field>
+              </NameDateRow>
+
+              <Field htmlFor="matricula">
+                <span>
+                  Matrícula <RequiredMark>*</RequiredMark>
+                </span>
+                <Input
+                  id="matricula"
+                  name="matricula"
+                  value={formData.matricula}
+                  placeholder="Digite a matrícula..."
+                  onChange={event => setFormData({ ...formData, matricula: event.target.value })}
                 />
               </Field>
-            </NameDateRow>
 
-            <Field htmlFor="matricula">
-              <span>
-                Matrícula <RequiredMark>*</RequiredMark>
-              </span>
-              <Input
-                id="matricula"
-                name="matricula"
-                value={formData.matricula}
-                placeholder="Digite a matrícula..."
-                onChange={event => setFormData({ ...formData, matricula: event.target.value })}
-              />
-            </Field>
-
-            <Field htmlFor="role">
-              Selecione o tipo de acesso
-              <Select
-                id="role"
-                name="role"
-                value={formData.role}
-                disabled={isProfessor}
-                onChange={event => setFormData({ ...formData, role: event.target.value as Role })}
-              >
-                {isProfessor ? (
-                  <option value="ALUNO">Aluno</option>
-                ) : (
-                  <>
+              <Field htmlFor="role">
+                Selecione o tipo de acesso
+                <Select
+                  id="role"
+                  name="role"
+                  value={formData.role}
+                  disabled={isProfessor}
+                  onChange={event => setFormData({ ...formData, role: event.target.value as Role })}
+                >
+                  {isProfessor ? (
                     <option value="ALUNO">Aluno</option>
-                    <option value="PROFESSOR">Professor</option>
-                    <option value="ADMIN">Administrador</option>
-                  </>
-                )}
-              </Select>
-            </Field>
+                  ) : (
+                    <>
+                      <option value="ALUNO">Aluno</option>
+                      <option value="PROFESSOR">Professor</option>
+                      <option value="ADMIN">Administrador</option>
+                    </>
+                  )}
+                </Select>
+              </Field>
 
-            <Field htmlFor="senha">
-              <span>
-                Senha <RequiredMark>*</RequiredMark>
-              </span>
-              <PasswordInputWrapper>
-                <PasswordInput
-                  id="senha"
-                  name="senha"
-                  type={showPassword ? 'text' : 'password'}
-                  value={formData.senha}
-                  placeholder="Digite a senha..."
-                  onChange={event => setFormData({ ...formData, senha: event.target.value })}
-                />
-                <PasswordVisibilityButton
-                  type="button"
-                  aria-label={showPassword ? 'Ocultar senha' : 'Mostrar senha'}
-                  onClick={() => setShowPassword(previous => !previous)}
-                >
-                  <span className="material-symbols-outlined">
-                    {showPassword ? 'visibility' : 'visibility_off'}
-                  </span>
-                </PasswordVisibilityButton>
-              </PasswordInputWrapper>
-              {hasPasswordMismatch && <FieldError>As senhas não conferem.</FieldError>}
-            </Field>
+              <Field htmlFor="senha">
+                <span>
+                  Senha <RequiredMark>*</RequiredMark>
+                </span>
+                <PasswordInputWrapper>
+                  <PasswordInput
+                    id="senha"
+                    name="senha"
+                    type={showPassword ? 'text' : 'password'}
+                    value={formData.senha}
+                    placeholder="Digite a senha..."
+                    onChange={event => setFormData({ ...formData, senha: event.target.value })}
+                  />
+                  <PasswordVisibilityButton
+                    type="button"
+                    aria-label={showPassword ? 'Ocultar senha' : 'Mostrar senha'}
+                    onClick={() => setShowPassword(previous => !previous)}
+                  >
+                    <span className="material-symbols-outlined">
+                      {showPassword ? 'visibility' : 'visibility_off'}
+                    </span>
+                  </PasswordVisibilityButton>
+                </PasswordInputWrapper>
+                {hasPasswordMismatch && <FieldError>As senhas não conferem.</FieldError>}
+              </Field>
 
-            <Field htmlFor="confirmarSenha">
-              <span>
-                Confirme sua senha <RequiredMark>*</RequiredMark>
-              </span>
-              <PasswordInputWrapper>
-                <PasswordInput
-                  id="confirmarSenha"
-                  name="confirmarSenha"
-                  type={showConfirmPassword ? 'text' : 'password'}
-                  value={formData.confirmarSenha}
-                  placeholder="Confirme sua senha..."
-                  onChange={event =>
-                    setFormData({ ...formData, confirmarSenha: event.target.value })
-                  }
-                />
-                <PasswordVisibilityButton
-                  type="button"
-                  aria-label={showConfirmPassword ? 'Ocultar senha' : 'Mostrar senha'}
-                  onClick={() => setShowConfirmPassword(previous => !previous)}
-                >
-                  <span className="material-symbols-outlined">
-                    {showConfirmPassword ? 'visibility' : 'visibility_off'}
-                  </span>
-                </PasswordVisibilityButton>
-              </PasswordInputWrapper>
-            </Field>
-          </Fields>
+              <Field htmlFor="confirmarSenha">
+                <span>
+                  Confirme sua senha <RequiredMark>*</RequiredMark>
+                </span>
+                <PasswordInputWrapper>
+                  <PasswordInput
+                    id="confirmarSenha"
+                    name="confirmarSenha"
+                    type={showConfirmPassword ? 'text' : 'password'}
+                    value={formData.confirmarSenha}
+                    placeholder="Confirme sua senha..."
+                    onChange={event =>
+                      setFormData({ ...formData, confirmarSenha: event.target.value })
+                    }
+                  />
+                  <PasswordVisibilityButton
+                    type="button"
+                    aria-label={showConfirmPassword ? 'Ocultar senha' : 'Mostrar senha'}
+                    onClick={() => setShowConfirmPassword(previous => !previous)}
+                  >
+                    <span className="material-symbols-outlined">
+                      {showConfirmPassword ? 'visibility' : 'visibility_off'}
+                    </span>
+                  </PasswordVisibilityButton>
+                </PasswordInputWrapper>
+              </Field>
+            </Fields>
 
-          <Actions>
-            <Button type="button" $secondary onClick={() => navigate(-1)}>
-              Cancelar
-            </Button>
-            <Button type="submit" disabled={!isFormValid}>
-              {isNew ? 'Salvar' : 'Atualizar'}
-            </Button>
-          </Actions>
-        </Form>
+            <Actions>
+              <Button type="button" $secondary onClick={() => navigate(-1)}>
+                Cancelar
+              </Button>
+              <Button type="submit" disabled={!isFormValid}>
+                {isNew ? 'Salvar' : 'Atualizar'}
+              </Button>
+            </Actions>
+          </Form>
+        )}
       </Main>
 
       <Footer />
