@@ -150,7 +150,7 @@ export default function Header() {
   };
 
   async function handleLogout() {
-    logout();
+    await logout();
     await refreshUser();
     navigate('/login');
   }

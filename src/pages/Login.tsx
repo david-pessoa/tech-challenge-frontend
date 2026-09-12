@@ -4,7 +4,6 @@ import styled from 'styled-components';
 import inicialImage from '../../public/inicialImage.png';
 import logoImage from '../assets/logoEdify.png'; 
 import { login } from '../services/auth.service';
-import { setLocalStorageToken } from '../utils/functions';
 import { Navigate, useNavigate } from 'react-router-dom';
 import { useUser } from '../context/AuthContext';
 
@@ -254,10 +253,11 @@ export default function Login() {
     setCarregando(true);
 
     try {
-      const resposta = await login(matricula, senha);
-      setLocalStorageToken(resposta.token);
-      await refreshUser();
-      navigate('/');
+      await login(matricula, senha);
+      // O backend grava a sessão em cookie HttpOnly no login.
+      // Nenhum token é exposto ao JavaScript ou persistido no browser.
+      await refreshUser()
+      navigate('/')
     } catch (error) {
       setErro(error instanceof Error ? error.message : 'Erro inesperado. Tente novamente.');
     } finally {

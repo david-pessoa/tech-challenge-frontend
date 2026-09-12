@@ -62,6 +62,18 @@ export const GlobalStyles = createGlobalStyle`
     padding-top: 10px;
     text-align: center;
     max-width: 118px;
+    
+  }
+
+  td.bold a, td.descp p {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-height: 89px;
+
+    display: -webkit-box;
+  -webkit-line-clamp: 4; /* Defina aqui o número máximo de linhas */
+  -webkit-box-orient: vertical;  
+  overflow: hidden;
   }
   
   td.bold {
@@ -109,18 +121,10 @@ export const GlobalStyles = createGlobalStyle`
 
     td {
       padding: 5px 0 0 5px;
-      overflow: hidden;
-      text-overflow: ellipsis;
     }
 
-    td.bold {
-    a {
-      display: -webkit-box;
-  -webkit-line-clamp: 4; /* Defina aqui o número máximo de linhas */
-  -webkit-box-orient: vertical;  
-  overflow: hidden;
-    }
-  }
+
+}
 
   @media (max-width: 600px) {
     td.bold, td.descp {
@@ -140,6 +144,6 @@ export const GlobalStyles = createGlobalStyle`
   }
   }
 
-  }
+  
 
 `;

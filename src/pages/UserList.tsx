@@ -108,6 +108,11 @@ const Td = styled.td`
   text-align: left;
 `;
 
+const EmptyTd = styled(Td)`
+ 
+  text-align: center;
+`;
+
 const CenteredTd = styled(Td)`
   text-align: center;
 `;
@@ -254,9 +259,7 @@ export default function UserList() {
   }
 
   function handleSuccessDeleteMessage() {
-    setUsers(prevUserlist =>
-      prevUserlist.filter((user: User) => user.id !== selectedUser?.id)
-    );
+    setUsers(prevUserlist => prevUserlist.filter((user: User) => user.id !== selectedUser?.id));
     setToastSucess(true);
     setToastMessage('O usuário foi deletado com sucesso');
   }
@@ -323,6 +326,11 @@ export default function UserList() {
                     </tr>
                   </thead>
                   <tbody>
+                    {users.filter(user => user.role === group.role).length == 0 && (
+                      <tr>
+                        <EmptyTd colSpan={5}>Não há usuários para visualizar</EmptyTd>
+                      </tr>
+                    )}
                     {users
                       .filter(user => user.role === group.role)
                       .map(user => (
@@ -424,7 +432,14 @@ export default function UserList() {
         ) : null}
       </Main>
 
-      {selectedUser && <DeleteUserModal user={selectedUser} onCancel={closeDeleteModal} showSucessMessage={handleSuccessDeleteMessage} showErrorMessage={handleDeleteErrorMessage} />}
+      {selectedUser && (
+        <DeleteUserModal
+          user={selectedUser}
+          onCancel={closeDeleteModal}
+          showSucessMessage={handleSuccessDeleteMessage}
+          showErrorMessage={handleDeleteErrorMessage}
+        />
+      )}
 
       <Footer />
     </>

@@ -1,7 +1,6 @@
 import axios from 'axios';
-import { clearLocalStorageToken } from '../utils/functions';
+import { api } from './api';
 
-const BASE_URL = import.meta.env.VITE_BASE_URL + '/api';
 
 export function getBackendErrorMessage(error: unknown): string {
   if (axios.isAxiosError(error)) {
@@ -24,7 +23,7 @@ export function getBackendErrorMessage(error: unknown): string {
 
 export async function login(matricula: string, password: string) {
   try {
-    const response = await axios.post(`${BASE_URL}/auth/login`, {
+    const response = await api.post('/auth/login', {
       matricula,
       senha: password,
     });
@@ -36,5 +35,5 @@ export async function login(matricula: string, password: string) {
 }
 
 export async function logout() {
-  clearLocalStorageToken();
+  await api.post('/auth/logout');
 }
