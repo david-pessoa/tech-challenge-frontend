@@ -12,17 +12,20 @@ export function clearLocalStorageToken() {
 
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 
-export function buildApiImageUrl(image: string | null) {
+export function buildApiImageUrl(image: string | null, cacheKey?: string | number) {
   if (!image) {
     return '';
   }
 
+  const separator = image.includes('?') ? '&' : '?';
+  const cacheParam = cacheKey ? `${separator}v=${cacheKey}` : '';
+
   if (image.startsWith('http')) {
-    return image;
+    return `${image}${cacheParam}`;
   }
 
 
-  return `${BASE_URL}${image}`;
+  return `${BASE_URL}${image}${cacheParam}`;
 }
 
 export function formatarData(data: string | Date | undefined) {

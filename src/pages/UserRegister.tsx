@@ -451,10 +451,11 @@ export default function UserRegister({ isNew }: UserRegisterProps) {
   const { id } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
-  const { user: loggedUser } = useUser();
+  const { user: loggedUser, refreshUser } = useUser();
   const imageInputRef = useRef<HTMLInputElement>(null);
   const [formData, setFormData] = useState<UserFormData>(initialFormData);
   const [imagePreview, setImagePreview] = useState('');
+  const [imageRemoved, setImageRemoved] = useState(false);
   const [toast, setToast] = useState<{ message: string; status: ToastStatus } | null>(null);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -509,7 +510,8 @@ export default function UserRegister({ isNew }: UserRegisterProps) {
           confirmarSenha: '',
           image: null,
         });
-        const userImageUrl = buildApiImageUrl(user.image ?? null);
+        setImageRemoved(false);
+        const userImageUrl = buildApiImageUrl(user.image ?? null, Date.now());
         setImagePreview(userImageUrl);
       } catch (error: unknown) {
         const message = error instanceof Error ? error.message : 'Erro ao carregar usuário.';
@@ -571,6 +573,8 @@ export default function UserRegister({ isNew }: UserRegisterProps) {
 
       if (formData.image) {
         userData.append('image', formData.image);
+      } else if (!isNew && imageRemoved) {
+        userData.append('removeImage', 'true');
       }
 
       let successMessage;
@@ -581,10 +585,19 @@ export default function UserRegister({ isNew }: UserRegisterProps) {
       } else {
         if (typeof id !== 'string') throw new Error('ID de usuário inválido');
         await updateUser(id, userData);
+        if (loggedUser?.id === id) {
+          await refreshUser({ refreshImage: Boolean(formData.image) || imageRemoved });
+        }
         successMessage = 'Usuário editado com sucesso.';
       }
 
-      navigate('/user/list', { state: { toastMessage: successMessage } });
+      const shouldRefreshImage = !isNew && (Boolean(formData.image) || imageRemoved);
+      navigate('/user/list', {
+        state: {
+          toastMessage: successMessage,
+          imageCacheKey: shouldRefreshImage ? Date.now() : undefined,
+        },
+      });
     } catch (error: unknown) {
       let defaultMessage;
       if (isNew) defaultMessage = 'Erro ao cadastrar usuário.';
@@ -605,6 +618,7 @@ export default function UserRegister({ isNew }: UserRegisterProps) {
       ...formData,
       image: null,
     });
+    setImageRemoved(!isNew);
     setImagePreview('');
 
     if (imageInputRef.current) {
@@ -686,6 +700,7 @@ export default function UserRegister({ isNew }: UserRegisterProps) {
                       ...formData,
                       image: file,
                     });
+                    setImageRemoved(false);
                     setImagePreview(file ? URL.createObjectURL(file) : '');
                   }}
                 />
