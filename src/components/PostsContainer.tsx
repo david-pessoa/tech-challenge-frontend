@@ -3,7 +3,6 @@ import styled from 'styled-components';
 import Carousel from './Carousel';
 import ViewedPostsTable from './ViewedPostsTable';
 import ManagementPostsTable from './ManagementPostsTable';
-import { useNavigate } from 'react-router-dom';
 
 import 'swiper/css';
 import '../styles/swiper-style.css';
@@ -17,7 +16,7 @@ const Container = styled.div`
   margin-bottom: 3.625rem;
 
   @media (max-width: 900px) {
-    margin-bottom: 2.188rem
+    margin-bottom: 2.188rem;
   }
 `;
 
@@ -40,6 +39,10 @@ const Paragraph = styled.p`
   }
 `;
 
+const CenteredParagraph = styled(Paragraph)`
+  text-align: center;
+`;
+
 const AddClassContainer = styled.div`
   display: flex;
   justify-content: space-between;
@@ -51,7 +54,7 @@ const AddClassContainer = styled.div`
   }
 `;
 
-const AddClassButton = styled.button`
+const AddClassButton = styled.a`
   height: 100%;
   width: 6.938rem;
   border: none;
@@ -66,7 +69,7 @@ const AddClassButton = styled.button`
   &:hover {
     opacity: 0.7;
   }
-    
+
   @media (max-width: 600px) {
     width: 4.75rem;
   }
@@ -85,7 +88,6 @@ export default function PostsContainer() {
   const { user } = useUser();
   const [posts, setPosts] = useState<Post[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const navigate = useNavigate();
 
   useEffect(() => {
     async function returnAllPosts() {
@@ -101,15 +103,21 @@ export default function PostsContainer() {
   }, []);
 
   function AlunoContainer() {
-    const viewedPosts = posts.filter(p => p.foiVisto != false)
-    const newPosts = posts.filter(p => p.foiVisto != true)
+    const viewedPosts = posts.filter(p => p.foiVisto != false);
+    const newPosts = posts.filter(p => p.foiVisto != true);
 
     return (
       <>
         <Container>
           <Title>Novas Aulas</Title>
           <Paragraph>Últimas postagens de aulas feitas pelos seus professores</Paragraph>
-          {isLoading ? (<Paragraph>Carregando aulas...</Paragraph>): <Carousel newPosts={newPosts} isAdmin={false}/>}
+          {isLoading ? (
+            <Paragraph>Carregando aulas...</Paragraph>
+          ) : newPosts.length == 0 ? (
+            <CenteredParagraph>Você já visualizou todas as aulas!</CenteredParagraph>
+          ) : (
+            <Carousel newPosts={newPosts} isAdmin={false} />
+          )}
         </Container>
         <Container>
           <Title>Aulas Finalizadas</Title>
@@ -119,10 +127,10 @@ export default function PostsContainer() {
       </>
     );
   }
-  
+
   function TeacherContainer() {
-    const myPosts = posts.filter(p => p.criadoPor?.userId === user?.id)
-    const otherPosts = posts.filter(p => p.criadoPor?.userId !== user?.id)
+    const myPosts = posts.filter(p => p.criadoPor?.userId === user?.id);
+    const otherPosts = posts.filter(p => p.criadoPor?.userId !== user?.id);
 
     return (
       <>
@@ -130,7 +138,7 @@ export default function PostsContainer() {
           <Title>Suas aulas</Title>
           <AddClassContainer>
             <Paragraph>Veja as aulas que você postou</Paragraph>
-            <AddClassButton onClick={() => navigate('/post/new')}>
+            <AddClassButton href="/post/new">
               <AddIcon className="material-symbols-outlined">add</AddIcon>
               <p>Nova aula</p>
             </AddClassButton>
@@ -155,7 +163,7 @@ export default function PostsContainer() {
   }
 
   function AdminContainer() {
-    const newPosts = posts.filter(p => p.foiVisto != true)
+    const newPosts = posts.filter(p => p.foiVisto != true);
 
     return (
       <>
@@ -163,12 +171,18 @@ export default function PostsContainer() {
           <Title>Novas aulas</Title>
           <AddClassContainer>
             <Paragraph>Últimas postagens de aulas feitas pelos professores</Paragraph>
-            <AddClassButton onClick={() => navigate('/post/new')}>
+            <AddClassButton href="/post/new">
               <AddIcon className="material-symbols-outlined">add</AddIcon>
               <p>Nova aula</p>
             </AddClassButton>
           </AddClassContainer>
-          {isLoading ? (<Paragraph>Carregando aulas...</Paragraph>): <Carousel newPosts={newPosts} isAdmin={true}/>}
+          {isLoading ? (
+            <Paragraph>Carregando aulas...</Paragraph>
+          ) : newPosts.length == 0 ? (
+            <CenteredParagraph>Você já visualizou todas as aulas!</CenteredParagraph>
+          ) : (
+            <Carousel newPosts={newPosts} isAdmin={false} />
+          )}
         </Container>
         <Container>
           <Title>Acervo da Escola</Title>

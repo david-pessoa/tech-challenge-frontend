@@ -1,16 +1,9 @@
-import axios from 'axios';
-import { getLocalStorageToken } from '../utils/functions';
+import { api } from './api';
 import { getBackendErrorMessage } from './auth.service';
-
-const BASE_URL = import.meta.env.VITE_BASE_URL + '/api';
 
 export async function getAllUsers() {
   try {
-    const response = await axios.get(`${BASE_URL}/user`, {
-      headers: {
-        Authorization: `Bearer ${getLocalStorageToken()}`,
-      },
-    })
+    const response = await api.get('/user');
     return response.data;
   } catch (error) {
     console.error('Erro na obtenção de lista de usuários:', error);
@@ -20,11 +13,7 @@ export async function getAllUsers() {
 
 export async function getUserById(id: string) {
   try {
-    const response = await axios.get(`${BASE_URL}/user/${id}`, {
-      headers: {
-        Authorization: `Bearer ${getLocalStorageToken()}`,
-      },
-    });
+    const response = await api.get(`/user/${id}`);
     return response.data;
   } catch (error) {
     console.error('Erro na obtenção de dados do usuário:', error);
@@ -34,15 +23,7 @@ export async function getUserById(id: string) {
 
 export async function createUser(user: FormData) {
   try {
-    const response = await axios.post(
-      `${BASE_URL}/user`,
-      user,
-      {
-        headers: {
-          Authorization: `Bearer ${getLocalStorageToken()}`,
-        },
-      }
-    );
+    const response = await api.post('/user', user);
     return response.data;
   } catch (error) {
     console.error('Erro na criação de usuário:', error);
@@ -52,15 +33,7 @@ export async function createUser(user: FormData) {
 
 export async function updateUser(id: string, user: FormData) {
   try {
-    const response = await axios.patch(
-      `${BASE_URL}/user/${id}`,
-      user,
-      {
-        headers: {
-          Authorization: `Bearer ${getLocalStorageToken()}`,
-        },
-      }
-    );
+    const response = await api.patch(`/user/${id}`, user);
     return response.data;
   } catch (error) {
     console.error('Erro na atualização de usuários:', error);
@@ -70,11 +43,7 @@ export async function updateUser(id: string, user: FormData) {
 
 export async function deleteUser(id: string) {
   try {
-    const response = await axios.delete(`${BASE_URL}/user/${id}`, {
-      headers: {
-        Authorization: `Bearer ${getLocalStorageToken()}`,
-      },
-    });
+    const response = await api.delete(`/user/${id}`);
     return response.data;
   } catch (error) {
     console.error('Erro na remoção de usuários:', error);
@@ -84,11 +53,7 @@ export async function deleteUser(id: string) {
 
 export async function getMe() {
   try {
-    const response = await axios.get(`${BASE_URL}/user/me`, {
-      headers: {
-        Authorization: `Bearer ${getLocalStorageToken()}`,
-      },
-    });
+    const response = await api.get('/user/me');
     return response.data;
   } catch (error) {
     console.error('Erro na obtenção de dados do usuário logado:', error);
