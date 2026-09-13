@@ -27,8 +27,16 @@ const Main = styled.main`
 const HeaderRow = styled.div`
   align-items: flex-end;
   display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
   justify-content: space-between;
   margin-bottom: 1.5rem;
+
+  /* Permite empilhar o titulo e o botao "Novo Usuario" em telas estreitas,
+     evitando sobreposicao entre os dois blocos */
+  @media (max-width: 600px) {
+    align-items: flex-start;
+  }
 `;
 
 const Title = styled.h1`
@@ -37,6 +45,11 @@ const Title = styled.h1`
   font-weight: 600;
   line-height: 1;
   margin: 0 0 0.5rem;
+
+  /* Reduz o titulo em telas menores, seguindo o padrao do Header.tsx */
+  @media (max-width: 600px) {
+    font-size: 1.5rem;
+  }
 `;
 
 const HeaderLink = styled(Link)`
@@ -72,6 +85,10 @@ const Section = styled.section`
 const SectionTitle = styled.h2`
   font-size: 1.25rem;
   margin: 0 0 1rem;
+
+  @media (max-width: 600px) {
+    font-size: 1.1rem;
+  }
 `;
 
 const TableWrapper = styled.div`
@@ -80,6 +97,9 @@ const TableWrapper = styled.div`
 
 const Table = styled.table`
   border-collapse: collapse;
+  /* Garante uma largura minima para a tabela, forcando o scroll horizontal
+     do TableWrapper em vez de espremer as colunas ate ficarem ilegiveis */
+  min-width: 40rem;
   width: 100%;
 `;
 
@@ -91,6 +111,11 @@ const Th = styled.th`
   line-height: 1;
   padding: 0.75rem;
   text-align: left;
+
+  @media (max-width: 600px) {
+    font-size: 1rem;
+    padding: 0.5rem;
+  }
 `;
 
 const CenteredTh = styled(Th)`
@@ -106,6 +131,11 @@ const Td = styled.td`
   line-height: 1;
   padding: 0.75rem;
   text-align: left;
+
+  @media (max-width: 600px) {
+    font-size: 0.8rem;
+    padding: 0.5rem;
+  }
 `;
 
 const EmptyTd = styled(Td)`

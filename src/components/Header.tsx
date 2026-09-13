@@ -109,8 +109,10 @@ const UserName = styled.span`
   color: ${({ theme }) => theme.colors.text};
   font-weight: 400;
 
-  @media (max-width: 500px) {
-    font-size: 12px;
+  /* Abaixo de 768px (tablets/celulares) esconde o nome e mantém só a foto,
+     pra não faltar espaço no cabeçalho */
+  @media (max-width: 767px) {
+    display: none;
   }
 `;
 
@@ -138,6 +140,17 @@ const LogoutIcon = styled.span`
     font-size: 14px;
   }
 `;
+
+/**
+ * Retorna só o primeiro (e, se existir, o segundo) nome da pessoa.
+ * Ex.: "Ana Carolina Fernandes de Souza Lima" -> "Ana Carolina"
+ *      "João Pedro Martins" -> "João Pedro"
+ *      "Sofia" -> "Sofia"
+ */
+function getShortName(fullName: string) {
+  const partesDoNome = fullName.trim().split(/\s+/);
+  return partesDoNome.slice(0, 2).join(' ');
+}
 
 export default function Header() {
   const navigate = useNavigate();
@@ -168,7 +181,7 @@ export default function Header() {
               src={user.image ? buildApiImageUrl(user.image, userImageCacheKey) : userImage}
               $role={user.role}
             />
-            <UserName>{user.nome}</UserName>
+            <UserName>{getShortName(user.nome)}</UserName>
             <LogoutButton onClick={handleLogout}>
               <LogoutIcon className="material-symbols-outlined">logout</LogoutIcon>
             </LogoutButton>
