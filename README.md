@@ -4,6 +4,12 @@ Aplicação web educacional para organizar e consultar aulas publicadas por prof
 O sistema oferece experiências diferentes para administradores, professores e alunos,
 com layout responsivo e integração com uma API REST.
 
+## Link para o projeto
+https://tech-challenge-frontend-delta.vercel.app
+<img width="1280" height="720" alt="Video-rapido" src="https://github.com/user-attachments/assets/aa56711e-b61c-4a36-9abb-01fcbacf2aab" />
+
+
+
 ## Problema
 
 Informações de aulas, usuários e atividades podem ficar dispersas e difíceis de encontrar
