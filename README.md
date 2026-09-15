@@ -2,7 +2,8 @@
 
 Aplicação web educacional para organizar e consultar aulas publicadas por professores.
 O sistema oferece experiências diferentes para administradores, professores e alunos,
-com layout responsivo e integração com uma API REST.
+com layout responsivo e integração com uma API REST.  
+[Clique aqui](https://github.com/david-pessoa/tech-challenge-backend) para acessar o repositório com o back-end em Node.js da aplicação
 
 ## Link para o projeto
 https://tech-challenge-frontend-delta.vercel.app
