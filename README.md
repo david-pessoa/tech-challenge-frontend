@@ -8,8 +8,6 @@ com layout responsivo e integração com uma API REST.
 https://tech-challenge-frontend-delta.vercel.app
 <img width="1280" height="720" alt="Video-rapido" src="https://github.com/user-attachments/assets/aa56711e-b61c-4a36-9abb-01fcbacf2aab" />
 
-
-
 ## Problema
 
 Informações de aulas, usuários e atividades podem ficar dispersas e difíceis de encontrar
@@ -186,12 +184,10 @@ As chamadas são montadas com o sufixo `/api`; por exemplo, o login usa
   responsividade e volume de chamadas.
 - A API é acessada por serviços separados, mantendo páginas e componentes menos acoplados à
   camada HTTP.
-- Não há suíte de testes automatizados ou gerenciamento de estado global além do contexto de
-  autenticação identificado no estado atual do projeto.
 
 ## Melhorias futuras
 
 - Substituir a navegação imperativa usada no bloqueio de rotas por um fluxo mais previsível e acessível.
 - Centralizar a configuração do cliente Axios e seus interceptors de autenticação/expiração de token.
 - Adicionar estados de carregamento, vazio e erro mais consistentes para todas as consultas.
-- Documentar o contrato da API e disponibilizar ambientes de desenvolvimento e produção.
+- Adicionar paginação nas tabelas
